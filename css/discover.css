@@ -1,0 +1,104 @@
+/*======================================================
+DISCOVER VALENCIA
+======================================================*/
+
+#discover{
+
+    padding:140px 0;
+
+    background:#081926;
+
+}
+
+.discover-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:30px;
+
+}
+
+.discover-card{
+
+    position:relative;
+
+    overflow:hidden;
+
+    border-radius:22px;
+
+    cursor:pointer;
+
+}
+
+.discover-card img{
+
+    width:100%;
+
+    height:340px;
+
+    object-fit:cover;
+
+    transition:.5s;
+
+}
+
+.discover-card:hover img{
+
+    transform:scale(1.08);
+
+}
+
+.discover-overlay{
+
+    position:absolute;
+
+    inset:0;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:flex-end;
+
+    padding:35px;
+
+    background:linear-gradient(
+        transparent,
+        rgba(0,0,0,.85)
+    );
+
+}
+
+.discover-overlay h3{
+
+    color:white;
+
+    font-size:1.8rem;
+
+    margin-bottom:10px;
+
+}
+
+.discover-overlay p{
+
+    color:#ddd;
+
+}
+
+@media(max-width:900px){
+
+.discover-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.discover-card img{
+
+height:280px;
+
+}
+
+}

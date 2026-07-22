@@ -1,0 +1,95 @@
+/*==================================================
+PLAYERS
+==================================================*/
+
+#players{
+
+    padding:120px 0;
+
+}
+
+.players-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:30px;
+
+}
+
+.player-card{
+
+    overflow:hidden;
+
+    border-radius:24px;
+
+    background:#0E2436;
+
+    transition:.35s;
+
+    border:1px solid rgba(255,255,255,.08);
+
+}
+
+.player-card:hover{
+
+    transform:translateY(-10px);
+
+    border-color:#C78C32;
+
+}
+
+.player-card img{
+
+    width:100%;
+
+    display:block;
+
+}
+
+.player-info{
+
+    padding:25px;
+
+}
+
+.player-flag{
+
+    width:34px !important;
+
+    margin-bottom:15px;
+
+}
+
+.player-info h3{
+
+    margin-bottom:8px;
+
+}
+
+.player-info p{
+
+    color:#AAB7C2;
+
+}
+
+@media(max-width:1100px){
+
+.players-grid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+}
+
+@media(max-width:600px){
+
+.players-grid{
+
+grid-template-columns:1fr;
+
+}
+
+}

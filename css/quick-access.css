@@ -1,0 +1,107 @@
+/*==================================================
+ QUICK ACCESS
+==================================================*/
+
+#quick-access{
+
+    position:relative;
+
+    margin-top:-70px;
+
+    z-index:20;
+
+}
+
+.quick-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:25px;
+
+}
+
+.quick-card{
+
+    background:rgba(255,255,255,.08);
+
+    backdrop-filter:blur(14px);
+
+    border:1px solid rgba(255,255,255,.12);
+
+    border-radius:22px;
+
+    padding:35px 25px;
+
+    text-align:center;
+
+    transition:.35s;
+
+    color:white;
+
+}
+
+.quick-card:hover{
+
+    transform:translateY(-10px);
+
+    border-color:#C78C32;
+
+    box-shadow:0 20px 40px rgba(0,0,0,.35);
+
+}
+
+.quick-icon{
+
+    font-size:3rem;
+
+    margin-bottom:20px;
+
+}
+
+.quick-card h3{
+
+    font-size:1.35rem;
+
+    margin-bottom:10px;
+
+    font-weight:700;
+
+}
+
+.quick-card p{
+
+    color:#C7D1DB;
+
+    line-height:1.6;
+
+    font-size:.95rem;
+
+}
+
+@media(max-width:992px){
+
+    .quick-grid{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+}
+
+@media(max-width:576px){
+
+    #quick-access{
+
+        margin-top:40px;
+
+    }
+
+    .quick-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
