@@ -1,0 +1,10 @@
+[
+  { "name":"Jugador 1","country":"EGY","ranking":"1","image":"player-01.jpg" },
+  { "name":"Jugador 2","country":"ENG","ranking":"2","image":"player-02.jpg" },
+  { "name":"Jugador 3","country":"FRA","ranking":"3","image":"player-03.jpg" },
+  { "name":"Jugador 4","country":"ESP","ranking":"4","image":"player-04.jpg" },
+  { "name":"Jugador 5","country":"PAK","ranking":"5","image":"player-05.jpg" },
+  { "name":"Jugador 6","country":"GER","ranking":"6","image":"player-06.jpg" },
+  { "name":"Jugador 7","country":"AUS","ranking":"7","image":"player-07.jpg" },
+  { "name":"Jugador 8","country":"WAL","ranking":"8","image":"player-08.jpg" }
+]
