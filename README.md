@@ -1,2 +1,2 @@
-# psavalencia
-copper
+# PSA Valencia Open
+Base project.
