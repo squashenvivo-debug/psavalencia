@@ -84,11 +84,19 @@
 
     #hero {
         min-height: 100vh;
+        padding: 0;
+    }
+
+    .hero-background {
+        top: 0;
+        left: 0;
     }
 
     .hero-background img {
         object-fit: contain;
         object-position: top;
+        width: 100%;
+        height: 100%;
     }
 
     .hero-logo {
@@ -99,7 +107,7 @@
     .hero-content {
         width: min(900px, 90%);
         gap: 15px;
-        padding-top: 20px;
+        padding-top: 0;
     }
 
     .hero-title {
@@ -167,11 +175,19 @@
 
     #hero {
         min-height: 100vh;
+        padding: 0;
+    }
+
+    .hero-background {
+        top: 0;
+        left: 0;
     }
 
     .hero-background img {
         object-fit: contain;
         object-position: top;
+        width: 100%;
+        height: 100%;
     }
 
     .hero-logo {
@@ -182,7 +198,7 @@
     .hero-content {
         width: min(900px, 90%);
         gap: 12px;
-        padding-top: 15px;
+        padding-top: 0;
     }
 
     .hero-title {
@@ -245,10 +261,6 @@
 
     .logo img {
         height: 34px;
-    }
-
-    .language-selector {
-        display: none;
     }
 
 }
