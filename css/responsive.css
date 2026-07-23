@@ -97,9 +97,9 @@
 
     .hero-logo{
 
-        width:min(200px,28vw);
+        width:min(140px,20vw);
 
-        top:80px;
+        top:65px;
 
     }
 
@@ -129,19 +129,19 @@
 
         justify-content:center;
 
-        margin-top:100px;
+        margin-top:60px;
 
-        gap:12px;
+        gap:8px;
 
     }
 
     .hero-buttons .btn{
 
-        min-width:110px;
+        min-width:70px;
 
-        padding:8px 16px;
+        padding:5px 12px;
 
-        font-size:0.75rem;
+        font-size:0.55rem;
 
     }
 
@@ -149,63 +149,63 @@
 
         justify-content:center;
 
-        margin-top:80px;
+        margin-top:40px;
 
-        gap:10px;
+        gap:6px;
 
     }
 
     .count-box{
 
-        width:40px;
+        width:32px;
 
-        height:40px;
+        height:32px;
 
     }
 
     .count-box span{
 
-        font-size:0.9rem;
+        font-size:0.7rem;
 
     }
 
     .count-box small{
 
-        font-size:0.5rem;
+        font-size:0.35rem;
 
     }
 
     .hero-event{
 
-        bottom:20px;
+        bottom:10px;
 
     }
 
     .event-label{
 
-        font-size:0.9rem;
+        font-size:0.6rem;
 
-        letter-spacing:6px;
+        letter-spacing:4px;
 
-        margin-bottom:4px;
+        margin-bottom:2px;
 
     }
 
     .event-title{
 
-        font-size:1.65rem;
+        font-size:0.9rem;
 
-        letter-spacing:1px;
+        letter-spacing:0.5px;
 
     }
 
     .event-location{
 
-        font-size:0.8rem;
+        font-size:0.5rem;
 
-        letter-spacing:3px;
+        letter-spacing:2px;
 
-        margin-top:7px;
+        margin-top:3px;
 
     }
 
@@ -222,9 +222,9 @@
 
     .hero-logo{
 
-        width:min(170px,24vw);
+        width:min(130px,18vw);
 
-        top:70px;
+        top:60px;
 
     }
 
@@ -242,41 +242,29 @@
 
     .countdown{
 
-        margin-top:70px;
+        margin-top:35px;
 
-        gap:8px;
+        gap:6px;
 
     }
 
     .count-box{
 
-        width:38px;
+        width:30px;
 
-        height:38px;
+        height:30px;
 
     }
 
     .count-box span{
 
-        font-size:0.85rem;
+        font-size:0.65rem;
 
     }
 
     .count-box small{
 
-        font-size:0.45rem;
-
-    }
-
-    .hero-subtitle{
-
-        font-size:0.6rem;
-
-    }
-
-    .hero-location{
-
-        font-size:0.75rem;
+        font-size:0.33rem;
 
     }
 
@@ -286,53 +274,53 @@
 
         flex-direction:row;
 
-        gap:10px;
+        gap:6px;
 
-        margin-top:80px;
+        margin-top:50px;
 
     }
 
     .hero-buttons .btn{
 
-        min-width:100px;
+        min-width:65px;
 
-        padding:6px 12px;
+        padding:4px 10px;
 
-        font-size:0.7rem;
+        font-size:0.5rem;
 
     }
 
     .hero-event{
 
-        bottom:15px;
+        bottom:8px;
 
     }
 
     .event-label{
 
-        font-size:0.85rem;
+        font-size:0.55rem;
 
-        letter-spacing:5px;
+        letter-spacing:3px;
 
-        margin-bottom:3px;
+        margin-bottom:1px;
 
     }
 
     .event-title{
 
-        font-size:1.5rem;
+        font-size:0.85rem;
 
-        letter-spacing:1px;
+        letter-spacing:0.5px;
 
     }
 
     .event-location{
 
-        font-size:0.75rem;
+        font-size:0.45rem;
 
-        letter-spacing:3px;
+        letter-spacing:2px;
 
-        margin-top:6px;
+        margin-top:3px;
 
     }
 
