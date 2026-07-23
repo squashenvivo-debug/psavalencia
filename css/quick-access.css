@@ -100,7 +100,39 @@
 
     .quick-grid{
 
-        grid-template-columns:1fr;
+        grid-template-columns:repeat(4, 1fr);
+
+        gap:12px;
+
+    }
+
+    .quick-card{
+
+        padding:15px 8px;
+
+    }
+
+    .quick-icon{
+
+        font-size:1.5rem;
+
+        margin-bottom:8px;
+
+    }
+
+    .quick-card h3{
+
+        font-size:0.75rem;
+
+        margin-bottom:5px;
+
+    }
+
+    .quick-card p{
+
+        font-size:0.6rem;
+
+        line-height:1.3;
 
     }
 
