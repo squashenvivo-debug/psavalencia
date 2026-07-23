@@ -246,20 +246,20 @@
     }
 
     .event-label {
-        font-size: 1rem;
+        font-size: 0.65rem;
         letter-spacing: 6px;
-        margin-bottom: 4px;
+        margin-bottom: 3px;
     }
 
     .event-title {
-        font-size: 1.8rem;
+        font-size: 0.65rem;
         letter-spacing: 1.5px;
     }
 
     .event-location {
-        font-size: 0.85rem;
+        font-size: 0.65rem;
         letter-spacing: 4px;
-        margin-top: 8px;
+        margin-top: 2px;
     }
 
     .logo img {
