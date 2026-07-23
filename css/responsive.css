@@ -84,7 +84,7 @@
 @media (max-width:768px){
 
     #hero {
-        min-height: 100vh;
+        min-height: auto;
         padding: 0;
         padding-top: 80px;
     }
@@ -176,7 +176,7 @@
 @media (max-width:576px){
 
     #hero {
-        min-height: 100vh;
+        min-height: auto;
         padding: 0;
         padding-top: 80px;
     }
