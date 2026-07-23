@@ -37,6 +37,8 @@
 
             <a href="#">Configuración</a>
 
+            <a href="#tournament-mode-panel">Torneo</a>
+
             <a href="#">Idiomas</a>
 
         </nav>
@@ -53,9 +55,33 @@
 
         </p>
 
+        <section class="admin-card" id="tournament-mode-panel">
+            <h2>Contenido Torneo</h2>
+            <p class="admin-muted">Elige la version manual o la version conectada por API.</p>
+
+            <div class="option-group">
+                <label>
+                    <input type="radio" name="tournamentMode" value="manual">
+                    Version manual (texto fijo)
+                </label>
+                <label>
+                    <input type="radio" name="tournamentMode" value="api">
+                    Version API (contenido remoto)
+                </label>
+            </div>
+
+            <label for="tournamentApiUrl" class="field-label">URL API (opcional)</label>
+            <input id="tournamentApiUrl" type="url" placeholder="https://tu-api.com/tournament-content">
+
+            <button id="saveTournamentSettings" type="button">Guardar configuracion</button>
+            <p id="adminStatus" class="admin-status" aria-live="polite"></p>
+        </section>
+
     </main>
 
 </div>
+
+<script src="js/admin.js"></script>
 
 </body>
 

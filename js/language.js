@@ -267,6 +267,218 @@ const languageNames = {
 let currentLanguage =
 localStorage.getItem("language") || "es";
 
+const TOURNAMENT_MODE_KEY = "tournamentContentMode";
+const TOURNAMENT_API_URL_KEY = "tournamentApiUrl";
+
+const tournamentIntroByLanguage = {
+        es: `
+<article class="tournament-article">
+    <div class="tournament-card">
+        <header class="tournament-header">
+            <h3>!Bienvenidos al PSA Valencia 2026 - Memorial Chimo Marmaneu!</h3>
+            <p>Valencia se convierte de nuevo en el epicentro del squash internacional.</p>
+        </header>
+        <section class="tournament-content">
+            <p>Del <strong>11 al 15 de agosto de 2026</strong>, nuestra ciudad acogera el <strong>PSA Valencia 2026 - Memorial Chimo Marmaneu</strong>, una cita imprescindible dentro del calendario de la Asociacion Profesional de Squash (PSA).</p>
+            <p>Este ano, el torneo da un salto historico de categoria al consolidarse como un evento <strong>PSA World Tour Copper</strong> en la modalidad masculina. Con una atractiva bolsa de premios de <strong>36.000 dolares</strong>, atraera a varias de las mejores raquetas del planeta, garantizando un espectaculo deportivo del mas alto nivel, una intensidad fisica inigualable y puntos cruciales para el ranking mundial.</p>
+            <section class="tournament-history">
+                <h4>Nuestro legado: El camino hasta el World Tour</h4>
+                <p>El PSA Valencia no es solo un torneo; es un homenaje al legado de nuestro deporte y una evolucion constante:</p>
+                <ul>
+                    <li><strong>Edicion 2025:</strong> El ano pasado, el torneo (en categoria Challenger 15K) corono al jugador espanol <strong>Iker Pajares</strong> como campeon indiscutible, levantando el trofeo sin ceder un solo juego.</li>
+                    <li><strong>Consolidacion:</strong> Tras anos de exito organizativo, la confianza de la PSA y el apoyo de los aficionados han hecho posible el ascenso a la prestigiosa categoria <em>Copper</em>, situando a Valencia en el mapa mundial.</li>
+                </ul>
+            </section>
+            <footer class="tournament-footer">
+                <p class="lead">Preparate para vivir cinco dias de pura adrenalina, velocidad y estrategia.</p>
+                <p>Sigue los partidos en directo en el club o vibra con la retransmision global a traves de <a href="https://squash.tv" target="_blank" rel="noopener">SquashTV</a>.</p>
+            </footer>
+        </section>
+    </div>
+</article>`,
+        va: `
+<article class="tournament-article">
+    <div class="tournament-card">
+        <header class="tournament-header">
+            <h3>Benvinguts al PSA Valencia 2026 - Memorial Chimo Marmaneu!</h3>
+            <p>Valencia es convertix de nou en l'epicentre del squash internacional.</p>
+        </header>
+        <section class="tournament-content">
+            <p>Del <strong>11 al 15 d'agost de 2026</strong>, la nostra ciutat acollira el <strong>PSA Valencia 2026 - Memorial Chimo Marmaneu</strong>, una cita imprescindible dins del calendari de l'Associacio Professional de Squash (PSA).</p>
+            <p>Enguany, el torneig fa un salt historic de categoria en consolidar-se com un esdeveniment <strong>PSA World Tour Copper</strong> en la modalitat masculina. Amb una atractiva bossa de premis de <strong>36.000 dolars</strong>, atraura algunes de les millors raquetes del planeta, garantint un espectacle del mes alt nivell.</p>
+            <section class="tournament-history">
+                <h4>El nostre llegat: El cami cap al World Tour</h4>
+                <p>El PSA Valencia no es nomes un torneig; es un homenatge al llegat del nostre esport i una evolucio constant:</p>
+                <ul>
+                    <li><strong>Edicio 2025:</strong> L'any passat, el torneig (categoria Challenger 15K) va coronar el jugador espanyol <strong>Iker Pajares</strong> com a campio indiscutible.</li>
+                    <li><strong>Consolidacio:</strong> Despres d'anys d'exit organitzatiu, la confianca de la PSA i el suport dels aficionats han fet possible l'ascens a la categoria <em>Copper</em>.</li>
+                </ul>
+            </section>
+            <footer class="tournament-footer">
+                <p class="lead">Prepara't per a viure cinc dies de pura adrenalina, velocitat i estrategia.</p>
+                <p>Seguix els partits en directe al club o a traves de <a href="https://squash.tv" target="_blank" rel="noopener">SquashTV</a>.</p>
+            </footer>
+        </section>
+    </div>
+</article>`,
+        en: `
+<article class="tournament-article">
+    <div class="tournament-card">
+        <header class="tournament-header">
+            <h3>Welcome to PSA Valencia 2026 - Memorial Chimo Marmaneu!</h3>
+            <p>Valencia once again becomes the epicenter of international squash.</p>
+        </header>
+        <section class="tournament-content">
+            <p>From <strong>August 11th to 15th, 2026</strong>, our city will host the <strong>PSA Valencia 2026 - Memorial Chimo Marmaneu</strong>, an essential stop on the Professional Squash Association (PSA) calendar.</p>
+            <p>This year, the tournament reaches a historic milestone by upgrading to a <strong>PSA World Tour Copper</strong> men's event. With a prize purse of <strong>$36,000</strong>, it will bring top players together for elite-level performance, unmatched intensity and crucial ranking points.</p>
+            <section class="tournament-history">
+                <h4>Our Legacy: The Road to the World Tour</h4>
+                <p>PSA Valencia is more than a tournament; it is a tribute to our sport and a story of constant growth:</p>
+                <ul>
+                    <li><strong>2025 Edition:</strong> Last year, as a Challenger 15K event, Spain's <strong>Iker Pajares</strong> claimed the title without dropping a single game.</li>
+                    <li><strong>Consolidation:</strong> Years of organizational success, PSA trust and fan support made this promotion to the prestigious <em>Copper</em> category possible.</li>
+                </ul>
+            </section>
+            <footer class="tournament-footer">
+                <p class="lead">Get ready for five days of pure adrenaline, speed and strategy.</p>
+                <p>Watch matches live at the club or worldwide on <a href="https://squash.tv" target="_blank" rel="noopener">SquashTV</a>.</p>
+            </footer>
+        </section>
+    </div>
+</article>`,
+        fr: `
+<article class="tournament-article">
+    <div class="tournament-card">
+        <header class="tournament-header">
+            <h3>Bienvenue au PSA Valencia 2026 - Memorial Chimo Marmaneu!</h3>
+            <p>Valence redevient le centre nevralgique du squash international.</p>
+        </header>
+        <section class="tournament-content">
+            <p>Du <strong>11 au 15 aout 2026</strong>, notre ville accueillera le <strong>PSA Valencia 2026 - Memorial Chimo Marmaneu</strong>, un rendez-vous majeur du calendrier de la Professional Squash Association (PSA).</p>
+            <p>Cette annee, le tournoi franchit un cap historique en rejoignant la categorie <strong>PSA World Tour Copper</strong> chez les hommes. Avec une dotation de <strong>36 000 dollars</strong>, l'evenement reunira des joueurs d'elite et des points precieux pour le classement mondial.</p>
+            <section class="tournament-history">
+                <h4>Notre heritage: Le chemin vers le World Tour</h4>
+                <p>Le PSA Valencia est bien plus qu'un tournoi; c'est un hommage a l'histoire de notre sport et une evolution continue:</p>
+                <ul>
+                    <li><strong>Edition 2025:</strong> L'an dernier, en Challenger 15K, l'Espagnol <strong>Iker Pajares</strong> a ete sacre champion sans perdre un seul jeu.</li>
+                    <li><strong>Consolidation:</strong> Le succes organisationnel, la confiance de la PSA et le soutien des supporters ont permis l'ascension vers la categorie <em>Copper</em>.</li>
+                </ul>
+            </section>
+            <footer class="tournament-footer">
+                <p class="lead">Preparez-vous a vivre cinq jours de pure adrenaline, vitesse et strategie.</p>
+                <p>Suivez les matchs en direct au club ou a travers la diffusion mondiale sur <a href="https://squash.tv" target="_blank" rel="noopener">SquashTV</a>.</p>
+            </footer>
+        </section>
+    </div>
+</article>`
+};
+
+function getTournamentMode(){
+
+    const mode = localStorage.getItem(TOURNAMENT_MODE_KEY);
+
+    return mode === "api" ? "api" : "manual";
+
+}
+
+function getTournamentApiUrl(){
+
+    return (localStorage.getItem(TOURNAMENT_API_URL_KEY) || "").trim();
+
+}
+
+function readTournamentApiResponse(payload, lang){
+
+    if(!payload) return "";
+
+    if(typeof payload === "string"){
+
+        return payload;
+
+    }
+
+    if(typeof payload === "object"){
+
+        return payload[lang]
+            || payload.html
+            || payload.content?.[lang]
+            || payload.content
+            || "";
+
+    }
+
+    return "";
+
+}
+
+async function fetchTournamentIntroFromApi(lang, apiUrl){
+
+    const separator = apiUrl.includes("?") ? "&" : "?";
+
+    const urlWithLang = `${apiUrl}${separator}lang=${encodeURIComponent(lang)}`;
+
+    const response = await fetch(urlWithLang, { headers: { "Accept": "application/json, text/html" } });
+
+    if(!response.ok){
+
+        throw new Error(`API status ${response.status}`);
+
+    }
+
+    const contentType = response.headers.get("content-type") || "";
+
+    if(contentType.includes("application/json")){
+
+        const payload = await response.json();
+
+        return readTournamentApiResponse(payload, lang);
+
+    }
+
+    return response.text();
+
+}
+
+async function renderTournamentIntro(lang){
+
+    const container = document.getElementById("tournament-intro");
+    if(!container) return;
+
+    const manualHtml = tournamentIntroByLanguage[lang] || tournamentIntroByLanguage.es;
+    const mode = getTournamentMode();
+
+    if(mode !== "api"){
+
+        container.innerHTML = manualHtml;
+        return;
+
+    }
+
+    const apiUrl = getTournamentApiUrl();
+
+    if(!apiUrl){
+
+        container.innerHTML = manualHtml;
+        return;
+
+    }
+
+    try{
+
+        const apiHtml = await fetchTournamentIntroFromApi(lang, apiUrl);
+
+        container.innerHTML = apiHtml || manualHtml;
+
+    } catch(error){
+
+        console.warn("No se pudo cargar Torneo desde API. Usando contenido manual.", error);
+
+        container.innerHTML = manualHtml;
+
+    }
+
+}
+
 function t(path){
 
     const keys = path.split(".");
@@ -306,6 +518,8 @@ function setLanguage(lang){
             }
 
         });
+
+    renderTournamentIntro(lang);
 
     const toggle=document.getElementById("languageToggle");
 
