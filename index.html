@@ -8,16 +8,17 @@
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/header.css">
 <link rel="stylesheet" href="css/hero.css">
-<link rel="stylesheet" href="css/quick-access.css">
+<link rel="stylesheet" href="css/quick-access.css?v=20260723-2">
 <link rel="stylesheet" href="css/live.css">
 <link rel="stylesheet" href="css/players.css">
 <link rel="stylesheet" href="css/news.css">
-<link rel="stylesheet" href="css/responsive.css">
 <link rel="stylesheet" href="css/draw.css">
 <link rel="stylesheet" href="css/tournament-center.css">
 <link rel="stylesheet" href="css/sponsors.css">
 <link rel="stylesheet" href="css/discover.css">
 <link rel="stylesheet" href="css/tournament.css">
+<!-- Siempre al final: los ajustes de móvil deben ganar a los estilos base. -->
+<link rel="stylesheet" href="css/responsive.css?v=20260723-6">
 </head>
 <body>
     
@@ -50,6 +51,8 @@
                 <li><a href="#news" data-i18n="menu.news">Noticias</a></li>
                 <li><a href="#gallery" data-i18n="menu.gallery">Galería</a></li>
                 <li><a href="#venue" data-i18n="menu.venue">Sede</a></li>
+                <li><a href="#discover" data-i18n="menu.discover">Conoce Valencia</a></li>
+                <li><a href="#sponsors" data-i18n="menu.sponsors">Patrocinadores</a></li>
 
             </ul>
 
@@ -112,26 +115,6 @@
 
         
 
-        <div class="hero-buttons">
-
-            <a href="#live"
-   class="btn btn-primary"
-   data-i18n="hero.live">
-
-    VER DIRECTO
-
-</a>
-
-<a href="#draw"
-   class="btn btn-secondary"
-   data-i18n="hero.draw">
-
-    CUADROS
-
-</a>
-
-        </div>
-
         <div class="countdown">
 
             <div class="count-box">
@@ -175,13 +158,13 @@
 </div>
 <div class="hero-event">
 
-    <span class="event-label">MEMORIAL</span>
+    <span class="event-label" data-i18n="event.label">MEMORIAL</span>
 
-    <h1 class="event-title">
+    <h1 class="event-title" data-i18n="event.title">
         CHIMO MARMANEAU
     </h1>
 
-    <div class="event-location">
+    <div class="event-location" data-i18n="event.location">
         Alboraya · Valencia
     </div>
 
@@ -246,13 +229,12 @@ QUICK ACCESS
 
         <div class="section-header">
 
-            <span class="section-kicker">PSA WORLD TOUR COPPER</span>
+            <span class="section-kicker" data-i18n="tournament.kicker">PSA WORLD TOUR COPPER</span>
 
-            <h2>Tournament</h2>
+            <h2 data-i18n="tournament.title">Torneo</h2>
 
-            <p>
-                Discover everything about the PSA Valencia Open 2026 –
-                Memorial Chimo Marmaneu.
+            <p data-i18n="tournament.intro">
+                Descubre todo sobre el PSA Valencia Open 2026 – Memorial Chimo Marmaneu.
             </p>
 
         </div>
@@ -273,7 +255,7 @@ LIVE
 
     <div class="container">
 
-        <h2 class="section-title">
+        <h2 class="section-title" data-i18n="live.title">
             EN DIRECTO
         </h2>
 
@@ -287,9 +269,9 @@ LIVE
 
                         📺
 
-                        <h3>Streaming PSA Valencia Open</h3>
+                        <h3 data-i18n="live.videoTitle">Streaming PSA Valencia Open</h3>
 
-                        <p>
+                        <p data-i18n="live.videoIntro">
                             Aquí aparecerá el reproductor de YouTube.
                         </p>
 
@@ -303,19 +285,19 @@ LIVE
 
                 <div class="court-card">
 
-                    <span class="court-title">
+                    <span class="court-title" data-i18n="live.court1">
 
                         PISTA 1
 
                     </span>
 
-                    <h3>
+                    <h3 data-i18n="live.upcoming">
 
                         Próximamente
 
                     </h3>
 
-                    <p>
+                    <p data-i18n="live.pending">
 
                         Partido pendiente
 
@@ -325,19 +307,19 @@ LIVE
 
                 <div class="court-card">
 
-                    <span class="court-title">
+                    <span class="court-title" data-i18n="live.court2">
 
                         PISTA 2
 
                     </span>
 
-                    <h3>
+                    <h3 data-i18n="live.upcoming">
 
                         Próximamente
 
                     </h3>
 
-                    <p>
+                    <p data-i18n="live.pending">
 
                         Partido pendiente
 
@@ -359,7 +341,7 @@ PLAYERS
 
     <div class="container">
 
-        <h2 class="section-title">
+        <h2 class="section-title" data-i18n="sections.players">
             JUGADORES DESTACADOS
         </h2>
 
@@ -430,7 +412,7 @@ SCHEDULE
 
     <div class="container">
 
-        <h2 class="section-title">
+        <h2 class="section-title" data-i18n="sections.schedule">
             HORARIOS
         </h2>
 
@@ -444,7 +426,7 @@ DRAW
 
     <div class="container">
 
-        <h2 class="section-title">
+        <h2 class="section-title" data-i18n="sections.draw">
             CUADROS
         </h2>
 
@@ -459,7 +441,7 @@ NEWS
 
     <div class="container">
 
-        <h2 class="section-title">
+        <h2 class="section-title" data-i18n="sections.news">
             NOTICIAS
         </h2>
 
@@ -475,7 +457,7 @@ GALLERY
 
     <div class="container">
 
-        <h2 class="section-title">
+        <h2 class="section-title" data-i18n="sections.gallery">
             GALERÍA
         </h2>
 
@@ -491,9 +473,9 @@ VENUE
 
         <div class="venue-header">
 
-            <h2>SEDE DEL TORNEO</h2>
+            <h2 data-i18n="venue.title">SEDE DEL TORNEO</h2>
 
-            <p>
+            <p data-i18n="venue.intro">
                 Olympia Hotel, Events & Spa será la sede oficial del PSA Valencia Open · Memorial Chimo Marmaneu.
             </p>
 
@@ -511,7 +493,7 @@ VENUE
 
                     <div>
 
-                        <strong>Dirección</strong>
+                        <strong data-i18n="venue.address">Dirección</strong>
 
                         <p>
                             C/ Maestro Serrano, 3<br>
@@ -528,7 +510,7 @@ VENUE
 
                     <div>
 
-                        <strong>Teléfono</strong>
+                        <strong data-i18n="venue.phone">Teléfono</strong>
 
                         <p>
                             +34 963 03 33 92
@@ -540,7 +522,7 @@ VENUE
 
                 <div class="venue-buttons">
 
-                    <a class="btn"
+                    <a class="btn" data-i18n="venue.directions"
                        href="https://www.google.com/maps/search/?api=1&query=Olympia+Hotel+Events+Spa+C%2F+Maestro+Serrano+3+Alboraya+Valencia"
                        target="_blank">
 
@@ -560,15 +542,15 @@ VENUE
 
                 <div class="venue-services">
 
-                    <span>🅿 Parking</span>
+                    <span data-i18n="venue.parking">🅿 Parking</span>
 
-                    <span>☕ Cafetería</span>
+                    <span data-i18n="venue.cafe">☕ Cafetería</span>
 
-                    <span>🍴 Restaurante</span>
+                    <span data-i18n="venue.restaurant">🍴 Restaurante</span>
 
-                    <span>♿ Accesible</span>
+                    <span data-i18n="venue.accessible">♿ Accesible</span>
 
-                    <span>🚿 Vestuarios</span>
+                    <span data-i18n="venue.changing">🚿 Vestuarios</span>
 
                     <span>📶 WiFi</span>
 
@@ -597,11 +579,11 @@ VENUE
 
         <div class="section-header">
 
-            <span class="section-subtitle">VALENCIA</span>
+            <span class="section-subtitle" data-i18n="discover.label">VALENCIA</span>
 
-            <h2>DISCOVER THE CITY</h2>
+            <h2 data-i18n="discover.title">DESCUBRE LA CIUDAD</h2>
 
-            <p>
+            <p data-i18n="discover.intro">
                 Mucho más que squash. Descubre una de las ciudades más
                 atractivas del Mediterráneo durante tu estancia.
             </p>
@@ -616,9 +598,9 @@ VENUE
 
                 <div class="discover-overlay">
 
-                    <h3>City of Arts & Sciences</h3>
+                    <h3 data-i18n="discover.arts">Ciudad de las Artes y las Ciencias</h3>
 
-                    <p>El icono arquitectónico de Valencia.</p>
+                    <p data-i18n="discover.artsText">El icono arquitectónico de Valencia.</p>
 
                 </div>
 
@@ -630,9 +612,9 @@ VENUE
 
                 <div class="discover-overlay">
 
-                    <h3>Malvarrosa Beach</h3>
+                    <h3 data-i18n="discover.beach">Playa de la Malvarrosa</h3>
 
-                    <p>A pocos minutos de Olympia.</p>
+                    <p data-i18n="discover.beachText">A pocos minutos de Olympia.</p>
 
                 </div>
 
@@ -644,9 +626,9 @@ VENUE
 
                 <div class="discover-overlay">
 
-                    <h3>Historic Centre</h3>
+                    <h3 data-i18n="discover.centre">Centro histórico</h3>
 
-                    <p>Historia, cultura y tradición.</p>
+                    <p data-i18n="discover.centreText">Historia, cultura y tradición.</p>
 
                 </div>
 
@@ -658,9 +640,9 @@ VENUE
 
                 <div class="discover-overlay">
 
-                    <h3>Valencian Cuisine</h3>
+                    <h3 data-i18n="discover.food">Gastronomía valenciana</h3>
 
-                    <p>La auténtica paella valenciana.</p>
+                    <p data-i18n="discover.foodText">La auténtica paella valenciana.</p>
 
                 </div>
 
@@ -677,9 +659,9 @@ VENUE
 
         <div class="sponsors-header">
 
-            <h2>PATROCINADORES</h2>
+            <h2 data-i18n="sponsors.title">PATROCINADORES</h2>
 
-            <p>
+            <p data-i18n="sponsors.intro">
                 Gracias a nuestros patrocinadores por hacer posible el PSA Valencia Open 2026.
             </p>
 
@@ -689,7 +671,7 @@ VENUE
 
             <a href="#" target="_blank">
 
-                <img src="assets/images/logos/COPPER.png" alt="Copper">
+                <img src="assets/images/logos/copper.png" alt="Copper">
 
             </a>
 
@@ -730,7 +712,7 @@ FOOTER
 
     <div class="container">
 
-        <p>
+        <p data-i18n="footer.copyright">
 
             © 2026 PSA Valencia Open · Memorial Chimo Marmaneu
 
@@ -739,7 +721,7 @@ FOOTER
     </div>
 
 </footer> 
-<script src="js/language.js"></script>
+<script src="js/language.js?v=20260723-2"></script>
 <script src="js/navigation.js"></script>
 <script src="js/countdown.js"></script>
 <script src="js/router.js"></script>

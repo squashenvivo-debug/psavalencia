@@ -62,6 +62,25 @@ section{
 
 }
 
+/* Orden de las secciones de la página principal. */
+main{
+    display:flex;
+    flex-direction:column;
+}
+
+#hero{ order:1; }
+#quick-access{ order:2; }
+#tournament{ order:3; }
+#players{ order:4; }
+#schedule{ order:5; }
+#draw{ order:6; }
+#live{ order:7; }
+#news{ order:8; }
+#gallery{ order:9; }
+#venue{ order:10; }
+#discover{ order:11; }
+#sponsors{ order:12; }
+
 /* ==========================================================
 BUTTONS
 ========================================================== */

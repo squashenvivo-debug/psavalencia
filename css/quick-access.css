@@ -89,7 +89,8 @@
     }
 
     #quick-access{
-        margin-top:-30px;
+        /* Debe empezar después del hero, nunca superponerse a él. */
+        margin-top:20px;
     }
 
 }
@@ -97,8 +98,7 @@
 @media(max-width:576px){
 
     #quick-access{
-
-        margin-top:-70px;
+        margin-top:20px;
 
     }
 
