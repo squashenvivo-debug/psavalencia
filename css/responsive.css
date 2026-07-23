@@ -137,11 +137,11 @@
 
     .hero-buttons .btn{
 
-        min-width:70px;
+        min-width:65px!important;
 
-        padding:5px 12px;
+        padding:4px 10px!important;
 
-        font-size:0.55rem;
+        font-size:0.5rem!important;
 
     }
 
@@ -157,21 +157,21 @@
 
     .count-box{
 
-        width:32px;
+        width:28px!important;
 
-        height:32px;
+        height:28px!important;
 
     }
 
     .count-box span{
 
-        font-size:0.7rem;
+        font-size:0.6rem!important;
 
     }
 
     .count-box small{
 
-        font-size:0.35rem;
+        font-size:0.32rem!important;
 
     }
 
@@ -250,43 +250,31 @@
 
     .count-box{
 
-        width:30px;
+        width:25px!important;
 
-        height:30px;
+        height:25px!important;
 
     }
 
     .count-box span{
 
-        font-size:0.65rem;
+        font-size:0.65rem!important;
 
     }
 
     .count-box small{
 
-        font-size:0.33rem;
-
-    }
-
-    .hero-buttons{
-
-        width:100%;
-
-        flex-direction:row;
-
-        gap:6px;
-
-        margin-top:50px;
+        font-size:0.3rem!important;
 
     }
 
     .hero-buttons .btn{
 
-        min-width:65px;
+        min-width:60px!important;
 
-        padding:4px 10px;
+        padding:3px 8px!important;
 
-        font-size:0.5rem;
+        font-size:0.45rem!important;
 
     }
 
