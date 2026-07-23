@@ -329,19 +329,23 @@ async function loadDraws(){
         }
 
         const bracketData = await bracketResponse.json();
-        const maxMatches = Math.max(...bracketData.rounds.map((r) => r.matches.length));
-        const bracketHeight = Math.max(760, maxMatches * 48);
+        const firstRoundCount = bracketData.rounds[0]?.matches?.length || 0;
+        const mobile = window.matchMedia("(max-width: 600px)").matches;
+        const matchHeight = mobile ? 30 : 42;
+        const matchStep = mobile ? 34 : 52;
+        const roundHeight = Math.max(
+            mobile ? 520 : 760,
+            (Math.max(firstRoundCount - 1, 0) * matchStep) + matchHeight
+        );
 
-        bracket.style.setProperty("--bracket-height", `${bracketHeight}px`);
+        bracket.style.setProperty("--round-height", `${roundHeight}px`);
+        bracket.style.setProperty("--match-height", `${matchHeight}px`);
         bracket.innerHTML = "";
 
         bracketData.rounds.forEach((round, index) => {
             const roundCol = document.createElement("div");
             roundCol.className = "draw-round";
             roundCol.classList.add(`draw-round-${index + 1}`);
-            if (index > 0) {
-                roundCol.classList.add("draw-round-spread");
-            }
 
             roundCol.innerHTML = `
                 <div class="draw-round-title">${round.title}</div>
@@ -350,9 +354,13 @@ async function loadDraws(){
 
             const matchHost = roundCol.querySelector(".draw-round-matches");
 
-            round.matches.forEach((match) => {
+            round.matches.forEach((match, matchIndex) => {
                 const card = document.createElement("div");
                 card.className = "draw-match";
+
+                const factor = 2 ** index;
+                const top = ((factor * matchIndex) + ((factor - 1) / 2)) * matchStep;
+                card.style.top = `${Math.round(top)}px`;
 
                 card.innerHTML = `
                     <div class="draw-player ${match.p1.name === "TBD" || match.p1.name === "BYE" ? "is-muted" : ""}">

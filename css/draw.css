@@ -24,13 +24,13 @@
 
 .draw-bracket{
 
-    min-width:1020px;
+    min-width:1320px;
 
     display:grid;
 
-    grid-template-columns:repeat(5, 1fr);
+    grid-template-columns:repeat(5, minmax(250px, 1fr));
 
-    gap:10px;
+    gap:12px;
 
     padding:8px;
 
@@ -69,31 +69,25 @@
 
 .draw-round-matches{
 
-    min-height:var(--bracket-height, 760px);
+    position:relative;
 
-    display:flex;
+    min-height:var(--round-height, 760px);
 
-    flex-direction:column;
+    height:var(--round-height, 760px);
 
-    justify-content:flex-start;
-
-    gap:8px;
-
-    padding:8px;
-
-}
-
-.draw-round-spread .draw-round-matches{
-
-    justify-content:space-around;
-
-    padding-top:18px;
-
-    padding-bottom:18px;
+    padding:8px 6px;
 
 }
 
 .draw-match{
+
+    position:absolute;
+
+    left:6px;
+
+    right:6px;
+
+    height:var(--match-height, 42px);
 
     background:#ffffff;
 
@@ -101,9 +95,11 @@
 
     border-radius:6px;
 
-    margin-bottom:0;
-
     overflow:hidden;
+
+    display:grid;
+
+    grid-template-rows:1fr 1fr;
 
 }
 
@@ -115,7 +111,7 @@
 
     gap:6px;
 
-    min-height:22px;
+    min-height:0;
 
     padding:1px 5px;
 
@@ -236,6 +232,105 @@
     .draw-bracket-wrapper{
 
         max-height:70vh;
+
+    }
+
+}
+
+@media(max-width:600px){
+
+    #draw{
+
+        padding:72px 0;
+
+    }
+
+    .draw-bracket-wrapper{
+
+        max-height:66vh;
+
+        margin-top:16px;
+
+    }
+
+    .draw-bracket{
+
+        min-width:0;
+
+        grid-template-columns:repeat(5, 29vw);
+
+        width:max-content;
+
+        gap:6px;
+
+        padding:6px;
+
+    }
+
+    .draw-round{
+
+        border-radius:6px;
+
+        padding:0 0 6px;
+
+    }
+
+    .draw-round-title{
+
+        font-size:.52rem;
+
+        padding:4px 4px;
+
+        border-radius:6px 6px 0 0;
+
+        letter-spacing:.2px;
+
+    }
+
+    .draw-round-matches{
+
+        min-height:var(--round-height, 760px);
+
+        height:var(--round-height, 760px);
+
+        padding:5px 4px;
+
+    }
+
+    .draw-match{
+
+        left:4px;
+
+        right:4px;
+
+        border-radius:4px;
+
+    }
+
+    .draw-player{
+
+        min-height:18px;
+
+        gap:4px;
+
+        padding:1px 3px;
+
+    }
+
+    .draw-avatar-wrap,
+    .draw-avatar{
+
+        width:9px;
+
+        height:9px;
+
+    }
+
+    .draw-player-name{
+
+        font-size:.45rem;
+
+        line-height:1.15;
 
     }
 
