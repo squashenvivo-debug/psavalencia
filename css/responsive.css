@@ -90,8 +90,7 @@
     }
 
     .hero-background {
-        inset: auto;
-        top: 20px;
+        top: -6px !important;
         left: 0;
         right: 0;
         bottom: 0;
@@ -185,8 +184,7 @@
     }
 
     .hero-background {
-        inset: auto;
-        top: -6px;
+        top: -6px !important;
         left: 0;
         right: 0;
         bottom: 0;
