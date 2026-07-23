@@ -162,17 +162,23 @@ async function loadPlayers() {
 
                 <article class="player-card">
 
-                    <img src="assets/images/players/${player.image}" alt="${player.name}">
+                    <div class="player-photo">
+                        <img src="assets/images/players/${player.image}" alt="${player.name}">
+                    </div>
 
                     <div class="player-info">
+
+                        <div class="player-head">
+
+                            <h3>${player.name} ${seedBadge}</h3>
 
                         <img class="player-flag"
                              src="assets/images/flags/${player.country}.png"
                              alt="${player.country}">
 
-                            <h3>${player.name} ${seedBadge}</h3>
+                        </div>
 
-                        <p>World Nº ${player.ranking}</p>
+                        <p class="player-meta">[${player.country}] WR: ${player.ranking}</p>
 
                     </div>
 
