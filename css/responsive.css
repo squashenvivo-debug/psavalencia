@@ -83,10 +83,16 @@
 
 @media (max-width:768px){
 
+    body, html {
+        margin: 0;
+        padding: 0;
+    }
+
     #hero {
         min-height: 30vh;
         padding: 0;
-        padding-top: 40;
+        margin: 0;
+        margin-top: -80px;
     }
 
     .hero-background {
@@ -177,10 +183,17 @@
 
 @media (max-width:576px){
 
+    body, html {
+        margin: 0;
+        padding: 0;
+    }
+
     #hero {
         min-height: 75vh;
         padding: 0;
         padding-top: 0;
+        margin: 0;
+        margin-top: -80px;
     }
 
     .hero-background {
