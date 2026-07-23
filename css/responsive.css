@@ -85,10 +85,11 @@
     #hero {
         min-height: 100vh;
         padding: 0;
+        padding-top: 80px;
     }
 
     .hero-background {
-        top: 0;
+        top: 80px;
         left: 0;
     }
 
@@ -176,10 +177,11 @@
     #hero {
         min-height: 100vh;
         padding: 0;
+        padding-top: 80px;
     }
 
     .hero-background {
-        top: 0;
+        top: 80px;
         left: 0;
     }
 
