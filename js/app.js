@@ -140,7 +140,16 @@ async function loadPlayers() {
 
     try {
 
-        const response = await fetch("data/players.json");
+        let response = await fetch("data/players.json", { cache: "no-store" });
+
+        if (!response.ok) {
+            response = await fetch("data/translations/players.json", { cache: "no-store" });
+        }
+
+        if (!response.ok) {
+            throw new Error("No se pudo cargar data/players.json ni data/translations/players.json");
+        }
+
         const players = await response.json();
 
         grid.innerHTML = "";
