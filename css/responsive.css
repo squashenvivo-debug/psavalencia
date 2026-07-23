@@ -23,7 +23,7 @@
 
     .mobile-toggle{
 
-        display:block;
+        display:flex;
 
         z-index:1002;
 
