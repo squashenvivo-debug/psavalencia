@@ -147,6 +147,10 @@ async function loadPlayers() {
 
         players.forEach(player => {
 
+            const seedBadge = player.seed
+                ? `<span class="player-seed">${player.seed}</span>`
+                : "";
+
             grid.innerHTML += `
 
                 <article class="player-card">
@@ -159,7 +163,7 @@ async function loadPlayers() {
                              src="assets/images/flags/${player.country}.png"
                              alt="${player.country}">
 
-                        <h3>${player.name}</h3>
+                            <h3>${player.name} ${seedBadge}</h3>
 
                         <p>World Nº ${player.ranking}</p>
 

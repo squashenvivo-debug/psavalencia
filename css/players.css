@@ -68,6 +68,26 @@ PLAYERS
 
 }
 
+.player-seed{
+
+    display:inline-block;
+
+    margin-left:8px;
+
+    padding:3px 8px;
+
+    border-radius:8px;
+
+    font-size:.85rem;
+
+    font-weight:600;
+
+    background:#eaf1ff;
+
+    color:#2f5ea8;
+
+}
+
 .player-info p{
 
     color:#AAB7C2;
