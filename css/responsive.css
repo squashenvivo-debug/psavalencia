@@ -82,131 +82,81 @@
 
 @media (max-width:768px){
 
-    #hero{
-
-        padding-top:0;
-
+    #hero {
+        min-height: 100vh;
     }
 
-    .hero-background img{
-
-        object-fit:contain;
-        object-position:center;
-
+    .hero-background img {
+        object-fit: cover;
+        object-position: center;
     }
 
-    .hero-logo{
-
-        width:min(140px,20vw);
-
-        top:65px;
-
+    .hero-logo {
+        width: min(300px, 50vw);
+        top: -100px;
     }
 
-    .hero-content{
-
-        text-align:center;
-
-        align-items:center;
-
-        padding-top:60px;
-
+    .hero-content {
+        width: min(900px, 90%);
+        gap: 15px;
     }
 
-    .hero-title{
-
-        font-size:1.4rem;
-
+    .hero-title {
+        font-size: 2rem;
     }
 
-    .hero-subtitle{
-
-        font-size:0.65rem;
-
+    .hero-subtitle {
+        font-size: 1.1rem;
     }
 
-    .hero-buttons{
-
-        justify-content:center;
-
-        margin-top:60px;
-
-        gap:8px;
-
+    .hero-buttons {
+        gap: 16px;
+        margin-top: 120px;
     }
 
-    .hero-buttons .btn{
-
-        min-width:65px!important;
-
-        padding:4px 10px!important;
-
-        font-size:0.5rem!important;
-
+    .hero-buttons .btn {
+        min-width: 150px !important;
+        padding: 12px 24px !important;
+        font-size: 0.9rem !important;
     }
 
-    .countdown{
-
-        justify-content:center;
-
-        margin-top:40px;
-
-        gap:6px;
-
+    .countdown {
+        gap: 12px;
+        margin-top: 30px;
     }
 
-    .count-box{
-
-        width:28px!important;
-
-        height:28px!important;
-
+    .count-box {
+        width: 55px !important;
+        height: 55px !important;
     }
 
-    .count-box span{
-
-        font-size:0.6rem!important;
-
+    .count-box span {
+        font-size: 1.3rem !important;
     }
 
-    .count-box small{
-
-        font-size:0.32rem!important;
-
+    .count-box small {
+        font-size: 0.6rem !important;
     }
 
-    .hero-event{
-
-        bottom:10px;
-
+    .hero-event {
+        bottom: 80px;
     }
 
-    .event-label{
-
-        font-size:0.6rem;
-
-        letter-spacing:4px;
-
-        margin-bottom:2px;
-
+    .event-label {
+        font-size: 1rem;
+        letter-spacing: 8px;
+        margin-bottom: 5px;
     }
 
-    .event-title{
-
-        font-size:0.9rem;
-
-        letter-spacing:0.5px;
-
+    .event-title {
+        font-size: 2rem;
+        letter-spacing: 1px;
     }
 
-    .event-location{
-
-        font-size:0.5rem;
-
-        letter-spacing:2px;
-
-        margin-top:3px;
-
+    .event-location {
+        font-size: 0.9rem;
+        letter-spacing: 5px;
+        margin-top: 8px;
     }
 
 }
@@ -214,67 +164,92 @@
 
 @media (max-width:576px){
 
-    #hero{
-
-        padding-top:0;
-
+    #hero {
+        min-height: 100vh;
     }
 
-    .hero-logo{
-
-        width:min(130px,18vw);
-
-        top:60px;
-
+    .hero-background img {
+        object-fit: cover;
+        object-position: center;
     }
 
-    .logo img{
-
-        height:34px;
-
+    .hero-logo {
+        width: min(220px, 40vw);
+        top: -80px;
     }
 
-    .language-selector{
-
-        display:none;
-
+    .hero-content {
+        width: min(900px, 90%);
+        gap: 12px;
     }
 
-    .countdown{
-
-        margin-top:35px;
-
-        gap:6px;
-
+    .hero-title {
+        font-size: 1.5rem;
     }
 
-    .count-box{
-
-        width:25px!important;
-
-        height:25px!important;
-
+    .hero-subtitle {
+        font-size: 0.85rem;
     }
 
-    .count-box span{
-
-        font-size:0.65rem!important;
-
+    .hero-buttons {
+        gap: 12px;
+        margin-top: 90px;
     }
 
-    .count-box small{
-
-        font-size:0.3rem!important;
-
+    .hero-buttons .btn {
+        min-width: 120px !important;
+        padding: 10px 20px !important;
+        font-size: 0.8rem !important;
     }
 
-    .hero-buttons .btn{
+    .countdown {
+        gap: 10px;
+        margin-top: 20px;
+    }
 
-        min-width:60px!important;
+    .count-box {
+        width: 45px !important;
+        height: 45px !important;
+    }
 
-        padding:3px 8px!important;
+    .count-box span {
+        font-size: 1.1rem !important;
+    }
 
-        font-size:0.45rem!important;
+    .count-box small {
+        font-size: 0.5rem !important;
+    }
+
+    .hero-event {
+        bottom: 50px;
+    }
+
+    .event-label {
+        font-size: 0.85rem;
+        letter-spacing: 6px;
+        margin-bottom: 3px;
+    }
+
+    .event-title {
+        font-size: 1.5rem;
+        letter-spacing: 1px;
+    }
+
+    .event-location {
+        font-size: 0.75rem;
+        letter-spacing: 4px;
+        margin-top: 6px;
+    }
+
+    .logo img {
+        height: 34px;
+    }
+
+    .language-selector {
+        display: none;
+    }
+
+}
 
     }
 
