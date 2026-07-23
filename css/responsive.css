@@ -90,7 +90,7 @@
     }
 
     .hero-background {
-        top: 0 !important;
+        top: -80px !important;
         left: 0;
         right: 0;
         bottom: 0;
@@ -105,7 +105,7 @@
 
     .hero-logo {
         width: min(180px, 35vw);
-        top: 100px;
+        top: 20px;
     }
 
     .hero-content {
@@ -184,7 +184,7 @@
     }
 
     .hero-background {
-        top: 0 !important;
+        top: -80px !important;
         left: 0;
         right: 0;
         bottom: 0;
@@ -199,7 +199,7 @@
 
     .hero-logo {
         width: min(160px, 32vw);
-        top: 95px;
+        top: 15px;
     }
 
     .hero-content {
