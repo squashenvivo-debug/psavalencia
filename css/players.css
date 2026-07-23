@@ -104,7 +104,9 @@ PLAYERS
 
     height:24px;
 
-    object-fit:cover;
+    object-fit:contain;
+
+    background:#ffffff;
 
     border-radius:5px;
 
@@ -123,6 +125,10 @@ PLAYERS
     font-size:1.15rem;
 
     flex:1;
+
+    min-width:0;
+
+    overflow-wrap:anywhere;
 
 }
 
@@ -174,29 +180,101 @@ PLAYERS
 
 @media(max-width:600px){
 
+    #players{
+
+        padding:80px 0;
+
+    }
+
     .players-grid{
 
-        grid-template-columns:1fr;
+        grid-template-columns:repeat(3,1fr);
+
+        gap:8px;
+
+    }
+
+    .player-card{
+
+        border-radius:10px;
+
+    }
+
+    .player-photo{
+
+        aspect-ratio:1/1;
 
     }
 
     .player-info{
 
-        min-height:102px;
+        min-height:74px;
 
-        padding:16px;
+        padding:7px;
+
+        gap:4px;
+
+    }
+
+    .player-head{
+
+        gap:5px;
 
     }
 
     .player-head h3{
 
-        font-size:1.05rem;
+        font-size:.62rem;
+
+        line-height:1.2;
+
+    }
+
+    .player-flag{
+
+        width:18px;
+
+        height:13px;
+
+        border-radius:2px;
+
+        padding:1px;
+
+    }
+
+    .player-seed{
+
+        margin-left:4px;
+
+        padding:1px 4px;
+
+        border-radius:5px;
+
+        font-size:.52rem;
 
     }
 
     .player-meta{
 
-        font-size:.94rem;
+        font-size:.56rem;
+
+        line-height:1.2;
+
+    }
+
+}
+
+@media(max-width:380px){
+
+    .player-head h3{
+
+        font-size:.58rem;
+
+    }
+
+    .player-meta{
+
+        font-size:.52rem;
 
     }
 
