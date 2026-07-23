@@ -190,3 +190,35 @@
     background:#C78C32;
     color:#071826;
 }
+
+/* ================= MOBILE TOGGLE ================= */
+
+.mobile-toggle{
+    display:none;
+    flex-direction:column;
+    gap:5px;
+    background:none;
+    border:none;
+    cursor:pointer;
+    padding:8px;
+}
+
+.mobile-toggle span{
+    width:26px;
+    height:3px;
+    background:#fff;
+    border-radius:2px;
+    transition:.35s;
+}
+
+.mobile-toggle.active span:nth-child(1){
+    transform:rotate(45deg) translate(10px, 10px);
+}
+
+.mobile-toggle.active span:nth-child(2){
+    opacity:0;
+}
+
+.mobile-toggle.active span:nth-child(3){
+    transform:rotate(-45deg) translate(7px, -7px);
+}
