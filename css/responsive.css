@@ -194,7 +194,7 @@
 
     .hero-logo {
         width: min(160px, 32vw);
-        top: 35px;
+        top: -205px;
     }
 
     .hero-content {
