@@ -82,6 +82,21 @@
 
 @media (max-width:768px){
 
+    .hero-background img{
+
+        object-fit:contain;
+        object-position:bottom;
+
+    }
+
+    .hero-logo{
+
+        width:min(300px,40vw);
+
+        top:80px;
+
+    }
+
     .hero-content{
 
         text-align:center;
@@ -112,6 +127,8 @@
 
         justify-content:center;
 
+        margin-top:20px;
+
     }
 
     .count-box{
@@ -133,6 +150,14 @@
 
 @media (max-width:576px){
 
+    .hero-logo{
+
+        width:min(220px,35vw);
+
+        top:60px;
+
+    }
+
     .logo img{
 
         height:34px;
@@ -145,9 +170,25 @@
 
     }
 
-    .hero-title{
+    .countdown{
 
-        font-size:2.2rem;
+        margin-top:10px;
+
+        gap:12px;
+
+    }
+
+    .count-box{
+
+        width:55px;
+
+        height:55px;
+
+    }
+
+    .count-box span{
+
+        font-size:1.2rem;
 
     }
 
