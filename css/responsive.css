@@ -194,7 +194,7 @@
 
     .hero-logo {
         width: min(160px, 32vw);
-        top: -205px;
+        top: -355px;
     }
 
     .hero-content {
@@ -213,7 +213,7 @@
 
     .hero-buttons {
         gap: 12px;
-        margin-top: 70px;
+        margin-top: -250px;
     }
 
     .hero-buttons .btn {
@@ -224,7 +224,7 @@
 
     .countdown {
         gap: 8px;
-        margin-top: 8px;
+        margin-top: -98px;
     }
 
     .count-box {
@@ -241,7 +241,7 @@
     }
 
     .hero-event {
-        bottom: 80px;
+        bottom: 170px;
     }
 
     .event-label {
@@ -267,14 +267,7 @@
 
 }
 
-    }
-
-    .hero-event{
-
-        bottom:8px;
-
-    }
-
+    
     .event-label{
 
         font-size:0.55rem;
