@@ -156,7 +156,7 @@ async function loadPlayers() {
 
             const seedBadge = player.seed
                 ? `<span class="player-seed">${player.seed}</span>`
-                : "";
+                : `<span class="player-seed player-seed-empty">seed</span>`;
 
             grid.innerHTML += `
 
@@ -170,15 +170,19 @@ async function loadPlayers() {
 
                         <div class="player-head">
 
-                            <h3>${player.name} ${seedBadge}</h3>
+                            <div class="player-name">${player.name}</div>
 
-                        <img class="player-flag"
-                             src="assets/images/flags/${player.country}.png"
-                             alt="${player.country}">
+                            <div class="player-seed-row">${seedBadge}</div>
 
                         </div>
 
-                        <p class="player-meta">[${player.country}] WR: ${player.ranking}</p>
+                        <p class="player-meta">WR: ${player.ranking}</p>
+
+                        <div class="player-flag-row">
+                            <img class="player-flag"
+                                 src="assets/images/flags/${player.country}.png"
+                                 alt="${player.country}">
+                        </div>
 
                     </div>
 
@@ -315,49 +319,87 @@ DRAWS
 
 async function loadDraws(){
 
-    const grid=document.querySelector(".draw-grid");
+    const bracket = document.querySelector(".draw-bracket");
+    if(!bracket) return;
 
-    if(!grid) return;
+    try {
+        const bracketResponse = await fetch("data/draw-bracket.json", { cache: "no-store" });
+        if (!bracketResponse.ok) {
+            throw new Error("No se pudo cargar draw-bracket.json");
+        }
 
-    const response=await fetch("data/draws.json");
+        const bracketData = await bracketResponse.json();
+        const maxMatches = Math.max(...bracketData.rounds.map((r) => r.matches.length));
+        const bracketHeight = Math.max(760, maxMatches * 48);
 
-    const draws=await response.json();
+        bracket.style.setProperty("--bracket-height", `${bracketHeight}px`);
+        bracket.innerHTML = "";
 
-    grid.innerHTML="";
+        bracketData.rounds.forEach((round, index) => {
+            const roundCol = document.createElement("div");
+            roundCol.className = "draw-round";
+            roundCol.classList.add(`draw-round-${index + 1}`);
+            if (index > 0) {
+                roundCol.classList.add("draw-round-spread");
+            }
 
-    draws.forEach(draw=>{
+            roundCol.innerHTML = `
+                <div class="draw-round-title">${round.title}</div>
+                <div class="draw-round-matches"></div>
+            `;
 
-        grid.innerHTML+=`
+            const matchHost = roundCol.querySelector(".draw-round-matches");
 
-        <div class="draw-card">
+            round.matches.forEach((match) => {
+                const card = document.createElement("div");
+                card.className = "draw-match";
 
-            <h3>${draw.title}</h3>
+                card.innerHTML = `
+                    <div class="draw-player ${match.p1.name === "TBD" || match.p1.name === "BYE" ? "is-muted" : ""}">
+                        <span class="draw-avatar-wrap">
+                            ${match.p1.image ? `<img class="draw-avatar" src="assets/images/players/${match.p1.image}" alt="${match.p1.name}">` : ""}
+                        </span>
+                        <span class="draw-player-name">${match.p1.name}</span>
+                    </div>
+                    <div class="draw-player ${match.p2.name === "TBD" || match.p2.name === "BYE" ? "is-muted" : ""}">
+                        <span class="draw-avatar-wrap">
+                            ${match.p2.image ? `<img class="draw-avatar" src="assets/images/players/${match.p2.image}" alt="${match.p2.name}">` : ""}
+                        </span>
+                        <span class="draw-player-name">${match.p2.name}</span>
+                    </div>
+                `;
 
-            <p>
+                matchHost.appendChild(card);
+            });
 
-                Última actualización:
+            bracket.appendChild(roundCol);
+        });
+    } catch (error) {
+        console.error("Error cargando bracket:", error);
+        bracket.innerHTML = '<p class="draw-error">No se pudo cargar el cuadro.</p>';
+    }
 
-                ${draw.updated}
+    const links = document.querySelector(".draw-links");
+    if (!links) return;
 
-            </p>
+    try {
+        const response = await fetch("data/draws.json", { cache: "no-store" });
+        if (!response.ok) {
+            links.innerHTML = "";
+            return;
+        }
 
-            <a
+        const draws = await response.json();
+        links.innerHTML = "";
 
-            href="assets/pdf/${draw.file}"
-
-            target="_blank"
-
-            class="btn btn-primary">
-
-            Abrir PDF
-
-            </a>
-
-        </div>
-
-        `;
-
-    });
+        draws.forEach((draw) => {
+            links.innerHTML += `
+                <a href="assets/pdf/${draw.file}" target="_blank" class="draw-link-btn">${draw.title}</a>
+            `;
+        });
+    } catch (error) {
+        console.error("Error cargando enlaces PDF:", error);
+    }
 
 }
 function loadTournamentCenter(){
