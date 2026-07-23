@@ -16,8 +16,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     initCountdown();
 
-    initLanguage();
-
     revealSections();
 
     await loadPlayers();
