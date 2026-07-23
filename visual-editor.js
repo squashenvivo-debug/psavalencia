@@ -1,43 +1,14 @@
-// Visual Element Editor - Mover elementos con mouse y ver cambios en tiempo real
+// Visual CSS Editor - Edita propiedades CSS directamente
 (function() {
     let isEditMode = false;
     let selectedElement = null;
-    let draggedElement = null;
-    let offsetX = 0;
-    let offsetY = 0;
-    let originalTransform = '';
     let infoPanel = null;
+    const cssProperties = ['top', 'left', 'margin-top', 'margin-bottom', 'transform', 'height', 'min-height'];
 
-    // Crear panel de información
-    function createInfoPanel() {
-        const panel = document.createElement('div');
-        panel.id = 'visual-editor-panel';
-        panel.style.cssText = `
-            position: fixed;
-            top: 60px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.9);
-            color: #00ff00;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 12px;
-            z-index: 9999;
-            max-width: 350px;
-            max-height: 300px;
-            overflow-y: auto;
-            border: 2px solid #00ff00;
-            display: none;
-        `;
-        document.body.appendChild(panel);
-        return panel;
-    }
-
-    // Crear botón toggle
     function createToggleButton() {
         const button = document.createElement('button');
         button.id = 'visual-editor-toggle';
-        button.textContent = '✏️ Editar Elementos';
+        button.textContent = '✏️ CSS Editor';
         button.style.cssText = `
             position: fixed;
             top: 10px;
@@ -65,26 +36,46 @@
         return button;
     }
 
+    function createInfoPanel() {
+        const panel = document.createElement('div');
+        panel.id = 'visual-editor-panel';
+        panel.style.cssText = `
+            position: fixed;
+            top: 60px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.95);
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 9999;
+            max-width: 400px;
+            max-height: 500px;
+            overflow-y: auto;
+            border: 2px solid #00ff00;
+            display: none;
+        `;
+        document.body.appendChild(panel);
+        return panel;
+    }
+
     function toggleEditMode() {
         isEditMode = !isEditMode;
         const button = document.getElementById('visual-editor-toggle');
         const panel = document.getElementById('visual-editor-panel');
         
         if (isEditMode) {
-            button.textContent = '✏️ Editar (ON)';
+            button.textContent = '✏️ CSS (ON)';
             button.style.background = '#00aa00';
             panel.style.display = 'block';
-            panel.innerHTML = '<strong>MODO EDICIÓN ACTIVO</strong><br><br>Instrucciones:<br>1. Haz clic en cualquier elemento<br>2. Arrastra con el mouse<br>3. Suelta para soltar<br>4. Los valores se mostrarán aquí';
+            panel.innerHTML = '<strong>EDITOR CSS ACTIVO</strong><br><br>Haz clic en cualquier elemento para editar sus propiedades CSS';
             document.addEventListener('click', selectElement, true);
-            document.addEventListener('mousemove', dragElement);
-            document.addEventListener('mouseup', stopDrag);
         } else {
-            button.textContent = '✏️ Editar Elementos';
+            button.textContent = '✏️ CSS Editor';
             button.style.background = '#ff6b00';
             panel.style.display = 'none';
             document.removeEventListener('click', selectElement, true);
-            document.removeEventListener('mousemove', dragElement);
-            document.removeEventListener('mouseup', stopDrag);
             if (selectedElement) {
                 selectedElement.style.outline = '';
                 selectedElement = null;
@@ -95,7 +86,6 @@
     function selectElement(e) {
         if (!isEditMode) return;
         
-        // No seleccionar elementos del editor
         if (e.target.closest('#visual-editor-toggle') || 
             e.target.closest('#visual-editor-panel')) {
             e.preventDefault();
@@ -111,75 +101,107 @@
 
         selectedElement = e.target;
         selectedElement.style.outline = '3px solid #ff6b00';
-        
-        draggedElement = selectedElement;
-        originalTransform = selectedElement.style.transform || '';
-        
-        offsetX = e.clientX - selectedElement.getBoundingClientRect().left;
-        offsetY = e.clientY - selectedElement.getBoundingClientRect().top;
-
         updateInfoPanel();
-    }
-
-    function dragElement(e) {
-        if (!draggedElement || !isEditMode) return;
-
-        const rect = draggedElement.parentElement.getBoundingClientRect();
-        const newX = e.clientX - rect.left - offsetX;
-        const newY = e.clientY - rect.top - offsetY;
-
-        draggedElement.style.position = 'relative';
-        draggedElement.style.left = newX + 'px';
-        draggedElement.style.top = newY + 'px';
-
-        updateInfoPanel();
-    }
-
-    function stopDrag() {
-        if (draggedElement && isEditMode) {
-            updateInfoPanel();
-        }
     }
 
     function updateInfoPanel() {
         if (!selectedElement) return;
 
         const panel = document.getElementById('visual-editor-panel');
-        const styles = window.getComputedStyle(selectedElement);
         const tag = selectedElement.tagName.toLowerCase();
         const id = selectedElement.id ? `#${selectedElement.id}` : '';
         const classes = selectedElement.className ? `.${selectedElement.className.split(' ').join('.')}` : '';
         
         let html = `<strong>${tag}${id}${classes}</strong><br><br>`;
-        html += `<strong>Posición:</strong><br>`;
-        html += `left: ${selectedElement.style.left || '0'}<br>`;
-        html += `top: ${selectedElement.style.top || '0'}<br>`;
-        html += `<br><strong>CSS Aplicado:</strong><br>`;
-        html += `transform: ${selectedElement.style.transform || 'none'}<br>`;
-        html += `position: ${selectedElement.style.position || 'static'}<br>`;
-        html += `margin-top: ${selectedElement.style.marginTop || 'auto'}<br>`;
-        html += `<br><strong>📋 CSS para copiar:</strong><br>`;
+        html += `<strong>Propiedades CSS:</strong><br><br>`;
         
-        if (selectedElement.style.left && selectedElement.style.left !== '0px') {
-            html += `left: ${selectedElement.style.left};<br>`;
-        }
-        if (selectedElement.style.top && selectedElement.style.top !== '0px') {
-            html += `top: ${selectedElement.style.top};<br>`;
-        }
+        cssProperties.forEach(prop => {
+            const value = selectedElement.style[prop] || '';
+            const displayProp = prop.replace(/([A-Z])/g, '-$1').toLowerCase();
+            html += `<div style="margin-bottom: 10px;">`;
+            html += `<label style="display: block; margin-bottom: 3px;">${displayProp}:</label>`;
+            html += `<input type="text" data-prop="${prop}" value="${value}" style="
+                width: 100%;
+                padding: 5px;
+                background: #111;
+                color: #0f0;
+                border: 1px solid #0f0;
+                font-family: monospace;
+                font-size: 11px;
+                box-sizing: border-box;
+            ">`;
+            html += `</div>`;
+        });
+        
+        html += `<br><button id="copy-css" style="
+            width: 100%;
+            padding: 8px;
+            background: #0f0;
+            color: #000;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        ">📋 Copiar CSS</button>`;
         
         panel.innerHTML = html;
+        
+        // Agregar listeners a los inputs
+        panel.querySelectorAll('input[data-prop]').forEach(input => {
+            input.addEventListener('change', function() {
+                const prop = this.dataset.prop;
+                const value = this.value;
+                if (value) {
+                    selectedElement.style[prop] = value;
+                } else {
+                    selectedElement.style[prop] = '';
+                }
+                updateInfoPanel();
+            });
+            input.addEventListener('input', function() {
+                const prop = this.dataset.prop;
+                const value = this.value;
+                if (value) {
+                    selectedElement.style[prop] = value;
+                }
+            });
+        });
+
+        // Botón copiar
+        const copyBtn = panel.querySelector('#copy-css');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', function() {
+                let cssText = '';
+                cssProperties.forEach(prop => {
+                    const value = selectedElement.style[prop];
+                    if (value) {
+                        const displayProp = prop.replace(/([A-Z])/g, '-$1').toLowerCase();
+                        cssText += `${displayProp}: ${value};\n`;
+                    }
+                });
+                
+                if (cssText) {
+                    navigator.clipboard.writeText(cssText).then(() => {
+                        copyBtn.textContent = '✅ Copiado!';
+                        setTimeout(() => {
+                            copyBtn.textContent = '📋 Copiar CSS';
+                        }, 2000);
+                    });
+                }
+            });
+        }
     }
 
-    // Inicializar cuando el DOM esté listo
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
-            createInfoPanel();
             createToggleButton();
+            createInfoPanel();
         });
     } else {
-        createInfoPanel();
         createToggleButton();
+        createInfoPanel();
     }
 
-    console.log('✅ Visual Editor cargado. Busca el botón ✏️ en la esquina superior derecha');
+    console.log('✅ CSS Editor cargado. Busca el botón ✏️ en la esquina superior derecha');
 })();
