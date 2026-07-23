@@ -178,7 +178,7 @@
 @media (max-width:576px){
 
     #hero {
-        min-height: 30vh;
+        min-height: 50vh;
         padding: 0;
         padding-top: 80px;
     }
@@ -246,7 +246,7 @@
     }
 
     .hero-event {
-        bottom: 30px;
+        bottom: 10px;
     }
 
     .event-label {
