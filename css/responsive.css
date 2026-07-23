@@ -84,7 +84,7 @@
 @media (max-width:768px){
 
     #hero {
-        min-height: 40vh;
+        min-height: 100vh;
         padding: 0;
         padding-top: 80px;
     }
@@ -103,7 +103,7 @@
 
     .hero-logo {
         width: min(180px, 35vw);
-        top: 40px;
+        top: 600px;
     }
 
     .hero-content {
@@ -176,7 +176,7 @@
 @media (max-width:576px){
 
     #hero {
-        min-height: 40vh;
+        min-height: 100vh;
         padding: 0;
         padding-top: 80px;
     }
