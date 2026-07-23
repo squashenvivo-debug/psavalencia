@@ -88,13 +88,17 @@
 
     }
 
+    #quick-access{
+        margin-top:-70px;
+    }
+
 }
 
 @media(max-width:576px){
 
     #quick-access{
 
-        margin-top:0;
+        margin-top:-70px;
 
     }
 
