@@ -21,6 +21,6 @@
   { "name": "Hamza Khan", "country": "PAK", "ranking": 135, "image": "player-20.jpg" },
   { "name": "Khaled Labib", "country": "EGY", "ranking": 137, "image": "player-21.jpg" },
   { "name": "Marek Panacek", "country": "CZE", "ranking": 139, "image": "player-22.jpg" },
-  { "name": "Sergio Garcia Pollan", "country": "ESP", "ranking": 160, "image": "player-23.jpg", "seed": "WC [2]" },
+  { "name": "Sergio Garcia Pollan", "country": "ESP", "ranking": 160, "image": "player-23.jpg", "seed": "WC [2]", "photoPosition": "center 8%" },
   { "name": "Ernesto Revert", "country": "ESP", "ranking": 743, "image": "player-24.jpg", "seed": "WC [1]" }
 ]

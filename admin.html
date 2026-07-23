@@ -25,13 +25,13 @@
 
             <a href="#">Dashboard</a>
 
-            <a href="#">Noticias</a>
+            <a href="#news-admin-panel">Noticias</a>
 
-            <a href="#">Streaming</a>
+            <a href="#live-settings-panel">Streaming</a>
 
             <a href="#">Sponsors</a>
 
-            <a href="#">Galería</a>
+            <a href="#gallery-admin-panel">Galería</a>
 
             <a href="#">Banner</a>
 
@@ -39,7 +39,13 @@
 
             <a href="#tournament-mode-panel">Torneo</a>
 
+            <a href="#draw-schedule-panel">Horario Cuadro</a>
+
+            <a href="#draw-results-panel">Resultados</a>
+
             <a href="#">Idiomas</a>
+
+            <a href="index.html" class="menu-exit-link">Salir a Inicio</a>
 
         </nav>
 
@@ -75,6 +81,201 @@
 
             <button id="saveTournamentSettings" type="button">Guardar configuracion</button>
             <p id="adminStatus" class="admin-status" aria-live="polite"></p>
+        </section>
+
+        <section class="admin-card" id="live-settings-panel">
+            <h2>Streaming en Directo</h2>
+            <p class="admin-muted">Pega aqui el enlace de YouTube del directo para mostrarlo en la seccion LIVE.</p>
+
+            <label for="liveYoutubeUrl" class="field-label">Enlace de YouTube</label>
+            <input id="liveYoutubeUrl" type="url" placeholder="https://www.youtube.com/watch?v=XXXXXXXXXXX">
+
+            <div class="results-actions">
+                <button id="saveLiveSettings" type="button">Guardar enlace del directo</button>
+            </div>
+
+            <p id="liveAdminStatus" class="admin-status" aria-live="polite"></p>
+        </section>
+
+        <section class="admin-card" id="news-admin-panel">
+            <h2>Noticias</h2>
+            <p class="admin-muted">Crea noticias con título, foto y artículo completo en ES, VA, EN y FR.</p>
+
+            <div class="admin-lang-grid">
+                <label for="newNewsTitle_es" class="field-label">Título ES</label>
+                <input id="newNewsTitle_es" type="text" placeholder="Título en español">
+
+                <label for="newNewsTitle_va" class="field-label">Título VA</label>
+                <input id="newNewsTitle_va" type="text" placeholder="Títol en valencià">
+
+                <label for="newNewsTitle_en" class="field-label">Título EN</label>
+                <input id="newNewsTitle_en" type="text" placeholder="Title in English">
+
+                <label for="newNewsTitle_fr" class="field-label">Título FR</label>
+                <input id="newNewsTitle_fr" type="text" placeholder="Titre en français">
+            </div>
+
+            <label for="newNewsImage" class="field-label">Foto de noticia</label>
+            <input id="newNewsImage" type="file" accept="image/*">
+
+            <div class="admin-lang-grid">
+                <label for="newNewsArticle_es" class="field-label">Artículo ES</label>
+                <textarea id="newNewsArticle_es" rows="5" placeholder="Artículo completo en español"></textarea>
+
+                <label for="newNewsArticle_va" class="field-label">Artículo VA</label>
+                <textarea id="newNewsArticle_va" rows="5" placeholder="Article complet en valencià"></textarea>
+
+                <label for="newNewsArticle_en" class="field-label">Artículo EN</label>
+                <textarea id="newNewsArticle_en" rows="5" placeholder="Full article in English"></textarea>
+
+                <label for="newNewsArticle_fr" class="field-label">Artículo FR</label>
+                <textarea id="newNewsArticle_fr" rows="5" placeholder="Article complet en français"></textarea>
+            </div>
+
+            <div class="results-actions">
+                <button id="saveNewNews" type="button">Guardar noticia</button>
+            </div>
+
+            <p id="newsAdminStatus" class="admin-status" aria-live="polite"></p>
+
+            <h3 class="gallery-admin-subtitle">Gestión de noticias</h3>
+            <div class="gallery-admin-actions">
+                <button id="toggleNewsEditMode" type="button" class="btn-gallery-save">Editar noticias</button>
+            </div>
+
+            <div class="gallery-admin-actions">
+                <select id="newsDeleteSelect"></select>
+                <button id="deleteSelectedNews" type="button" class="btn-gallery-danger">Borrar noticia</button>
+            </div>
+
+            <div id="newsAdminEditor" class="gallery-admin-editor is-hidden">
+                <h3 class="gallery-admin-subtitle">Editor de noticias</h3>
+                <div id="newsAdminList" class="gallery-admin-list"></div>
+            </div>
+        </section>
+
+        <section class="admin-card" id="gallery-admin-panel">
+            <h2>Galería</h2>
+            <p class="admin-muted">Crea galerías por jornada, añade pies de foto por imagen y gestiona edición o borrado por foto o por galería.</p>
+
+            <div class="admin-lang-grid">
+                <label for="newGalleryTitle_es" class="field-label">Título galería ES</label>
+                <input id="newGalleryTitle_es" type="text" placeholder="Jornada primera ronda">
+
+                <label for="newGalleryTitle_va" class="field-label">Título galería VA</label>
+                <input id="newGalleryTitle_va" type="text" placeholder="Jornada primera ronda">
+
+                <label for="newGalleryTitle_en" class="field-label">Título galería EN</label>
+                <input id="newGalleryTitle_en" type="text" placeholder="First round morning session">
+
+                <label for="newGalleryTitle_fr" class="field-label">Título galería FR</label>
+                <input id="newGalleryTitle_fr" type="text" placeholder="Session du matin premier tour">
+            </div>
+
+            <label for="newGalleryFiles" class="field-label">Subir foto o fotos</label>
+            <input id="newGalleryFiles" type="file" accept="image/*" multiple>
+
+            <div id="newGalleryPhotosEditor" class="gallery-admin-photo-list"></div>
+
+            <div class="results-actions">
+                <button id="saveNewGallery" type="button">Guardar galería</button>
+            </div>
+
+            <p id="galleryAdminStatus" class="admin-status" aria-live="polite"></p>
+
+            <h3 class="gallery-admin-subtitle">Gestión de galerías</h3>
+
+            <div class="gallery-admin-actions">
+                <button id="toggleGalleryEditMode" type="button" class="btn-gallery-save">Editar galerías</button>
+            </div>
+
+            <div class="gallery-admin-actions">
+                <select id="galleryDeleteSelect"></select>
+                <button id="deleteSelectedGallery" type="button" class="btn-gallery-danger">Borrar galería</button>
+            </div>
+
+            <div id="galleryAdminEditor" class="gallery-admin-editor is-hidden">
+                <h3 class="gallery-admin-subtitle">Editor de galerías</h3>
+                <div id="galleryAdminList" class="gallery-admin-list"></div>
+            </div>
+        </section>
+
+        <section class="admin-card" id="draw-schedule-panel">
+            <h2>Horario de Partidos</h2>
+            <p class="admin-muted">Asigna fecha y hora antes de introducir resultados. Se guardara en el cuadro y se mostrara en cada partido.</p>
+
+            <div class="results-grid">
+                <div>
+                    <label for="scheduleRoundSelect" class="field-label">Ronda</label>
+                    <select id="scheduleRoundSelect"></select>
+                </div>
+                <div>
+                    <label for="scheduleMatchSelect" class="field-label">Partido</label>
+                    <select id="scheduleMatchSelect"></select>
+                </div>
+            </div>
+
+            <p id="schedulePlayersPreview" class="admin-muted"></p>
+
+            <label for="scheduleDate" class="field-label">Fecha y hora del partido</label>
+            <input id="scheduleDate" type="text" placeholder="17 APR 2026 · 17:45" />
+
+            <div class="results-actions">
+                <button id="saveMatchSchedule" type="button">Guardar Horario</button>
+            </div>
+
+            <p id="scheduleAdminStatus" class="admin-status" aria-live="polite"></p>
+        </section>
+
+        <section class="admin-card" id="draw-results-panel">
+            <h2>Resultados del Cuadro</h2>
+            <p class="admin-muted">Introduce tanteo por juego y el ganador pasara automaticamente a la siguiente ronda.</p>
+
+            <div class="results-grid">
+                <div>
+                    <label for="roundSelect" class="field-label">Ronda</label>
+                    <select id="roundSelect"></select>
+                </div>
+                <div>
+                    <label for="matchSelect" class="field-label">Partido</label>
+                    <select id="matchSelect"></select>
+                </div>
+            </div>
+
+            <p id="playersPreview" class="admin-muted"></p>
+
+            <div class="score-table">
+                <div class="score-header">Jugador</div>
+                <div class="score-header">Sets</div>
+                <div class="score-header">G1</div>
+                <div class="score-header">G2</div>
+                <div class="score-header">G3</div>
+                <div class="score-header">G4</div>
+                <div class="score-header">G5</div>
+
+                <div class="score-name" id="p1Name">P1</div>
+                <input id="p1Sets" type="number" min="0" max="3" />
+                <input id="p1g1" type="number" min="0" max="25" />
+                <input id="p1g2" type="number" min="0" max="25" />
+                <input id="p1g3" type="number" min="0" max="25" />
+                <input id="p1g4" type="number" min="0" max="25" />
+                <input id="p1g5" type="number" min="0" max="25" />
+
+                <div class="score-name" id="p2Name">P2</div>
+                <input id="p2Sets" type="number" min="0" max="3" />
+                <input id="p2g1" type="number" min="0" max="25" />
+                <input id="p2g2" type="number" min="0" max="25" />
+                <input id="p2g3" type="number" min="0" max="25" />
+                <input id="p2g4" type="number" min="0" max="25" />
+                <input id="p2g5" type="number" min="0" max="25" />
+            </div>
+
+            <div class="results-actions">
+                <button id="saveMatchResult" type="button">Guardar Resultado</button>
+                <button id="resetDrawState" type="button" class="btn-secondary-admin">Reset Cuadro</button>
+            </div>
+
+            <p id="drawAdminStatus" class="admin-status" aria-live="polite"></p>
         </section>
 
     </main>

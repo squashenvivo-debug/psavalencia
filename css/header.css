@@ -51,6 +51,18 @@
 
     gap:25px;
 
+    margin-left:-172px;
+
+}
+
+.logo{
+
+    display:flex;
+
+    align-items:center;
+
+    flex-shrink:0;
+
 }
 
 .logo img{
@@ -58,6 +70,16 @@
     height:46px;
 
     width:auto;
+
+    max-height:46px;
+
+    object-fit:contain;
+
+}
+
+#header .logo-group .logo:nth-child(2){
+
+    margin-left:-26px;
 
 }
 
@@ -221,4 +243,13 @@
 
 .mobile-toggle.active span:nth-child(3){
     transform:rotate(-45deg) translate(7px, -7px);
+}
+
+@media (min-width:993px){
+
+    .main-menu,
+    .header-right{
+        transform:translateX(18px);
+    }
+
 }

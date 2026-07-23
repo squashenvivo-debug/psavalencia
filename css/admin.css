@@ -72,6 +72,26 @@ background:#C78C32;
 
 }
 
+.sidebar a.menu-exit-link{
+
+margin-top:8px;
+
+background:#C78C32;
+
+color:#081826;
+
+font-weight:700;
+
+text-align:center;
+
+}
+
+.sidebar a.menu-exit-link:hover{
+
+background:#e2a64a;
+
+}
+
 .content{
 
 padding:60px;
@@ -144,7 +164,18 @@ font-weight:600;
 
 }
 
-#tournamentApiUrl{
+#tournamentApiUrl,
+#liveYoutubeUrl,
+#scheduleDate,
+#newGalleryFiles,
+#newGalleryTitle_es,
+#newGalleryTitle_va,
+#newGalleryTitle_en,
+#newGalleryTitle_fr,
+#newNewsTitle_es,
+#newNewsTitle_va,
+#newNewsTitle_en,
+#newNewsTitle_fr{
 
 width:100%;
 
@@ -162,7 +193,9 @@ margin-bottom:14px;
 
 }
 
-#saveTournamentSettings{
+#saveTournamentSettings,
+#saveLiveSettings,
+#saveNewGallery{
 
 padding:12px 18px;
 
@@ -188,4 +221,291 @@ min-height:20px;
 
 color:#93E4A2;
 
+}
+
+.results-grid{
+
+display:grid;
+
+grid-template-columns:1fr 1fr;
+
+gap:12px;
+
+margin-bottom:12px;
+
+}
+
+#roundSelect,
+#matchSelect,
+#scheduleRoundSelect,
+#scheduleMatchSelect,
+.score-table input{
+
+width:100%;
+
+padding:10px;
+
+border:1px solid #2D4861;
+
+border-radius:8px;
+
+background:#10293E;
+
+color:#fff;
+
+}
+
+.score-table{
+
+margin-top:12px;
+
+display:grid;
+
+grid-template-columns:1.8fr repeat(6, 1fr);
+
+gap:8px;
+
+align-items:center;
+
+}
+
+.score-header{
+
+font-size:.8rem;
+
+font-weight:700;
+
+color:#B7C4D1;
+
+text-align:center;
+
+}
+
+.score-name{
+
+font-weight:700;
+
+font-size:.92rem;
+
+}
+
+.results-actions{
+
+display:flex;
+
+gap:10px;
+
+margin-top:14px;
+
+}
+
+#saveMatchResult,
+#resetDrawState,
+#saveMatchSchedule{
+
+padding:12px 18px;
+
+border:none;
+
+border-radius:10px;
+
+font-weight:700;
+
+cursor:pointer;
+
+}
+
+#saveMatchResult{
+
+background:#C78C32;
+
+color:#081826;
+
+}
+
+#saveMatchSchedule{
+
+background:#2fb772;
+
+color:#071826;
+
+}
+
+.btn-secondary-admin,
+#resetDrawState{
+
+background:#29445d;
+
+color:#fff;
+
+}
+
+@media(max-width:900px){
+
+	.results-grid{
+
+		grid-template-columns:1fr;
+
+	}
+
+	.score-table{
+
+		grid-template-columns:1fr repeat(6, minmax(40px, 1fr));
+
+		overflow-x:auto;
+
+	}
+
+}
+
+.gallery-admin-subtitle{
+margin-top:18px;
+margin-bottom:10px;
+font-size:1rem;
+}
+
+.gallery-admin-list,
+.gallery-admin-photo-list{
+display:grid;
+gap:12px;
+}
+
+.gallery-admin-card,
+.gallery-photo-item,
+.gallery-new-photo-item{
+background:#10293E;
+border:1px solid #2D4861;
+border-radius:12px;
+padding:12px;
+}
+
+.gallery-admin-head{
+display:flex;
+gap:10px;
+align-items:center;
+margin-bottom:10px;
+}
+
+.gallery-admin-head input[type="text"],
+.gallery-photo-item input[type="text"],
+.gallery-new-photo-item input[type="text"]{
+flex:1;
+width:100%;
+padding:10px;
+border:1px solid #2D4861;
+border-radius:8px;
+background:#0E2436;
+color:#fff;
+}
+
+.gallery-admin-actions,
+.gallery-photo-actions{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+margin-top:8px;
+}
+
+.gallery-admin-actions select{
+padding:10px;
+border:1px solid #2D4861;
+border-radius:8px;
+background:#0E2436;
+color:#fff;
+min-width:240px;
+}
+
+.gallery-photo-grid{
+display:grid;
+gap:10px;
+}
+
+.gallery-thumb{
+width:100%;
+max-width:220px;
+aspect-ratio:4/3;
+object-fit:cover;
+border-radius:8px;
+border:1px solid #2D4861;
+}
+
+.btn-gallery-danger,
+.btn-gallery-save,
+.btn-gallery-add{
+padding:9px 12px;
+border:none;
+border-radius:8px;
+font-weight:700;
+cursor:pointer;
+}
+
+.btn-gallery-danger{
+background:#b13a3a;
+color:#fff;
+}
+
+.btn-gallery-save{
+background:#C78C32;
+color:#081826;
+}
+
+.btn-gallery-add{
+background:#2fb772;
+color:#071826;
+}
+
+.gallery-cover-check{
+display:flex;
+align-items:center;
+gap:8px;
+margin:8px 0 2px;
+color:#B7C4D1;
+font-size:.88rem;
+}
+
+.gallery-admin-editor.is-hidden{
+display:none;
+}
+
+.admin-lang-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:8px 12px;
+margin-bottom:12px;
+}
+
+.admin-lang-grid textarea{
+width:100%;
+padding:10px;
+border:1px solid #2D4861;
+border-radius:8px;
+background:#10293E;
+color:#fff;
+resize:vertical;
+min-height:110px;
+}
+
+#newNewsImage,
+.news-replace-image,
+#newGalleryFiles{
+width:100%;
+}
+
+.gallery-admin-head textarea,
+.gallery-photo-item textarea,
+.gallery-new-photo-item textarea{
+width:100%;
+padding:10px;
+border:1px solid #2D4861;
+border-radius:8px;
+background:#0E2436;
+color:#fff;
+resize:vertical;
+min-height:90px;
+}
+
+@media(max-width:900px){
+	.admin-lang-grid{
+		grid-template-columns:1fr;
+	}
 }

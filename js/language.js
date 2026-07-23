@@ -539,6 +539,10 @@ function setLanguage(lang){
 
         });
 
+    document.dispatchEvent(new CustomEvent("app-language-changed", {
+        detail: { language: lang }
+    }));
+
 }
 
 function openLanguageMenu(){

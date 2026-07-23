@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noticia | PSA Valencia Open</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/news.css">
+<link rel="stylesheet" href="css/gallery.css">
+</head>
+<body class="gallery-page">
+
+<main class="gallery-page-main">
+    <div class="container">
+        <header class="gallery-page-header">
+            <h1 class="gallery-page-title" id="newsPageTitle">Noticia</h1>
+            <a class="gallery-back-link" href="index.html#news">Volver</a>
+        </header>
+
+        <article class="news-card" id="newsPageArticle" style="max-width:980px;margin:0 auto;">
+            <img id="newsPageImage" alt="Noticia">
+            <div class="news-content">
+                <span id="newsPageDate" class="news-date"></span>
+                <h2 id="newsPageHeading"></h2>
+                <p id="newsPageBody" style="white-space:pre-wrap;"></p>
+            </div>
+        </article>
+
+        <p id="newsPageEmpty" class="gallery-empty" style="display:none;">Noticia no encontrada.</p>
+    </div>
+</main>
+
+<script src="js/news.js"></script>
+</body>
+</html>

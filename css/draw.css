@@ -4,6 +4,12 @@
 
 }
 
+#draw .container{
+
+    width:min(96vw, 1920px);
+
+}
+
 .draw-bracket-wrapper{
 
     margin-top:24px;
@@ -24,15 +30,17 @@
 
 .draw-bracket{
 
-    min-width:1320px;
+    min-width:0;
+
+    width:max-content;
 
     display:grid;
 
-    grid-template-columns:repeat(5, minmax(250px, 1fr));
+    grid-template-columns:repeat(5, 22.5vw);
 
-    gap:12px;
+    gap:16px;
 
-    padding:8px;
+    padding:10px;
 
 }
 
@@ -55,13 +63,13 @@
 
     text-align:center;
 
-    font-size:.68rem;
+    font-size:.9rem;
 
     font-weight:700;
 
     letter-spacing:.4px;
 
-    padding:5px 8px;
+    padding:7px 10px;
 
     border-radius:8px 8px 0 0;
 
@@ -87,13 +95,13 @@
 
     right:6px;
 
-    height:var(--match-height, 42px);
+    height:var(--match-height, 84px);
 
     background:#ffffff;
 
     border:1px solid #d9e2ec;
 
-    border-radius:6px;
+    border-radius:8px;
 
     overflow:hidden;
 
@@ -109,11 +117,11 @@
 
     align-items:center;
 
-    gap:6px;
+    gap:8px;
 
     min-height:0;
 
-    padding:1px 5px;
+    padding:4px 10px;
 
     border-bottom:1px solid #edf2f7;
 
@@ -127,9 +135,9 @@
 
 .draw-avatar-wrap{
 
-    width:12px;
+    width:28px;
 
-    height:12px;
+    height:28px;
 
     display:inline-flex;
 
@@ -141,9 +149,9 @@
 
 .draw-avatar{
 
-    width:12px;
+    width:28px;
 
-    height:12px;
+    height:28px;
 
     border-radius:3px;
 
@@ -155,7 +163,7 @@
 
     color:#0b3648;
 
-    font-size:.56rem;
+    font-size:1.08rem;
 
     font-weight:600;
 
@@ -219,13 +227,24 @@
 
         min-width:980px;
 
+        width:max-content;
+
         gap:10px;
 
     }
 
     .draw-player-name{
 
-        font-size:.55rem;
+        font-size:.66rem;
+
+    }
+
+    .draw-avatar-wrap,
+    .draw-avatar{
+
+        width:12px;
+
+        height:12px;
 
     }
 

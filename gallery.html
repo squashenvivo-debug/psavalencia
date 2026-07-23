@@ -1,1 +1,32 @@
-{"event":"PSA Valencia Open 2026"}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galería | PSA Valencia Open</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/gallery.css">
+</head>
+<body class="gallery-page">
+
+<main class="gallery-page-main">
+    <div class="container">
+        <header class="gallery-page-header">
+            <h1 class="gallery-page-title" id="galleryPageTitle">Galería</h1>
+            <a class="gallery-back-link" href="index.html#gallery">Volver</a>
+        </header>
+
+        <div id="galleryDetailGrid" class="gallery-detail-grid"></div>
+        <p id="galleryDetailEmpty" class="gallery-empty" style="display:none;">No hay fotos en esta galería.</p>
+    </div>
+</main>
+
+<div id="galleryLightbox" class="gallery-lightbox" aria-hidden="true">
+    <button id="galleryLightboxClose" class="gallery-lightbox-close" type="button" aria-label="Cerrar">×</button>
+    <img id="galleryLightboxImage" class="gallery-lightbox-image" alt="Foto ampliada">
+    <p id="galleryLightboxCaption" class="gallery-lightbox-caption"></p>
+</div>
+
+<script src="js/gallery.js"></script>
+</body>
+</html>
