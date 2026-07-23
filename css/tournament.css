@@ -1,0 +1,33 @@
+/*==================================================
+TOURNAMENT
+==================================================*/
+
+#tournament{
+
+    padding:120px 0;
+
+    background:#081826;
+
+}
+
+#tournament-intro{
+
+    margin-top:50px;
+
+}
+
+.section-kicker{
+
+    display:inline-block;
+
+    margin-bottom:12px;
+
+    color:#C78C32;
+
+    font-size:.9rem;
+
+    letter-spacing:3px;
+
+    font-weight:700;
+
+}

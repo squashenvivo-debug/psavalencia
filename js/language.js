@@ -20,11 +20,37 @@ const translations = {
         },
 
         hero: {
-            title: "PSA VALENCIA OPEN 2026",
-            subtitle: "Memorial Chimo Marmaneu",
-            live: "VER DIRECTO",
-            draw: "CUADROS"
-        }
+            
+    live: "VER DIRECTO",
+    draw: "CUADROS",
+    days: "DÍAS",
+    hours: "HORAS",
+    minutes: "MIN",
+    seconds: "SEG"
+},
+quick: {
+
+    live: {
+        title: "DIRECTO",
+        text: "Ver los partidos en vivo"
+    },
+
+    draw: {
+        title: "CUADROS",
+        text: "Resultados y enfrentamientos"
+    },
+
+    schedule: {
+        title: "HORARIOS",
+        text: "Orden de juego del torneo"
+    },
+
+    players: {
+        title: "JUGADORES",
+        text: "Conoce a todos los participantes"
+    }
+
+},
 
     },
 
@@ -43,12 +69,36 @@ const translations = {
         },
 
         hero: {
-            title: "PSA VALÈNCIA OPEN 2026",
-            subtitle: "Memorial Chimo Marmaneu",
-            live: "VEURE DIRECTE",
-            draw: "QUADRES"
-        }
+    live: "VEURE DIRECTE",
+    draw: "QUADRES",
+    days: "DIES",
+    hours: "HORES",
+    minutes: "MIN",
+    seconds: "SEG"
+},
+quick: {
 
+    live: {
+        title: "DIRECTE",
+        text: "Veure els partits en directe"
+    },
+
+    draw: {
+        title: "QUADRES",
+        text: "Resultats i enfrontaments"
+    },
+
+    schedule: {
+        title: "HORARIS",
+        text: "Ordre de joc del torneig"
+    },
+
+    players: {
+        title: "JUGADORS",
+        text: "Coneix tots els participants"
+    }
+
+},
     },
 
     en: {
@@ -58,20 +108,44 @@ const translations = {
             tournament: "Tournament",
             players: "Players",
             schedule: "Schedule",
-            draw: "Draw",
+            draw: "Draws",
             live: "Live",
             news: "News",
             gallery: "Gallery",
             venue: "Venue"
         },
 
-        hero: {
-            title: "PSA VALENCIA OPEN 2026",
-            subtitle: "Chimo Marmaneu Memorial",
-            live: "WATCH LIVE",
-            draw: "DRAWS"
-        }
+hero: {
+    live: "WATCH LIVE",
+    draw: "DRAWS",
+    days: "DAYS",
+    hours: "HOURS",
+    minutes: "MIN",
+    seconds: "SEC"
+},
+quick: {
 
+    live: {
+        title: "LIVE",
+        text: "Watch matches live"
+    },
+
+    draw: {
+        title: "DRAWS",
+        text: "Results and matchups"
+    },
+
+    schedule: {
+        title: "SCHEDULE",
+        text: "Order of play"
+    },
+
+    players: {
+        title: "PLAYERS",
+        text: "Meet all participants"
+    }
+
+},
     },
 
     fr: {
@@ -88,18 +162,56 @@ const translations = {
             venue: "Lieu"
         },
 
-        hero: {
-            title: "PSA VALENCIA OPEN 2026",
-            subtitle: "Mémorial Chimo Marmaneu",
-            live: "DIRECT",
-            draw: "TABLEAUX"
-        }
+hero: {
+    live: "DIRECT",
+    draw: "TABLEAUX",
+    days: "JOURS",
+    hours: "HEURES",
+    minutes: "MIN",
+    seconds: "SEC"
+},
+quick: {
+
+    live: {
+        title: "DIRECT",
+        text: "Regarder les matchs en direct"
+    },
+
+    draw: {
+        title: "TABLEAUX",
+        text: "Résultats et confrontations"
+    },
+
+    schedule: {
+        title: "PROGRAMME",
+        text: "Ordre des matchs"
+    },
+
+    players: {
+        title: "JOUEURS",
+        text: "Découvrez tous les participants"
+    }
+
+},
 
     }
 
 };
 
-let currentLanguage = localStorage.getItem("language") || "es";
+const languageNames = {
+
+    es: "ES",
+
+    va: "VA",
+
+    en: "EN",
+
+    fr: "FR"
+
+};
+
+let currentLanguage =
+localStorage.getItem("language") || "es";
 
 function t(path){
 
@@ -107,49 +219,125 @@ function t(path){
 
     let value = translations[currentLanguage];
 
-    keys.forEach(key => {
+    for(const key of keys){
 
         value = value?.[key];
 
-    });
+    }
 
-    return value || path;
+    return value ?? "";
 
 }
 
 function setLanguage(lang){
 
+    if(!translations[lang]) return;
+
     currentLanguage = lang;
 
-    localStorage.setItem("language", lang);
+    localStorage.setItem("language",lang);
 
     document.documentElement.lang = lang;
 
-    document.querySelectorAll("[data-i18n]").forEach(element => {
+    document
+        .querySelectorAll("[data-i18n]")
+        .forEach(el=>{
 
-        element.textContent = t(element.dataset.i18n);
+            const text=t(el.dataset.i18n);
 
-    });
+            if(text){
 
-    document.querySelectorAll(".language-selector button").forEach(button => {
+                el.textContent=text;
 
-        button.classList.toggle("active", button.dataset.lang === lang);
+            }
 
-    });
+        });
+
+    const toggle=document.getElementById("languageToggle");
+
+    if(toggle){
+
+        toggle.innerHTML = "🌐 <strong>" + languageNames[lang] + "</strong> ▼";
+
+    }
+    document
+        .querySelectorAll("#languageMenu button")
+        .forEach(button=>{
+
+            button.classList.toggle(
+                "active",
+                button.dataset.lang===lang
+            );
+
+        });
 
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function openLanguageMenu(){
+
+    const menu=document.getElementById("languageMenu");
+    if (!menu) return;
+
+        menu.classList.toggle("show");
+
+    
+
+}
+
+function closeLanguageMenu(){
+
+    const menu=document.getElementById("languageMenu");
+
+    if(menu){
+
+        menu.classList.remove("show");
+
+    }
+
+}
+document.addEventListener("DOMContentLoaded",()=>{
 
     setLanguage(currentLanguage);
 
-    document.querySelectorAll(".language-selector button").forEach(button => {
+    const toggle=document.getElementById("languageToggle");
 
-        button.addEventListener("click", () => {
+    const menu=document.getElementById("languageMenu");
 
-            setLanguage(button.dataset.lang);
+    if(toggle){
+
+        toggle.addEventListener("click",(e)=>{
+
+            e.stopPropagation();
+
+            openLanguageMenu();
 
         });
+
+    }
+
+    document
+        .querySelectorAll("#languageMenu button")
+        .forEach(button=>{
+
+            button.addEventListener("click",()=>{
+
+                setLanguage(button.dataset.lang);
+
+                closeLanguageMenu();
+
+            });
+
+        });
+
+    document.addEventListener("click",(e)=>{
+
+        const selector=document.querySelector(".language-selector");
+
+        if(selector && !selector.contains(e.target)){
+
+            closeLanguageMenu();
+
+        }
 
     });
 

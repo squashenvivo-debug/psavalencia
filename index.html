@@ -17,9 +17,10 @@
 <link rel="stylesheet" href="css/tournament-center.css">
 <link rel="stylesheet" href="css/sponsors.css">
 <link rel="stylesheet" href="css/discover.css">
-<a href="admin.html">ADMIN</a>
+<link rel="stylesheet" href="css/tournament.css">
 </head>
 <body>
+    
 <header id="header">
 
     <div class="container navbar">
@@ -55,15 +56,26 @@
         </nav>
 
         <div class="header-right">
+<a href="admin.html">ADMIN</a>
+<div class="language-selector">
 
-            <div class="language-selector">
+    <button id="languageToggle" class="language-toggle">
+        Español ▾
+    </button>
 
-                <button class="active" data-lang="es">ES</button>
-                <button data-lang="va">VA</button>
-                <button data-lang="en">EN</button>
-                <button data-lang="fr">FR</button>
+    <div id="languageMenu" class="language-menu">
 
-            </div>
+        <button data-lang="es">Español</button>
+
+        <button data-lang="va">Valencià</button>
+
+        <button data-lang="en">English</button>
+
+        <button data-lang="fr">Français</button>
+
+    </div>
+
+</div>
 
             <a href="#live" class="live-button">
 
@@ -96,49 +108,27 @@
 
     <div class="container hero-content">
 
-        <div class="hero-logos">
+  
 
-            <img src="assets/images/logos/psa.png"
-                 alt="PSA">
-
-            <img src="assets/images/logos/copper.png"
-                 alt="Copper">
-
-        </div>
-
-        <p class="hero-label">
-            PSA WORLD TOUR
-        </p>
-
-        <h1 class="hero-title">
-            PSA VALENCIA OPEN 2026
-        </h1>
-
-        <h2 class="hero-subtitle">
-            Memorial Chimo Marmaneu
-        </h2>
-
-        <p class="hero-location">
-
-            OLYMPIA ALBORAYA
-
-        </p>
+        
 
         <div class="hero-buttons">
 
             <a href="#live"
-               class="btn btn-primary">
+   class="btn btn-primary"
+   data-i18n="hero.live">
 
-                ▶ VER DIRECTO
+    VER DIRECTO
 
-            </a>
+</a>
 
-            <a href="#draw"
-               class="btn btn-secondary">
+<a href="#draw"
+   class="btn btn-secondary"
+   data-i18n="hero.draw">
 
-                CUADROS
+    CUADROS
 
-            </a>
+</a>
 
         </div>
 
@@ -148,7 +138,7 @@
 
                 <span id="days">00</span>
 
-                <small>DÍAS</small>
+                <small data-i18n="hero.days">DÍAS</small>
 
             </div>
 
@@ -156,7 +146,7 @@
 
                 <span id="hours">00</span>
 
-                <small>HORAS</small>
+               <small data-i18n="hero.hours">HORAS</small>
 
             </div>
 
@@ -164,7 +154,7 @@
 
                 <span id="minutes">00</span>
 
-                <small>MIN</small>
+                <small data-i18n="hero.minutes">MIN</small>
 
             </div>
 
@@ -172,19 +162,37 @@
 
                 <span id="seconds">00</span>
 
-                <small>SEG</small>
+                <small data-i18n="hero.seconds">SEG</small>
 
             </div>
 
         </div>
+    <div class="hero-logo">
 
+    <img src="assets/images/hero/psa-valencia-logo.png"
+         alt="PSA Valencia Open 2026">
+
+</div>
+<div class="hero-event">
+
+    <span class="event-label">MEMORIAL</span>
+
+    <h1 class="event-title">
+        CHIMO MARMANEAU
+    </h1>
+
+    <div class="event-location">
+        Alboraya · Valencia
     </div>
 
+</div>
+    </div>
+
+ 
 </section>
 <!-- =======================================================
 QUICK ACCESS
 ======================================================= -->
-
 <section id="quick-access">
 
     <div class="container">
@@ -193,26 +201,38 @@ QUICK ACCESS
 
             <a class="quick-card" href="#live">
                 <div class="quick-icon">📺</div>
-                <h3>DIRECTO</h3>
-                <p>Ver los partidos en vivo</p>
+                <h3 data-i18n="quick.live.title">DIRECTO</h3>
+
+<p data-i18n="quick.live.text">
+    Ver los partidos en vivo
+</p>
             </a>
 
             <a class="quick-card" href="#draw">
                 <div class="quick-icon">🏆</div>
-                <h3>CUADROS</h3>
-                <p>Resultados y enfrentamientos</p>
+                <h3 data-i18n="quick.draw.title">CUADROS</h3>
+
+<p data-i18n="quick.draw.text">
+    Resultados y enfrentamientos
+</p>
             </a>
 
             <a class="quick-card" href="#schedule">
                 <div class="quick-icon">📅</div>
-                <h3>HORARIOS</h3>
-                <p>Orden de juego del torneo</p>
+                <h3 data-i18n="quick.schedule.title">HORARIOS</h3>
+
+<p data-i18n="quick.schedule.text">
+    Orden de juego del torneo
+</p>
             </a>
 
             <a class="quick-card" href="#players">
                 <div class="quick-icon">👤</div>
-                <h3>JUGADORES</h3>
-                <p>Conoce a todos los participantes</p>
+                <h3 data-i18n="quick.players.title">JUGADORES</h3>
+
+<p data-i18n="quick.players.text">
+    Conoce a todos los participantes
+</p>
             </a>
 
         </div>
@@ -220,13 +240,35 @@ QUICK ACCESS
     </div>
 
 </section>
+<section id="tournament" class="section">
 
+    <div class="container">
 
+        <div class="section-header">
+
+            <span class="section-kicker">PSA WORLD TOUR COPPER</span>
+
+            <h2>Tournament</h2>
+
+            <p>
+                Discover everything about the PSA Valencia Open 2026 –
+                Memorial Chimo Marmaneu.
+            </p>
+
+        </div>
+
+        <div id="tournament-intro">
+
+            <!-- Aquí cargaremos la presentación según el idioma -->
+
+        </div>
+
+    </div>
+
+</section>
 <!-- =======================================================
 LIVE
 ======================================================= -->
-
-
 <section id="live">
 
     <div class="container">
@@ -310,13 +352,9 @@ LIVE
     </div>
 
 </section>
-
-
-
 <!-- =======================================================
 PLAYERS
 ======================================================= -->
-
 <section id="players">
 
     <div class="container">
@@ -385,11 +423,9 @@ PLAYERS
     </div>
 
 </section>
-
 <!-- =======================================================
 SCHEDULE
 ======================================================= -->
-
 <section id="schedule">
 
     <div class="container">
@@ -401,11 +437,9 @@ SCHEDULE
     </div>
 
 </section>
-
 <!-- =======================================================
 DRAW
 ======================================================= -->
-
 <section id="draw">
 
     <div class="container">
@@ -421,7 +455,6 @@ DRAW
 <!-- =======================================================
 NEWS
 ======================================================= -->
-
 <section id="news">
 
     <div class="container">
@@ -438,7 +471,6 @@ NEWS
 <!-- =======================================================
 GALLERY
 ======================================================= -->
-
 <section id="gallery">
 
     <div class="container">
@@ -450,11 +482,9 @@ GALLERY
     </div>
 
 </section>
-
 <!-- =======================================================
 VENUE
 ======================================================= -->
-
 <section id="venue">
 
     <div class="container">
@@ -561,10 +591,6 @@ VENUE
     </div>
 
 </section>
-
-<!-- =======================================================
-FOOTER
-======================================================= -->
 <section id="discover">
 
     <div class="container">
@@ -645,155 +671,6 @@ FOOTER
     </div>
 
 </section>
-<footer>
-
-    <div class="container">
-
-        <p>
-
-            © 2026 PSA Valencia Open · Memorial Chimo Marmaneu
-
-        </p>
-
-    </div>
-
-</footer>
-<section id="quick-access"></section>
-<section id="news"></section>
-<section id="draw">
-
-    <div class="container">
-
-        <h2 class="section-title">
-
-            CUADROS
-
-        </h2>
-
-        <div class="draw-grid">
-
-        </div>
-
-    </div>
-
-</section>
-<section id="schedule">
-
-    <div class="container">
-
-        <h2 class="section-title">
-
-            HORARIOS
-
-        </h2>
-
-        <div class="schedule-days">
-
-            <button class="schedule-tab active">
-                Martes
-            </button>
-
-            <button class="schedule-tab">
-                Miércoles
-            </button>
-
-            <button class="schedule-tab">
-                Jueves
-            </button>
-
-            <button class="schedule-tab">
-                Viernes
-            </button>
-
-            <button class="schedule-tab">
-                Sábado
-            </button>
-
-            <button class="schedule-tab">
-                Domingo
-            </button>
-
-        </div>
-
-        <div class="schedule-list">
-
-        </div>
-
-    </div>
-
-</section>
-<section id="live">
-    <section id="tournament-center">
-
-    <div class="container">
-
-        <div class="tc-header">
-
-            <h2>Tournament Center</h2>
-
-            <span>Todo el torneo en un solo lugar</span>
-
-        </div>
-
-        <div class="tc-grid">
-
-            <article class="tc-card">
-
-                <h3>🔴 Ahora en pista</h3>
-
-                <div id="liveNow">
-
-                    Esperando datos API...
-
-                </div>
-
-            </article>
-
-            <article class="tc-card">
-
-                <h3>📅 Hoy</h3>
-
-                <div id="todayMatches">
-
-                    Esperando datos API...
-
-                </div>
-
-            </article>
-
-            <article class="tc-card">
-
-                <h3>🏆 Últimos resultados</h3>
-
-                <div id="latestResults">
-
-                    Esperando datos API...
-
-                </div>
-
-            </article>
-
-            <article class="tc-card">
-
-                <h3>⏭ Próximos partidos</h3>
-
-                <div id="nextMatches">
-
-                    Esperando datos API...
-
-                </div>
-
-            </article>
-
-        </div>
-
-    </div>
-
-</section>
-</section>
-
-<section id="gallery"></section>
-<section id="venue"></section>
 <section id="sponsors">
 
     <div class="container">
@@ -846,12 +723,28 @@ FOOTER
 
 </section>
 </main>
-<footer id="footer"></footer>
+<!-- =======================================================
+FOOTER
+======================================================= -->
+<footer>
+
+    <div class="container">
+
+        <p>
+
+            © 2026 PSA Valencia Open · Memorial Chimo Marmaneu
+
+        </p>
+
+    </div>
+
+</footer> 
 <script src="js/language.js"></script>
 <script src="js/navigation.js"></script>
 <script src="js/countdown.js"></script>
 <script src="js/router.js"></script>
 <script src="js/travel.js"></script>
 <script src="js/app.js"></script>
+
 </body>
 </html>
