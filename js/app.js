@@ -629,6 +629,13 @@ function initLiveStream() {
     if (!videoContainer) return;
 
     const history = readLiveHistory();
+    const validHistory = history.filter((item) => item?.url && extractYouTubeVideoId(item.url));
+    const currentItem = validHistory.length ? validHistory[validHistory.length - 1] : null;
+
+    if (currentItem?.url) {
+        renderLivePlayer(videoContainer, currentItem.url);
+    }
+
     if (history.length === 0) {
         if (archivePanel) archivePanel.hidden = false;
         if (archiveGrid) {
@@ -637,12 +644,9 @@ function initLiveStream() {
         return;
     }
 
-    const currentUrl = history[history.length - 1].url;
-    renderLivePlayer(videoContainer, currentUrl);
-
     if (!archivePanel || !archiveGrid) return;
 
-    const previous = history.slice(0, -1);
+    const previous = validHistory.slice(0, -1);
     if (previous.length === 0) {
         archivePanel.hidden = false;
         archiveGrid.innerHTML = '<p class="live-archive-empty">Todavía no hay directos anteriores.</p>';
