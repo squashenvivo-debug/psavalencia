@@ -363,10 +363,10 @@ async function loadDraws(){
 
         const firstRoundCount = bracketData.rounds[0]?.matches?.length || 0;
         const mobile = window.matchMedia("(max-width: 600px)").matches;
-        const matchHeight = mobile ? 30 : 84;
-        const matchStep = mobile ? 34 : 108;
+        const matchHeight = mobile ? 50 : 112;
+        const matchStep = mobile ? 58 : 132;
         const roundHeight = Math.max(
-            mobile ? 520 : 1620,
+            mobile ? 760 : 1980,
             (Math.max(firstRoundCount - 1, 0) * matchStep) + matchHeight
         );
 
