@@ -83,41 +83,49 @@
 
 @media (max-width:768px){
 
+    :root {
+        --hero-logo-mobile-width: min(180px, 35vw);
+        --hero-button-mobile-min-width: 130px;
+        --hero-button-mobile-padding: 10px 20px;
+        --hero-button-mobile-font-size: .85rem;
+        --countdown-box-mobile-size: 50px;
+    }
+
     body, html {
         margin: 0;
         padding: 0;
     }
 
     #hero {
-        min-height: 28vh;
+        min-height: 0;
+        height: calc(50vw + 60px);
         padding: 0;
         margin: 0;
-        margin-top: -80px;
     }
 
     .hero-background {
-        top: 0px !important;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        inset: 60px 0 0;
     }
 
     .hero-background img {
-        object-fit: contain;
-        object-position: center;
+        object-fit: cover;
+        object-position: top center;
         width: 100%;
         height: 100%;
+        transform: none;
     }
 
     .hero-logo {
-        width: min(180px, 35vw);
-        top: 20px;
+        width: var(--hero-logo-mobile-width);
+        top: -107px;
     }
 
     .hero-content {
         width: min(900px, 90%);
         gap: 15px;
         padding-top: 0;
+        transform: translateY(60px) scale(.8);
+        transform-origin: center top;
     }
 
     .hero-title {
@@ -129,36 +137,40 @@
     }
 
     .hero-buttons {
+        display: none;
         gap: 14px;
         margin-top: 80px;
+        transform: translateY(100px);
     }
 
     .hero-buttons .btn {
-        min-width: 130px !important;
-        padding: 10px 20px !important;
-        font-size: 0.85rem !important;
+        min-width: var(--hero-button-mobile-min-width);
+        padding: var(--hero-button-mobile-padding);
+        font-size: var(--hero-button-mobile-font-size);
     }
 
     .countdown {
         gap: 10px;
         margin-top: 10px;
+        transform: translateY(-35px) scale(.95);
+        transform-origin: center;
     }
 
     .count-box {
-        width: 50px !important;
-        height: 50px !important;
+        width: var(--countdown-box-mobile-size);
+        height: var(--countdown-box-mobile-size);
     }
 
     .count-box span {
-        font-size: 1.2rem !important;
+        font-size: 1.2rem;
     }
 
     .count-box small {
-        font-size: 0.55rem !important;
+        font-size: 0.55rem;
     }
 
     .hero-event {
-        bottom: 50px;
+        bottom: 25px;
     }
 
     .event-label {
@@ -183,42 +195,50 @@
 
 @media (max-width:576px){
 
+    :root {
+        --hero-logo-mobile-width: min(160px, 32vw);
+        --hero-button-mobile-min-width: 115px;
+        --hero-button-mobile-padding: 9px 18px;
+        --hero-button-mobile-font-size: .8rem;
+        --countdown-box-mobile-size: 45px;
+    }
+
     body, html {
         margin: 0;
         padding: 0;
     }
 
     #hero {
-        min-height: 25vh;
+        min-height: 0;
+        height: calc(50vw + 60px);
         padding: 0;
         padding-top: 0;
         margin: 0;
-        margin-top: -80px;
     }
 
     .hero-background {
-        top: 0px !important;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        inset: 60px 0 0;
     }
 
     .hero-background img {
-        object-fit: contain;
-        object-position: center;
+        object-fit: cover;
+        object-position: top center;
         width: 100%;
         height: 100%;
+        transform: none;
     }
 
     .hero-logo {
-        width: min(160px, 32vw);
-        top: 15px;
+        width: var(--hero-logo-mobile-width);
+        top: -112px;
     }
 
     .hero-content {
         width: min(900px, 90%);
         gap: 12px;
         padding-top: 0;
+        transform: translateY(60px) scale(.8);
+        transform-origin: center top;
     }
 
     .hero-title {
@@ -230,36 +250,40 @@
     }
 
     .hero-buttons {
+        display: none;
         gap: 12px;
         margin-top: 10px;
+        transform: translateY(100px);
     }
 
     .hero-buttons .btn {
-        min-width: 115px !important;
-        padding: 9px 18px !important;
-        font-size: 0.8rem !important;
+        min-width: var(--hero-button-mobile-min-width);
+        padding: var(--hero-button-mobile-padding);
+        font-size: var(--hero-button-mobile-font-size);
     }
 
     .countdown {
         gap: 8px;
         margin-top: 5px;
+        transform: translateY(-35px) scale(.95);
+        transform-origin: center;
     }
 
     .count-box {
-        width: 45px !important;
-        height: 45px !important;
+        width: var(--countdown-box-mobile-size);
+        height: var(--countdown-box-mobile-size);
     }
 
     .count-box span {
-        font-size: 1.1rem !important;
+        font-size: 1.1rem;
     }
 
     .count-box small {
-        font-size: 0.5rem !important;
+        font-size: 0.5rem;
     }
 
     .hero-event {
-        bottom: 10px;
+        bottom: -15px;
     }
 
     .event-label {
