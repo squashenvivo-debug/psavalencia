@@ -12,6 +12,7 @@ const LIVE_STREAM_HISTORY_KEY = "liveStreamYoutubeHistory";
 const GALLERY_COLLECTION_KEY = "galleryCollections";
 const NEWS_COLLECTION_KEY = "newsCollection";
 const DYNAMIC_LANGS = ["es", "va", "en", "fr"];
+const PLAYER_COUNTRY_BY_IMAGE = new Map();
 
 document.addEventListener("DOMContentLoaded", async () => {
 
@@ -167,6 +168,10 @@ async function loadPlayers() {
         grid.innerHTML = "";
 
         players.forEach(player => {
+
+            if (player?.image && player?.country) {
+                PLAYER_COUNTRY_BY_IMAGE.set(player.image, player.country);
+            }
 
             const seedBadge = player.seed
                 ? `<span class="player-seed">${player.seed}</span>`
@@ -411,6 +416,7 @@ async function loadDraws(){
                             <span class="draw-avatar-wrap">
                                 ${match.p1.image ? `<img class="draw-avatar" src="assets/images/players/${match.p1.image}" alt="${match.p1.name}">` : ""}
                             </span>
+                            ${renderDrawPlayerFlag(match.p1.image, match.p1.name)}
                             <span class="draw-player-name">${match.p1.name}</span>
                         </div>
                         <div class="draw-scoreline">
@@ -423,6 +429,7 @@ async function loadDraws(){
                             <span class="draw-avatar-wrap">
                                 ${match.p2.image ? `<img class="draw-avatar" src="assets/images/players/${match.p2.image}" alt="${match.p2.name}">` : ""}
                             </span>
+                            ${renderDrawPlayerFlag(match.p2.image, match.p2.name)}
                             <span class="draw-player-name">${match.p2.name}</span>
                         </div>
                         <div class="draw-scoreline">
@@ -882,5 +889,16 @@ function loadHomeGallery() {
     if (!grid.innerHTML.trim()) {
         grid.innerHTML = '<p class="gallery-empty">Todavia no hay galerias publicadas.</p>';
     }
+
+}
+
+function renderDrawPlayerFlag(playerImage, playerName){
+
+    if(!playerImage) return "";
+
+    const country = PLAYER_COUNTRY_BY_IMAGE.get(playerImage);
+    if(!country) return "";
+
+    return `<img class="draw-player-flag" src="assets/images/flags/${country}.svg" alt="${playerName} flag">`;
 
 }

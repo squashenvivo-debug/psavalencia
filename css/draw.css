@@ -207,6 +207,22 @@
 
 }
 
+.draw-player-flag{
+
+    width:18px;
+
+    height:12px;
+
+    object-fit:cover;
+
+    border-radius:2px;
+
+    border:1px solid #d9e2ec;
+
+    flex-shrink:0;
+
+}
+
 .draw-player-name{
 
     color:#0b3648;
@@ -311,6 +327,11 @@
 
     }
 
+    .draw-player-flag{
+        width:12px;
+        height:8px;
+    }
+
     .draw-bracket-wrapper{
 
         max-height:70vh;
@@ -406,6 +427,12 @@
 
         height:9px;
 
+    }
+
+    .draw-player-flag{
+        width:9px;
+        height:6px;
+        border-width:0;
     }
 
     .draw-player-name{
