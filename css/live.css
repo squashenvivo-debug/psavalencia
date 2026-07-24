@@ -8,6 +8,12 @@ LIVE
 
 }
 
+#live .container{
+
+    width:min(1600px, 96%);
+
+}
+
 .live-grid{
 
     display:grid;
@@ -234,5 +240,9 @@ LIVE
 @media(max-width:680px){
     .live-archive-grid{
         grid-template-columns:1fr;
+    }
+
+    #live .container{
+        width:min(1400px, 92%);
     }
 }
