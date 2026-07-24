@@ -78,6 +78,12 @@
 
     }
 
+    .header-right .admin-link{
+        font-size:.78rem;
+        font-weight:600;
+        line-height:1;
+    }
+
     .logo-group{
         margin-left:0;
         gap:10px;
@@ -326,6 +332,10 @@
 
     #header .logo-group{
         gap:8px;
+    }
+
+    .header-right .admin-link{
+        font-size:.72rem;
     }
 
     #header .logo img {
