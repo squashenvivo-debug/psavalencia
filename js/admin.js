@@ -27,15 +27,27 @@ function setAdminAuthStatus(message, isError = false) {
 function showAdminApp() {
     const authSection = document.getElementById("admin-auth");
     const app = document.getElementById("adminApp");
-    if (authSection) authSection.hidden = true;
-    if (app) app.hidden = false;
+    if (authSection) {
+        authSection.hidden = true;
+        authSection.style.display = "none";
+    }
+    if (app) {
+        app.hidden = false;
+        app.style.display = "grid";
+    }
 }
 
 function showAuthScreen() {
     const authSection = document.getElementById("admin-auth");
     const app = document.getElementById("adminApp");
-    if (authSection) authSection.hidden = false;
-    if (app) app.hidden = true;
+    if (authSection) {
+        authSection.hidden = false;
+        authSection.style.display = "grid";
+    }
+    if (app) {
+        app.hidden = true;
+        app.style.display = "none";
+    }
 }
 
 function startAdminModulesOnce() {
@@ -113,11 +125,19 @@ async function initAdminAuth() {
         });
     }
 
-    supabaseClient.auth.onAuthStateChange((_event, session) => {
+    supabaseClient.auth.onAuthStateChange(async (_event, session) => {
         if (session) {
             showAdminApp();
             startAdminModulesOnce();
         } else {
+            // Evita falsos negativos por eventos transitorios: verificamos sesión real.
+            const fallback = await supabaseClient.auth.getSession();
+            if (fallback?.data?.session) {
+                showAdminApp();
+                startAdminModulesOnce();
+                return;
+            }
+
             showAuthScreen();
         }
     });
