@@ -62,6 +62,33 @@ section{
 
 }
 
+/* Separacion visual sutil entre bloques principales. */
+main > section{
+    isolation:isolate;
+}
+
+main > section:not(#hero)::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:0;
+    box-shadow:inset 0 1px rgba(255,255,255,.05), inset 0 -1px rgba(0,0,0,.22);
+}
+
+main > section:nth-of-type(odd):not(#hero)::after{
+    background:rgba(255,255,255,.015);
+}
+
+main > section:nth-of-type(even):not(#hero)::after{
+    background:rgba(0,0,0,.055);
+}
+
+main > section > .container{
+    position:relative;
+    z-index:1;
+}
+
 /* Orden de las secciones de la página principal. */
 main{
     display:flex;
