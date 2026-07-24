@@ -390,12 +390,40 @@ async function fetchYouTubeTitle(videoUrl) {
     }
 }
 
+function extractYouTubeVideoId(url) {
+    if (!url) return "";
+
+    try {
+        const parsed = new URL(url);
+        const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
+
+        if (host === "youtu.be") {
+            return parsed.pathname.split("/").filter(Boolean)[0] || "";
+        }
+
+        if (host.endsWith("youtube.com")) {
+            if (parsed.searchParams.get("v")) {
+                return parsed.searchParams.get("v") || "";
+            }
+
+            const pathParts = parsed.pathname.split("/").filter(Boolean);
+            const marker = pathParts[0];
+            if (["embed", "shorts", "live"].includes(marker) && pathParts[1]) {
+                return pathParts[1];
+            }
+        }
+    } catch (error) {
+        return "";
+    }
+
+    return "";
+}
+
 async function saveLiveSettings() {
     const titleInput = document.getElementById("liveStreamTitle");
     const input = document.getElementById("liveYoutubeUrl");
     if (!input) return;
 
-    let title = String(titleInput?.value || "").trim();
     const value = (input.value || "").trim();
 
     if (!value) {
@@ -411,11 +439,10 @@ async function saveLiveSettings() {
         return;
     }
 
-    if (!title) {
-        const fetchedTitle = await fetchYouTubeTitle(value);
-        title = fetchedTitle || "Directo";
-        if (titleInput) titleInput.value = title;
-    }
+    const fetchedTitle = await fetchYouTubeTitle(value);
+    const videoId = extractYouTubeVideoId(value);
+    const title = fetchedTitle || (videoId ? `Directo ${videoId}` : "Directo");
+    if (titleInput) titleInput.value = title;
 
     const history = readLiveHistory();
     const last = history[history.length - 1] || null;
