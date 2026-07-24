@@ -196,7 +196,7 @@ async function loadPlayers() {
 
                         <div class="player-flag-row">
                             <img class="player-flag"
-                                 src="assets/images/flags/${player.country}.png"
+                                 src="assets/images/flags/${player.country}.svg"
                                  alt="${player.country}">
                         </div>
 

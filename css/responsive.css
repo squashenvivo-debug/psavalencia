@@ -83,56 +83,41 @@
 
 @media (max-width:768px){
 
-    /*
-       AJUSTES TABLET / MÓVIL
-       Cambia sólo estas variables para redimensionar la portada.
-    */
-    :root {
-        --hero-logo-mobile-width: min(180px, 35vw);
-        --hero-button-mobile-min-width: 130px;
-        --hero-button-mobile-padding: 10px 20px;
-        --hero-button-mobile-font-size: .85rem;
-        --countdown-box-mobile-size: 50px;
-    }
-
     body, html {
         margin: 0;
         padding: 0;
     }
 
     #hero {
-        /* El banner mide 1774 × 887 (proporción 2:1), con 60 px negros arriba. */
-        min-height: 0;
-        height: calc(50vw + 60px);
+        min-height: 28vh;
         padding: 0;
         margin: 0;
+        margin-top: -80px;
     }
 
     .hero-background {
-        /* El espacio sólo va arriba; nunca bajo el banner. */
-        inset: 60px 0 0;
+        top: 0px !important;
+        left: 0;
+        right: 0;
+        bottom: 0;
     }
 
     .hero-background img {
-        object-fit: cover;
-        object-position: top center;
+        object-fit: contain;
+        object-position: center;
         width: 100%;
         height: 100%;
-        transform: none;
     }
 
     .hero-logo {
-        width: var(--hero-logo-mobile-width);
-        top: -107px;
+        width: min(180px, 35vw);
+        top: 20px;
     }
 
     .hero-content {
         width: min(900px, 90%);
         gap: 15px;
         padding-top: 0;
-        /* Reduce sólo los elementos superpuestos del hero en móvil. */
-        transform: translateY(60px) scale(.8);
-        transform-origin: center top;
     }
 
     .hero-title {
@@ -144,41 +129,36 @@
     }
 
     .hero-buttons {
-        display: none;
         gap: 14px;
         margin-top: 80px;
-        /* El contenedor del hero está al 80 %, por eso 100 px son 80 px visibles. */
-        transform: translateY(100px);
     }
 
     .hero-buttons .btn {
-        min-width: var(--hero-button-mobile-min-width);
-        padding: var(--hero-button-mobile-padding);
-        font-size: var(--hero-button-mobile-font-size);
+        min-width: 130px !important;
+        padding: 10px 20px !important;
+        font-size: 0.85rem !important;
     }
 
     .countdown {
         gap: 10px;
         margin-top: 10px;
-        transform: translateY(-35px) scale(.95);
-        transform-origin: center;
     }
 
     .count-box {
-        width: var(--countdown-box-mobile-size);
-        height: var(--countdown-box-mobile-size);
+        width: 50px !important;
+        height: 50px !important;
     }
 
     .count-box span {
-        font-size: 1.2rem;
+        font-size: 1.2rem !important;
     }
 
     .count-box small {
-        font-size: 0.55rem;
+        font-size: 0.55rem !important;
     }
 
     .hero-event {
-        bottom: 25px;
+        bottom: 50px;
     }
 
     .event-label {
@@ -203,55 +183,42 @@
 
 @media (max-width:576px){
 
-    /*
-       AJUSTES MÓVIL PEQUEÑO (hasta 576 px).
-       Estos valores sustituyen a los de arriba en teléfonos pequeños.
-    */
-    :root {
-        --hero-logo-mobile-width: min(160px, 32vw);
-        --hero-button-mobile-min-width: 115px;
-        --hero-button-mobile-padding: 9px 18px;
-        --hero-button-mobile-font-size: .8rem;
-        --countdown-box-mobile-size: 45px;
-    }
-
     body, html {
         margin: 0;
         padding: 0;
     }
 
     #hero {
-        min-height: 0;
-        height: calc(50vw + 60px);
+        min-height: 25vh;
         padding: 0;
         padding-top: 0;
         margin: 0;
+        margin-top: -80px;
     }
 
     .hero-background {
-        inset: 60px 0 0;
+        top: 0px !important;
+        left: 0;
+        right: 0;
+        bottom: 0;
     }
 
     .hero-background img {
-        object-fit: cover;
-        object-position: top center;
+        object-fit: contain;
+        object-position: center;
         width: 100%;
         height: 100%;
-        transform: none;
     }
 
     .hero-logo {
-        width: var(--hero-logo-mobile-width);
-        top: -112px;
+        width: min(160px, 32vw);
+        top: 15px;
     }
 
     .hero-content {
         width: min(900px, 90%);
         gap: 12px;
         padding-top: 0;
-        /* Reduce sólo los elementos superpuestos del hero en móvil. */
-        transform: translateY(60px) scale(.8);
-        transform-origin: center top;
     }
 
     .hero-title {
@@ -263,40 +230,36 @@
     }
 
     .hero-buttons {
-        display: none;
         gap: 12px;
         margin-top: 10px;
-        transform: translateY(100px);
     }
 
     .hero-buttons .btn {
-        min-width: var(--hero-button-mobile-min-width);
-        padding: var(--hero-button-mobile-padding);
-        font-size: var(--hero-button-mobile-font-size);
+        min-width: 115px !important;
+        padding: 9px 18px !important;
+        font-size: 0.8rem !important;
     }
 
     .countdown {
         gap: 8px;
         margin-top: 5px;
-        transform: translateY(-35px) scale(.95);
-        transform-origin: center;
     }
 
     .count-box {
-        width: var(--countdown-box-mobile-size);
-        height: var(--countdown-box-mobile-size);
+        width: 45px !important;
+        height: 45px !important;
     }
 
     .count-box span {
-        font-size: 1.1rem;
+        font-size: 1.1rem !important;
     }
 
     .count-box small {
-        font-size: 0.5rem;
+        font-size: 0.5rem !important;
     }
 
     .hero-event {
-        bottom: -15px;
+        bottom: 10px;
     }
 
     .event-label {
@@ -318,102 +281,9 @@
 
     .logo img {
         height: 34px;
+        width: auto;
+        object-fit: contain;
     }
 
-}
-
-/* ==========================================================
-   CONTENIDO MÓVIL: 25 % MÁS COMPACTO
-   El hero y Quick Access quedan expresamente fuera.
-========================================================== */
-@media (max-width:768px){
-
-    main > section:not(#hero):not(#quick-access) > .container{
-        width:min(1050px, 69%);
-    }
-
-    #tournament,
-    #players,
-    #schedule,
-    #draw,
-    #live,
-    #news,
-    #gallery,
-    #venue,
-    #discover,
-    #sponsors{
-        padding:90px 0;
-    }
-
-    .section-title{
-        font-size:2.25rem;
-        margin-bottom:52px;
-    }
-
-    .venue-header h2,
-    .sponsors-header h2{
-        font-size:2.25rem;
-    }
-
-    .news-card img{
-        height:180px;
-    }
-
-    .news-content,
-    .player-info{
-        padding:19px;
-    }
-
-    .discover-card img{
-        height:150px;
-    }
-
-    .discover-grid,
-    .sponsors-grid{
-        grid-template-columns:repeat(2, minmax(0, 1fr));
-        gap:12px;
-    }
-
-    .discover-overlay{
-        padding:12px;
-    }
-
-    .discover-overlay h3{
-        font-size:1rem;
-        margin-bottom:4px;
-    }
-
-    .discover-overlay p{
-        font-size:.7rem;
-    }
-
-    .main-sponsor{
-        padding:19px;
-        margin-bottom:60px;
-    }
-
-    .sponsor-card{
-        height:90px;
-        padding:12px;
-    }
-
-    .sponsor-card img{
-        max-width:100px;
-        max-height:45px;
-    }
-
-    .venue-info{
-        padding:30px;
-    }
-
-    .venue-map iframe{
-        min-height:315px;
-    }
-
-    .court-card,
-    .draw-card,
-    .tc-card{
-        padding:26px;
-    }
 }
 
