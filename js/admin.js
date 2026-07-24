@@ -78,7 +78,7 @@ async function initAdminAuth() {
             loginBtn.disabled = true;
             setAdminAuthStatus("Verificando acceso...");
 
-            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
             loginBtn.disabled = false;
             if (error) {
@@ -87,6 +87,22 @@ async function initAdminAuth() {
             }
 
             setAdminAuthStatus("Acceso correcto.");
+
+            // Abrir panel inmediatamente tras login correcto.
+            if (data?.session) {
+                showAdminApp();
+                startAdminModulesOnce();
+                return;
+            }
+
+            // Fallback por si la sesión tarda en hidratarse en el cliente.
+            const fallback = await supabaseClient.auth.getSession();
+            if (fallback?.data?.session) {
+                showAdminApp();
+                startAdminModulesOnce();
+            } else {
+                setAdminAuthStatus("Acceso correcto, pero no se pudo abrir el panel. Recarga la página.", true);
+            }
         });
     }
 
