@@ -235,12 +235,15 @@ function updateLiveStatus(message) {
 }
 
 function loadLiveSettings() {
+    const titleInput = document.getElementById("liveStreamTitle");
     const input = document.getElementById("liveYoutubeUrl");
     if (!input) return;
     const history = readLiveHistory();
-    input.value = history.length > 0
-        ? history[history.length - 1]
-        : (localStorage.getItem(LIVE_STREAM_URL_KEY) || "");
+    const latest = history.length > 0 ? history[history.length - 1] : null;
+    input.value = latest?.url || (localStorage.getItem(LIVE_STREAM_URL_KEY) || "");
+    if (titleInput) {
+        titleInput.value = latest?.title || "";
+    }
     renderLiveHistoryInfo(history);
 }
 
@@ -253,7 +256,7 @@ function renderLiveHistoryInfo(history = readLiveHistory()) {
         return;
     }
 
-    info.textContent = `Historial de directos: ${history.length} (actual: ${history.length}, miniaturas: ${Math.max(0, history.length - 1)})`;
+    info.textContent = `Historial de directos: ${history.length} (actual: 1, miniaturas: ${Math.max(0, history.length - 1)})`;
 }
 
 function readLiveHistory() {
@@ -262,33 +265,58 @@ function readLiveHistory() {
         const current = (localStorage.getItem(LIVE_STREAM_URL_KEY) || "").trim();
 
         if (!raw) {
-            return current ? [current] : [];
+            return current
+                ? [{ url: current, title: "Directo", createdAt: new Date().toISOString() }]
+                : [];
         }
 
         const parsed = JSON.parse(raw);
         if (!Array.isArray(parsed)) {
-            return current ? [current] : [];
+            return current
+                ? [{ url: current, title: "Directo", createdAt: new Date().toISOString() }]
+                : [];
         }
 
         const cleaned = parsed
-            .map((item) => String(item || "").trim())
+            .map((item) => {
+                if (typeof item === "string") {
+                    const url = item.trim();
+                    return url ? { url, title: "Directo", createdAt: new Date().toISOString() } : null;
+                }
+
+                if (item && typeof item === "object") {
+                    const url = String(item.url || "").trim();
+                    if (!url) return null;
+                    return {
+                        url,
+                        title: String(item.title || "Directo").trim() || "Directo",
+                        createdAt: item.createdAt || new Date().toISOString()
+                    };
+                }
+
+                return null;
+            })
             .filter(Boolean);
 
         if (cleaned.length === 0 && current) {
-            return [current];
+            return [{ url: current, title: "Directo", createdAt: new Date().toISOString() }];
         }
 
         return cleaned;
     } catch (error) {
         const current = (localStorage.getItem(LIVE_STREAM_URL_KEY) || "").trim();
-        return current ? [current] : [];
+        return current
+            ? [{ url: current, title: "Directo", createdAt: new Date().toISOString() }]
+            : [];
     }
 }
 
 function saveLiveSettings() {
+    const titleInput = document.getElementById("liveStreamTitle");
     const input = document.getElementById("liveYoutubeUrl");
     if (!input) return;
 
+    const title = String(titleInput?.value || "").trim() || "Directo";
     const value = (input.value || "").trim();
 
     if (!value) {
@@ -305,9 +333,15 @@ function saveLiveSettings() {
     }
 
     const history = readLiveHistory();
-    const last = history[history.length - 1] || "";
-    if (value !== last) {
-        history.push(value);
+    const last = history[history.length - 1] || null;
+    if (!last || value !== last.url) {
+        history.push({
+            url: value,
+            title,
+            createdAt: new Date().toISOString()
+        });
+    } else {
+        last.title = title;
     }
 
     localStorage.setItem(LIVE_STREAM_URL_KEY, value);
@@ -329,7 +363,9 @@ function bindLiveSettings() {
             localStorage.removeItem(LIVE_STREAM_URL_KEY);
             localStorage.removeItem(LIVE_STREAM_HISTORY_KEY);
 
+            const titleInput = document.getElementById("liveStreamTitle");
             const input = document.getElementById("liveYoutubeUrl");
+            if (titleInput) titleInput.value = "";
             if (input) input.value = "";
 
             updateLiveStatus("Directo e historial borrados. Ya puedes hacer pruebas desde cero.");

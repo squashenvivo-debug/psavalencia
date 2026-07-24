@@ -630,40 +630,36 @@ function initLiveStream() {
 
     const history = readLiveHistory();
     if (history.length === 0) {
-        if (archivePanel) archivePanel.hidden = true;
-        if (archiveGrid) archiveGrid.innerHTML = "";
+        if (archivePanel) archivePanel.hidden = false;
+        if (archiveGrid) {
+            archiveGrid.innerHTML = '<p class="live-archive-empty">Todavía no hay directos anteriores.</p>';
+        }
         return;
     }
 
-    const currentUrl = history[history.length - 1];
+    const currentUrl = history[history.length - 1].url;
     renderLivePlayer(videoContainer, currentUrl);
 
     if (!archivePanel || !archiveGrid) return;
 
     const previous = history.slice(0, -1);
     if (previous.length === 0) {
-        archivePanel.hidden = true;
-        archiveGrid.innerHTML = "";
+        archivePanel.hidden = false;
+        archiveGrid.innerHTML = '<p class="live-archive-empty">Todavía no hay directos anteriores.</p>';
         return;
     }
 
     archivePanel.hidden = false;
-    const lang = getCurrentLanguage();
-    const replayWord = {
-        es: "Directo",
-        va: "Directe",
-        en: "Stream",
-        fr: "Direct"
-    };
-
-    archiveGrid.innerHTML = previous.map((url, index) => {
-        const id = extractYouTubeVideoId(url);
+    archiveGrid.innerHTML = previous.map((item) => {
+        const id = extractYouTubeVideoId(item.url);
         if (!id) return "";
         const thumb = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
+        const title = escapeHtml(item.title || "Directo anterior");
+        const safeUrl = escapeHtml(item.url);
         return `
-            <a class="live-archive-card" href="${url.replace(/"/g, "&quot;")}" target="_blank" rel="noopener noreferrer" aria-label="${replayWord[lang] || replayWord.es} ${index + 1}">
-                <img class="live-archive-thumb" src="${thumb}" alt="${replayWord[lang] || replayWord.es} ${index + 1}">
-                <div class="live-archive-meta">${replayWord[lang] || replayWord.es} ${index + 1}</div>
+            <a class="live-archive-card" href="${safeUrl}" target="_blank" rel="noopener noreferrer" aria-label="${title}">
+                <img class="live-archive-thumb" src="${thumb}" alt="${title}">
+                <div class="live-archive-meta">${title}</div>
             </a>
         `;
     }).join("");
@@ -675,28 +671,58 @@ function readLiveHistory() {
         const raw = localStorage.getItem(LIVE_STREAM_HISTORY_KEY);
         const current = (localStorage.getItem(LIVE_STREAM_URL_KEY) || "").trim();
         if (!raw) {
-            return current ? [current] : [];
+            return current
+                ? [{ url: current, title: "Directo", createdAt: new Date().toISOString() }]
+                : [];
         }
 
         const parsed = JSON.parse(raw);
         if (!Array.isArray(parsed)) {
-            return current ? [current] : [];
+            return current
+                ? [{ url: current, title: "Directo", createdAt: new Date().toISOString() }]
+                : [];
         }
 
         const urls = parsed
-            .map((value) => String(value || "").trim())
-            .filter(Boolean)
-            .filter((url) => !!extractYouTubeVideoId(url));
+            .map((value) => {
+                if (typeof value === "string") {
+                    const url = value.trim();
+                    if (!url || !extractYouTubeVideoId(url)) return null;
+                    return { url, title: "Directo", createdAt: new Date().toISOString() };
+                }
+
+                if (value && typeof value === "object") {
+                    const url = String(value.url || "").trim();
+                    if (!url || !extractYouTubeVideoId(url)) return null;
+                    return {
+                        url,
+                        title: String(value.title || "Directo").trim() || "Directo",
+                        createdAt: value.createdAt || new Date().toISOString()
+                    };
+                }
+
+                return null;
+            })
+            .filter(Boolean);
 
         if (urls.length === 0 && current) {
-            return [current];
+            return [{ url: current, title: "Directo", createdAt: new Date().toISOString() }];
         }
 
         return urls;
     } catch (error) {
         const current = (localStorage.getItem(LIVE_STREAM_URL_KEY) || "").trim();
-        return current ? [current] : [];
+        return current ? [{ url: current, title: "Directo", createdAt: new Date().toISOString() }] : [];
     }
+}
+
+function escapeHtml(value) {
+    return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
 }
 
 function renderLivePlayer(container, streamUrl) {
