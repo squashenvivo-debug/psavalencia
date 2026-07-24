@@ -398,8 +398,9 @@ async function loadDraws(){
 
                 const p1Muted = isMutedPlayer(match.p1.name);
                 const p2Muted = isMutedPlayer(match.p2.name);
-                const p1Sets = p1Muted ? "-" : countSetsWon(match.games, "p1");
-                const p2Sets = p2Muted ? "-" : countSetsWon(match.games, "p2");
+                const hasPlayedGames = hasAnyPlayedGame(match.games);
+                const p1Sets = (!hasPlayedGames || p1Muted) ? "" : countSetsWon(match.games, "p1");
+                const p2Sets = (!hasPlayedGames || p2Muted) ? "" : countSetsWon(match.games, "p2");
                 const gameCells1 = renderGameCells(match.games, "p1");
                 const gameCells2 = renderGameCells(match.games, "p2");
                 const footerDate = match.date || "-";
@@ -549,8 +550,18 @@ function renderGameCells(games, side){
 
     return games.slice(0, 5).map((game) => {
         const score = toValidScore(game?.[key]);
-        return `<span class="draw-game-score">${score === null ? "-" : score}</span>`;
+        return `<span class="draw-game-score">${score === null ? "" : score}</span>`;
     }).join("");
+
+}
+
+function hasAnyPlayedGame(games){
+
+    return (games || []).some((game) => {
+        const p1 = toValidScore(game?.p1);
+        const p2 = toValidScore(game?.p2);
+        return p1 !== null || p2 !== null;
+    });
 
 }
 
