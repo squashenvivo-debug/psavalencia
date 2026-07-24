@@ -155,9 +155,9 @@
 
     display:flex;
 
-    gap:18px;
+    gap:22px;
 
-    margin-top:50px;
+    margin-top:56px;
 
     justify-content:center;
 
@@ -167,9 +167,9 @@
 
 .count-box{
 
-    width:60px;
+    width:72px;
 
-    height:60px;
+    height:72px;
 
     border-radius:15px;
 
@@ -201,7 +201,7 @@
 
 .count-box span{
 
-    font-size:2rem;
+    font-size:2.25rem;
 
     font-weight:800;
 
@@ -211,7 +211,7 @@
 
     margin-top:6px;
 
-    font-size:.75rem;
+    font-size:.82rem;
 
     letter-spacing:2px;
 
@@ -322,13 +322,13 @@
 
     position:absolute;
 
-    top: -150px;
+    top: -165px;
 
     left:50%;
 
     transform:translateX(-50%);
 
-    width:min(450px,50vw);
+    width:min(520px,56vw);
 
     z-index:20;
 
