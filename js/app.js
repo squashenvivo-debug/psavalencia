@@ -396,14 +396,16 @@ async function loadDraws(){
                 const top = ((factor * matchIndex) + ((factor - 1) / 2)) * matchStep;
                 card.style.top = `${Math.round(top)}px`;
 
-                const p1Sets = countSetsWon(match.games, "p1");
-                const p2Sets = countSetsWon(match.games, "p2");
+                const p1Muted = isMutedPlayer(match.p1.name);
+                const p2Muted = isMutedPlayer(match.p2.name);
+                const p1Sets = p1Muted ? "-" : countSetsWon(match.games, "p1");
+                const p2Sets = p2Muted ? "-" : countSetsWon(match.games, "p2");
                 const gameCells1 = renderGameCells(match.games, "p1");
                 const gameCells2 = renderGameCells(match.games, "p2");
                 const footerDate = match.date || "-";
 
                 card.innerHTML = `
-                    <div class="draw-player ${isMutedPlayer(match.p1.name) ? "is-muted" : ""}">
+                    <div class="draw-player ${p1Muted ? "is-muted" : ""}">
                         <div class="draw-player-main">
                             <span class="draw-avatar-wrap">
                                 ${match.p1.image ? `<img class="draw-avatar" src="assets/images/players/${match.p1.image}" alt="${match.p1.name}">` : ""}
@@ -415,7 +417,7 @@ async function loadDraws(){
                             ${gameCells1}
                         </div>
                     </div>
-                    <div class="draw-player ${isMutedPlayer(match.p2.name) ? "is-muted" : ""}">
+                    <div class="draw-player ${p2Muted ? "is-muted" : ""}">
                         <div class="draw-player-main">
                             <span class="draw-avatar-wrap">
                                 ${match.p2.image ? `<img class="draw-avatar" src="assets/images/players/${match.p2.image}" alt="${match.p2.name}">` : ""}

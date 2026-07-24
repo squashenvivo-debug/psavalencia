@@ -134,6 +134,39 @@
     align-items:center;
     gap:8px;
     height:100%;
+    min-width:0;
+}
+
+.draw-player{
+    justify-content:space-between;
+}
+
+.draw-scoreline{
+    display:grid;
+    grid-template-columns:20px repeat(5, 22px);
+    gap:0;
+    align-items:stretch;
+    flex-shrink:0;
+    border-left:1px solid #edf2f7;
+}
+
+.draw-sets-won,
+.draw-game-score{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:24px;
+    font-size:.84rem;
+    color:#0b3648;
+    border-right:1px solid #edf2f7;
+}
+
+.draw-sets-won{
+    font-weight:700;
+}
+
+.draw-game-score{
+    font-weight:500;
 }
 
 .draw-player:last-child{
@@ -224,6 +257,11 @@
 
 }
 
+.draw-player.is-muted .draw-game-score,
+.draw-player.is-muted .draw-sets-won{
+    color:#7a8a98;
+}
+
 .draw-error{
 
     color:#d9e2ec;
@@ -252,6 +290,16 @@
 
         font-size:.66rem;
 
+    }
+
+    .draw-scoreline{
+        grid-template-columns:18px repeat(5, 18px);
+    }
+
+    .draw-sets-won,
+    .draw-game-score{
+        min-height:20px;
+        font-size:.72rem;
     }
 
     .draw-avatar-wrap,
@@ -366,6 +414,16 @@
 
         line-height:1.15;
 
+    }
+
+    .draw-scoreline{
+        grid-template-columns:14px repeat(5, 14px);
+    }
+
+    .draw-sets-won,
+    .draw-game-score{
+        min-height:14px;
+        font-size:.52rem;
     }
 
     .draw-match-footer{
