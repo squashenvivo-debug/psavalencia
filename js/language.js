@@ -221,7 +221,7 @@ quick: {
 /* Textos de todas las secciones estáticas de la página. */
 const pageTranslations = {
     es: {
-        menu: { discover: "Conoce Valencia", sponsors: "Patrocinadores" },
+        menu: { discover: "Experience Valencia", sponsors: "Patrocinadores" },
         cta: { live: "DIRECTO" },
         sectionHeaders: {
             quick: { label: "ACCESO", title: "ACCESOS DIRECTOS", intro: "Entra rápido a las secciones más importantes del torneo." },
@@ -233,7 +233,7 @@ const pageTranslations = {
             news: { label: "NEWS", title: "NOTICIAS", intro: "Actualidad del evento, entrevistas y momentos destacados." },
             gallery: { label: "GALLERY", title: "GALERÍA", intro: "Revive los mejores instantes del PSA Valencia Open." },
             venue: { label: "VENUE", title: "SEDE DEL TORNEO", intro: "Olympia Hotel, Events & Spa será la sede oficial del PSA Valencia Open · Memorial Chimo Marmaneu." },
-            discover: { label: "VALENCIA", title: "DESCUBRE LA CIUDAD", intro: "Mucho más que squash. Descubre una de las ciudades más atractivas del Mediterráneo durante tu estancia." },
+            discover: { label: "VALENCIA", title: "EXPERIENCE VALENCIA", intro: "Mucho más que squash. Descubre una de las ciudades más atractivas del Mediterráneo durante tu estancia." },
             sponsors: { label: "SPONSORS", title: "PATROCINADORES", intro: "Gracias a nuestros patrocinadores por hacer posible el PSA Valencia Open 2026." }
         },
         event: { label: "MEMORIAL", title: "CHIMO MARMANEAU", location: "Alboraya · Valencia" },
@@ -241,12 +241,12 @@ const pageTranslations = {
         live: { title: "EN DIRECTO", videoTitle: "Streaming PSA Valencia Open", videoIntro: "Aquí aparecerá el reproductor de YouTube.", court1: "PISTA 1", court2: "PISTA 2", upcoming: "Próximamente", pending: "Partido pendiente" },
         sections: { players: "JUGADORES", schedule: "HORARIOS", draw: "CUADROS", news: "NOTICIAS", gallery: "GALERÍA" },
         venue: { title: "SEDE DEL TORNEO", intro: "Olympia Hotel, Events & Spa será la sede oficial del PSA Valencia Open · Memorial Chimo Marmaneu.", address: "Dirección", phone: "Teléfono", directions: "Cómo llegar", parking: "🅿 Parking", cafe: "☕ Cafetería", restaurant: "🍴 Restaurante", accessible: "♿ Accesible", changing: "🚿 Vestuarios" },
-        discover: { label: "VALENCIA", title: "DESCUBRE LA CIUDAD", intro: "Mucho más que squash. Descubre una de las ciudades más atractivas del Mediterráneo durante tu estancia.", arts: "Ciudad de las Artes y las Ciencias", artsText: "El lugar más icónico de Valencia. Descubre el Oceanogràfic, el Museo de las Ciencias, el Hemisfèric y uno de los complejos arquitectónicos más espectaculares de Europa.", beach: "Playa de la Malvarrosa", beachText: "Relájate junto al mar Mediterráneo, disfruta de restaurantes locales, chiringuitos y una de las playas más famosas de Valencia.", centre: "Centro histórico", centreText: "Explora la Catedral de Valencia, la Plaza de la Virgen, el Mercado Central y la Lonja de la Seda, Patrimonio Mundial de la UNESCO.", food: "Gastronomía valenciana", foodText: "Prueba la auténtica paella valenciana, horchata, fideuà y cocina mediterránea en la ciudad donde nacieron.", explore: "Explorar ->" },
+        discover: { label: "VALENCIA", title: "EXPERIENCE VALENCIA", intro: "Mucho más que squash. Descubre una de las ciudades más atractivas del Mediterráneo durante tu estancia.", arts: "Ciudad de las Artes y las Ciencias", artsText: "El lugar más icónico de Valencia. Descubre el Oceanogràfic, el Museo de las Ciencias, el Hemisfèric y uno de los complejos arquitectónicos más espectaculares de Europa.", beach: "Playa de la Malvarrosa", beachText: "Relájate junto al mar Mediterráneo, disfruta de restaurantes locales, chiringuitos y una de las playas más famosas de Valencia.", centre: "Centro histórico", centreText: "Explora la Catedral de Valencia, la Plaza de la Virgen, el Mercado Central y la Lonja de la Seda, Patrimonio Mundial de la UNESCO.", food: "Gastronomía valenciana", foodText: "Prueba la auténtica paella valenciana, horchata, fideuà y cocina mediterránea en la ciudad donde nacieron.", explore: "Explorar ->" },
         sponsors: { title: "PATROCINADORES", intro: "Gracias a nuestros patrocinadores por hacer posible el PSA Valencia Open 2026." },
         footer: { copyright: "© 2026 PSA Valencia Open · Memorial Chimo Marmaneu" }
     },
     va: {
-        menu: { discover: "Coneix València", sponsors: "Patrocinadors" },
+        menu: { discover: "Experience València", sponsors: "Patrocinadors" },
         cta: { live: "DIRECTE" },
         sectionHeaders: {
             quick: { label: "ACCÉS", title: "ACCESSOS DIRECTES", intro: "Entra ràpid a les seccions més importants del torneig." },
@@ -258,7 +258,7 @@ const pageTranslations = {
             news: { label: "NEWS", title: "NOTÍCIES", intro: "Actualitat de l'esdeveniment, entrevistes i moments destacats." },
             gallery: { label: "GALLERY", title: "GALERIA", intro: "Reviu els millors instants del PSA Valencia Open." },
             venue: { label: "VENUE", title: "SEU DEL TORNEIG", intro: "Olympia Hotel, Events & Spa serà la seu oficial del PSA Valencia Open · Memorial Chimo Marmaneu." },
-            discover: { label: "VALÈNCIA", title: "DESCOBREIX LA CIUTAT", intro: "Molt més que esquaix. Descobreix una de les ciutats més atractives de la Mediterrània durant la teua estada." },
+            discover: { label: "VALÈNCIA", title: "EXPERIENCE VALÈNCIA", intro: "Molt més que esquaix. Descobreix una de les ciutats més atractives de la Mediterrània durant la teua estada." },
             sponsors: { label: "SPONSORS", title: "PATROCINADORS", intro: "Gràcies als nostres patrocinadors per fer possible el PSA Valencia Open 2026." }
         },
         event: { label: "MEMORIAL", title: "CHIMO MARMANEAU", location: "Alboraia · València" },
@@ -266,12 +266,12 @@ const pageTranslations = {
         live: { title: "EN DIRECTE", videoTitle: "Retransmissió PSA Valencia Open", videoIntro: "Ací apareixerà el reproductor de YouTube.", court1: "PISTA 1", court2: "PISTA 2", upcoming: "Pròximament", pending: "Partit pendent" },
         sections: { players: "JUGADORS", schedule: "HORARIS", draw: "QUADRES", news: "NOTÍCIES", gallery: "GALERIA" },
         venue: { title: "SEU DEL TORNEIG", intro: "Olympia Hotel, Events & Spa serà la seu oficial del PSA Valencia Open · Memorial Chimo Marmaneu.", address: "Adreça", phone: "Telèfon", directions: "Com arribar", parking: "🅿 Aparcament", cafe: "☕ Cafeteria", restaurant: "🍴 Restaurant", accessible: "♿ Accessible", changing: "🚿 Vestidors" },
-        discover: { label: "VALÈNCIA", title: "DESCOBREIX LA CIUTAT", intro: "Molt més que esquaix. Descobreix una de les ciutats més atractives de la Mediterrània durant la teua estada.", arts: "Ciutat de les Arts i les Ciències", artsText: "El lloc més icònic de València. Descobreix l'Oceanogràfic, el Museu de les Ciències, l'Hemisfèric i un dels complexos arquitectònics més espectaculars d'Europa.", beach: "Platja de la Malva-rosa", beachText: "Relaxa't vora la mar Mediterrània, gaudeix de restaurants locals, xiringuitos i una de les platges més famoses de València.", centre: "Centre històric", centreText: "Explora la Catedral de València, la Plaça de la Mare de Déu, el Mercat Central i la Llotja de la Seda, Patrimoni Mundial de la UNESCO.", food: "Gastronomia valenciana", foodText: "Tasta l'autèntica paella valenciana, orxata, fideuà i cuina mediterrània a la ciutat on van nàixer.", explore: "Explorar ->" },
+        discover: { label: "VALÈNCIA", title: "EXPERIENCE VALÈNCIA", intro: "Molt més que esquaix. Descobreix una de les ciutats més atractives de la Mediterrània durant la teua estada.", arts: "Ciutat de les Arts i les Ciències", artsText: "El lloc més icònic de València. Descobreix l'Oceanogràfic, el Museu de les Ciències, l'Hemisfèric i un dels complexos arquitectònics més espectaculars d'Europa.", beach: "Platja de la Malva-rosa", beachText: "Relaxa't vora la mar Mediterrània, gaudeix de restaurants locals, xiringuitos i una de les platges més famoses de València.", centre: "Centre històric", centreText: "Explora la Catedral de València, la Plaça de la Mare de Déu, el Mercat Central i la Llotja de la Seda, Patrimoni Mundial de la UNESCO.", food: "Gastronomia valenciana", foodText: "Tasta l'autèntica paella valenciana, orxata, fideuà i cuina mediterrània a la ciutat on van nàixer.", explore: "Explorar ->" },
         sponsors: { title: "PATROCINADORS", intro: "Gràcies als nostres patrocinadors per fer possible el PSA Valencia Open 2026." },
         footer: { copyright: "© 2026 PSA Valencia Open · Memorial Chimo Marmaneu" }
     },
     en: {
-        menu: { discover: "Discover Valencia", sponsors: "Sponsors" },
+        menu: { discover: "Experience Valencia", sponsors: "Sponsors" },
         cta: { live: "LIVE" },
         sectionHeaders: {
             quick: { label: "ACCESS", title: "QUICK ACCESS", intro: "Jump directly to the most important tournament sections." },
@@ -283,7 +283,7 @@ const pageTranslations = {
             news: { label: "NEWS", title: "NEWS", intro: "Event updates, interviews and key highlights." },
             gallery: { label: "GALLERY", title: "GALLERY", intro: "Relive the best moments of the PSA Valencia Open." },
             venue: { label: "VENUE", title: "TOURNAMENT VENUE", intro: "Olympia Hotel, Events & Spa will be the official venue for the PSA Valencia Open · Memorial Chimo Marmaneu." },
-            discover: { label: "VALENCIA", title: "DISCOVER THE CITY", intro: "Much more than squash. Discover one of the Mediterranean's most attractive cities during your stay." },
+            discover: { label: "VALENCIA", title: "EXPERIENCE VALENCIA", intro: "Much more than squash. Discover one of the Mediterranean's most attractive cities during your stay." },
             sponsors: { label: "SPONSORS", title: "SPONSORS", intro: "Thank you to our sponsors for making the PSA Valencia Open 2026 possible." }
         },
         event: { label: "MEMORIAL", title: "CHIMO MARMANEAU", location: "Alboraya · Valencia" },
@@ -291,12 +291,12 @@ const pageTranslations = {
         live: { title: "LIVE", videoTitle: "PSA Valencia Open streaming", videoIntro: "The YouTube player will appear here.", court1: "COURT 1", court2: "COURT 2", upcoming: "Coming soon", pending: "Match pending" },
         sections: { players: "PLAYERS", schedule: "SCHEDULE", draw: "DRAWS", news: "NEWS", gallery: "GALLERY" },
         venue: { title: "TOURNAMENT VENUE", intro: "Olympia Hotel, Events & Spa will be the official venue for the PSA Valencia Open · Memorial Chimo Marmaneu.", address: "Address", phone: "Phone", directions: "Get directions", parking: "🅿 Parking", cafe: "☕ Café", restaurant: "🍴 Restaurant", accessible: "♿ Accessible", changing: "🚿 Changing rooms" },
-        discover: { label: "VALENCIA", title: "DISCOVER THE CITY", intro: "Much more than squash. Discover one of the Mediterranean's most attractive cities during your stay.", arts: "City of Arts & Sciences", artsText: "Valencia's most iconic landmark. Discover the Oceanogràfic, Science Museum, Hemisfèric and one of Europe's most spectacular architectural complexes.", beach: "Malvarrosa Beach", beachText: "Relax by the Mediterranean Sea, enjoy local restaurants, beach bars and one of Valencia's most famous beaches.", centre: "Historic Centre", centreText: "Explore Valencia Cathedral, Plaza de la Virgen, the Central Market and the UNESCO World Heritage Silk Exchange.", food: "Valencian Gastronomy", foodText: "Taste authentic Paella Valenciana, Horchata, Fideuà and Mediterranean cuisine in the city where they were born.", explore: "Explore ->" },
+        discover: { label: "VALENCIA", title: "EXPERIENCE VALENCIA", intro: "Much more than squash. Discover one of the Mediterranean's most attractive cities during your stay.", arts: "City of Arts & Sciences", artsText: "Valencia's most iconic landmark. Discover the Oceanogràfic, Science Museum, Hemisfèric and one of Europe's most spectacular architectural complexes.", beach: "Malvarrosa Beach", beachText: "Relax by the Mediterranean Sea, enjoy local restaurants, beach bars and one of Valencia's most famous beaches.", centre: "Historic Centre", centreText: "Explore Valencia Cathedral, Plaza de la Virgen, the Central Market and the UNESCO World Heritage Silk Exchange.", food: "Valencian Gastronomy", foodText: "Taste authentic Paella Valenciana, Horchata, Fideuà and Mediterranean cuisine in the city where they were born.", explore: "Explore ->" },
         sponsors: { title: "SPONSORS", intro: "Thank you to our sponsors for making the PSA Valencia Open 2026 possible." },
         footer: { copyright: "© 2026 PSA Valencia Open · Memorial Chimo Marmaneu" }
     },
     fr: {
-        menu: { discover: "Découvrir Valence", sponsors: "Sponsors" },
+        menu: { discover: "Experience Valencia", sponsors: "Sponsors" },
         cta: { live: "DIRECT" },
         sectionHeaders: {
             quick: { label: "ACCÈS", title: "ACCÈS RAPIDES", intro: "Accédez rapidement aux sections les plus importantes du tournoi." },
@@ -308,7 +308,7 @@ const pageTranslations = {
             news: { label: "NEWS", title: "ACTUALITÉS", intro: "Actualité de l'événement, interviews et moments forts." },
             gallery: { label: "GALLERY", title: "GALERIE", intro: "Revivez les meilleurs moments du PSA Valencia Open." },
             venue: { label: "VENUE", title: "LIEU DU TOURNOI", intro: "Olympia Hotel, Events & Spa sera le lieu officiel du PSA Valencia Open · Memorial Chimo Marmaneu." },
-            discover: { label: "VALENCE", title: "DÉCOUVRIR LA VILLE", intro: "Bien plus que le squash. Découvrez l'une des villes les plus attrayantes de la Méditerranée pendant votre séjour." },
+            discover: { label: "VALENCE", title: "EXPERIENCE VALENCIA", intro: "Bien plus que le squash. Découvrez l'une des villes les plus attrayantes de la Méditerranée pendant votre séjour." },
             sponsors: { label: "SPONSORS", title: "PARTENAIRES", intro: "Merci à nos partenaires de rendre possible le PSA Valencia Open 2026." }
         },
         event: { label: "MÉMORIAL", title: "CHIMO MARMANEAU", location: "Alboraia · Valence" },
@@ -316,7 +316,7 @@ const pageTranslations = {
         live: { title: "EN DIRECT", videoTitle: "Diffusion PSA Valencia Open", videoIntro: "Le lecteur YouTube apparaîtra ici.", court1: "COURT 1", court2: "COURT 2", upcoming: "Prochainement", pending: "Match en attente" },
         sections: { players: "JOUEURS", schedule: "PROGRAMME", draw: "TABLEAUX", news: "ACTUALITÉS", gallery: "GALERIE" },
         venue: { title: "LIEU DU TOURNOI", intro: "Olympia Hotel, Events & Spa sera le lieu officiel du PSA Valencia Open · Memorial Chimo Marmaneu.", address: "Adresse", phone: "Téléphone", directions: "Itinéraire", parking: "🅿 Parking", cafe: "☕ Cafétéria", restaurant: "🍴 Restaurant", accessible: "♿ Accessible", changing: "🚿 Vestiaires" },
-        discover: { label: "VALENCE", title: "DÉCOUVRIR LA VILLE", intro: "Bien plus que le squash. Découvrez l'une des villes les plus attrayantes de la Méditerranée pendant votre séjour.", arts: "Cité des Arts et des Sciences", artsText: "Le lieu le plus emblématique de Valence. Découvrez l'Oceanogràfic, le Musée des Sciences, l'Hemisfèric et l'un des ensembles architecturaux les plus spectaculaires d'Europe.", beach: "Plage de la Malvarrosa", beachText: "Détendez-vous au bord de la Méditerranée, profitez des restaurants locaux, des bars de plage et de l'une des plages les plus célèbres de Valence.", centre: "Centre historique", centreText: "Explorez la Cathédrale de Valence, la Plaza de la Virgen, le Marché Central et la Bourse de la Soie, classée au patrimoine mondial de l'UNESCO.", food: "Gastronomie valencienne", foodText: "Goûtez l'authentique Paella Valenciana, l'horchata, la fideuà et la cuisine méditerranéenne dans la ville où elles sont nées.", explore: "Explorer ->" },
+        discover: { label: "VALENCE", title: "EXPERIENCE VALENCIA", intro: "Bien plus que le squash. Découvrez l'une des villes les plus attrayantes de la Méditerranée pendant votre séjour.", arts: "Cité des Arts et des Sciences", artsText: "Le lieu le plus emblématique de Valence. Découvrez l'Oceanogràfic, le Musée des Sciences, l'Hemisfèric et l'un des ensembles architecturaux les plus spectaculaires d'Europe.", beach: "Plage de la Malvarrosa", beachText: "Détendez-vous au bord de la Méditerranée, profitez des restaurants locaux, des bars de plage et de l'une des plages les plus célèbres de Valence.", centre: "Centre historique", centreText: "Explorez la Cathédrale de Valence, la Plaza de la Virgen, le Marché Central et la Bourse de la Soie, classée au patrimoine mondial de l'UNESCO.", food: "Gastronomie valencienne", foodText: "Goûtez l'authentique Paella Valenciana, l'horchata, la fideuà et la cuisine méditerranéenne dans la ville où elles sont nées.", explore: "Explorer ->" },
         sponsors: { title: "PARTENAIRES", intro: "Merci à nos partenaires de rendre possible le PSA Valencia Open 2026." },
         footer: { copyright: "© 2026 PSA Valencia Open · Memorial Chimo Marmaneu" }
     }
