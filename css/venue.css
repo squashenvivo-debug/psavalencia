@@ -18,11 +18,12 @@ VENUE
 
 }
 
-.venue-header h2{
+
+.venue-header .section-title{
 
     font-size:3rem;
 
-    margin-bottom:15px;
+    margin-bottom:14px;
 
 }
 
