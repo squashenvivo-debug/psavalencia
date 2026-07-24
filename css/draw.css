@@ -224,36 +224,6 @@
 
 }
 
-.draw-links{
-
-    display:flex;
-
-    flex-wrap:wrap;
-
-    gap:10px;
-
-    margin-top:14px;
-
-}
-
-.draw-link-btn{
-
-    display:inline-block;
-
-    border:1px solid rgba(255,255,255,.25);
-
-    color:#dce7f2;
-
-    background:#102233;
-
-    border-radius:8px;
-
-    padding:8px 10px;
-
-    font-size:.82rem;
-
-}
-
 .draw-error{
 
     color:#d9e2ec;

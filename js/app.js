@@ -442,28 +442,6 @@ async function loadDraws(){
         bracket.innerHTML = '<p class="draw-error">No se pudo cargar el cuadro.</p>';
     }
 
-    const links = document.querySelector(".draw-links");
-    if (!links) return;
-
-    try {
-        const response = await fetch("data/draws.json", { cache: "no-store" });
-        if (!response.ok) {
-            links.innerHTML = "";
-            return;
-        }
-
-        const draws = await response.json();
-        links.innerHTML = "";
-
-        draws.forEach((draw) => {
-            links.innerHTML += `
-                <a href="assets/pdf/${draw.file}" target="_blank" class="draw-link-btn">${draw.title}</a>
-            `;
-        });
-    } catch (error) {
-        console.error("Error cargando enlaces PDF:", error);
-    }
-
 }
 
 function isMutedPlayer(name){
