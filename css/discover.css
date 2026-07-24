@@ -10,6 +10,50 @@ DISCOVER VALENCIA
 
 }
 
+#discover .section-header{
+
+    max-width:900px;
+
+    margin:0 auto 56px;
+
+    text-align:center;
+
+}
+
+#discover .section-subtitle{
+
+    display:inline-block;
+
+    margin-bottom:12px;
+
+    color:#C78C32;
+
+    font-size:.78rem;
+
+    font-weight:700;
+
+    letter-spacing:.22em;
+
+}
+
+#discover .section-title{
+
+    margin-bottom:14px;
+
+}
+
+#discover .section-header p{
+
+    max-width:760px;
+
+    margin:0 auto;
+
+    color:#B7C4D1;
+
+    line-height:1.6;
+
+}
+
 .discover-grid{
 
     display:grid;
@@ -88,6 +132,12 @@ DISCOVER VALENCIA
 }
 
 @media(max-width:900px){
+
+#discover .section-header{
+
+margin-bottom:40px;
+
+}
 
 .discover-grid{
 
