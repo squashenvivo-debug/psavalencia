@@ -78,6 +78,21 @@
 
     }
 
+    .logo-group{
+        margin-left:0;
+        gap:10px;
+    }
+
+    #header .logo-group .logo:nth-child(2){
+        margin-left:0;
+    }
+
+    #header .logo img{
+        height:34px;
+        max-height:34px;
+        width:auto;
+    }
+
 }
 
 
@@ -188,6 +203,12 @@
         font-size: 1rem;
         letter-spacing: 5px;
         margin-top: 10px;
+    }
+
+    #header .logo img{
+        height:30px;
+        max-height:30px;
+        width:auto;
     }
 
 }
@@ -303,8 +324,13 @@
         margin-top: 2px;
     }
 
-    .logo img {
-        height: 34px;
+    #header .logo-group{
+        gap:8px;
+    }
+
+    #header .logo img {
+        height: 26px;
+        max-height:26px;
         width: auto;
         object-fit: contain;
     }
