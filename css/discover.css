@@ -157,9 +157,7 @@ DISCOVER VALENCIA
 
 }
 
-.discover-overlay::after{
-
-    content:"Explore ->";
+.discover-cta{
 
     display:inline-flex;
 
@@ -186,6 +184,16 @@ DISCOVER VALENCIA
     background:rgba(8,25,38,.35);
 
     backdrop-filter:blur(1px);
+
+    transition:background .25s ease, border-color .25s ease;
+
+}
+
+.discover-cta:hover{
+
+    background:rgba(199,140,50,.22);
+
+    border-color:rgba(199,140,50,.8);
 
 }
 
