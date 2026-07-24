@@ -12,9 +12,9 @@ LIVE
 
     display:grid;
 
-    grid-template-columns:minmax(0, 1.25fr) minmax(0, .95fr);
+    grid-template-columns:minmax(0, 1.42fr) minmax(0, .78fr);
 
-    gap:35px;
+    gap:40px;
 
     align-items:start;
 
@@ -92,6 +92,8 @@ LIVE
     justify-content:flex-start;
 
     gap:25px;
+
+    padding-left:14px;
 
 }
 
@@ -213,6 +215,10 @@ LIVE
 
         grid-template-columns:1fr;
 
+    }
+
+    .live-side{
+        padding-left:0;
     }
 
     .live-archive-panel{
