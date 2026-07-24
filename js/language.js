@@ -222,10 +222,11 @@ quick: {
 const pageTranslations = {
     es: {
         menu: { discover: "Conoce Valencia", sponsors: "Patrocinadores" },
+        cta: { live: "DIRECTO" },
         sectionHeaders: {
             quick: { label: "ACCESO", title: "ACCESOS DIRECTOS", intro: "Entra rápido a las secciones más importantes del torneo." },
             tournament: { label: "PSA WORLD TOUR COPPER", title: "TORNEO", intro: "Toda la información oficial del PSA Valencia Open 2026." },
-            live: { label: "LIVE", title: "EN DIRECTO", intro: "Sigue los partidos en tiempo real desde la pista principal." },
+            live: { label: "DIRECTO", title: "EN DIRECTO", intro: "Sigue los partidos en tiempo real desde la pista principal." },
             players: { label: "PLAYERS", title: "JUGADORES", intro: "Conoce a los protagonistas del cuadro y su trayectoria." },
             schedule: { label: "SCHEDULE", title: "HORARIOS", intro: "Consulta el orden de juego y no te pierdas ningún partido." },
             draw: { label: "DRAW", title: "CUADROS", intro: "Resultados, cruces y evolución completa del torneo." },
@@ -246,6 +247,7 @@ const pageTranslations = {
     },
     va: {
         menu: { discover: "Coneix València", sponsors: "Patrocinadors" },
+        cta: { live: "DIRECTE" },
         sectionHeaders: {
             quick: { label: "ACCÉS", title: "ACCESSOS DIRECTES", intro: "Entra ràpid a les seccions més importants del torneig." },
             tournament: { label: "PSA WORLD TOUR COPPER", title: "TORNEIG", intro: "Tota la informació oficial del PSA Valencia Open 2026." },
@@ -270,6 +272,7 @@ const pageTranslations = {
     },
     en: {
         menu: { discover: "Discover Valencia", sponsors: "Sponsors" },
+        cta: { live: "LIVE" },
         sectionHeaders: {
             quick: { label: "ACCESS", title: "QUICK ACCESS", intro: "Jump directly to the most important tournament sections." },
             tournament: { label: "PSA WORLD TOUR COPPER", title: "TOURNAMENT", intro: "All official information about PSA Valencia Open 2026." },
@@ -294,6 +297,7 @@ const pageTranslations = {
     },
     fr: {
         menu: { discover: "Découvrir Valence", sponsors: "Sponsors" },
+        cta: { live: "DIRECT" },
         sectionHeaders: {
             quick: { label: "ACCÈS", title: "ACCÈS RAPIDES", intro: "Accédez rapidement aux sections les plus importantes du tournoi." },
             tournament: { label: "PSA WORLD TOUR COPPER", title: "TOURNOI", intro: "Toutes les informations officielles du PSA Valencia Open 2026." },
