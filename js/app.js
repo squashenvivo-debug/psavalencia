@@ -661,20 +661,12 @@ function initLiveStream() {
         if (!id) return "";
         const thumb = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
         return `
-            <button class="live-archive-card" type="button" data-live-url="${url.replace(/"/g, "&quot;")}" aria-label="${replayWord[lang] || replayWord.es} ${index + 1}">
+            <a class="live-archive-card" href="${url.replace(/"/g, "&quot;")}" target="_blank" rel="noopener noreferrer" aria-label="${replayWord[lang] || replayWord.es} ${index + 1}">
                 <img class="live-archive-thumb" src="${thumb}" alt="${replayWord[lang] || replayWord.es} ${index + 1}">
                 <div class="live-archive-meta">${replayWord[lang] || replayWord.es} ${index + 1}</div>
-            </button>
+            </a>
         `;
     }).join("");
-
-    archiveGrid.querySelectorAll("[data-live-url]").forEach((button) => {
-        button.addEventListener("click", () => {
-            const selectedUrl = button.getAttribute("data-live-url") || "";
-            if (!selectedUrl) return;
-            renderLivePlayer(videoContainer, selectedUrl);
-        });
-    });
 
 }
 
