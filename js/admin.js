@@ -311,12 +311,25 @@ function readLiveHistory() {
     }
 }
 
-function saveLiveSettings() {
+async function fetchYouTubeTitle(videoUrl) {
+    try {
+        const endpoint = `https://www.youtube.com/oembed?url=${encodeURIComponent(videoUrl)}&format=json`;
+        const response = await fetch(endpoint);
+        if (!response.ok) return "";
+
+        const payload = await response.json();
+        return String(payload?.title || "").trim();
+    } catch (error) {
+        return "";
+    }
+}
+
+async function saveLiveSettings() {
     const titleInput = document.getElementById("liveStreamTitle");
     const input = document.getElementById("liveYoutubeUrl");
     if (!input) return;
 
-    const title = String(titleInput?.value || "").trim() || "Directo";
+    let title = String(titleInput?.value || "").trim();
     const value = (input.value || "").trim();
 
     if (!value) {
@@ -330,6 +343,12 @@ function saveLiveSettings() {
     if (!isYouTubeLink) {
         updateLiveStatus("URL no valida: usa un enlace de YouTube.");
         return;
+    }
+
+    if (!title) {
+        const fetchedTitle = await fetchYouTubeTitle(value);
+        title = fetchedTitle || "Directo";
+        if (titleInput) titleInput.value = title;
     }
 
     const history = readLiveHistory();
