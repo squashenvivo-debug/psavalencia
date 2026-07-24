@@ -245,6 +245,7 @@ function loadLiveSettings() {
         titleInput.value = latest?.title || "";
     }
     renderLiveHistoryInfo(history);
+    renderLiveHistoryAdminList(history);
 }
 
 function renderLiveHistoryInfo(history = readLiveHistory()) {
@@ -257,6 +258,71 @@ function renderLiveHistoryInfo(history = readLiveHistory()) {
     }
 
     info.textContent = `Historial de directos: ${history.length} (actual: 1, miniaturas: ${Math.max(0, history.length - 1)})`;
+}
+
+function persistLiveHistory(history) {
+    const normalized = Array.isArray(history)
+        ? history.filter((item) => item && typeof item === "object" && String(item.url || "").trim())
+        : [];
+
+    if (normalized.length === 0) {
+        localStorage.removeItem(LIVE_STREAM_URL_KEY);
+        localStorage.removeItem(LIVE_STREAM_HISTORY_KEY);
+        return;
+    }
+
+    const latest = normalized[normalized.length - 1];
+    localStorage.setItem(LIVE_STREAM_URL_KEY, String(latest.url || "").trim());
+    localStorage.setItem(LIVE_STREAM_HISTORY_KEY, JSON.stringify(normalized));
+}
+
+function renderLiveHistoryAdminList(history = readLiveHistory()) {
+    const host = document.getElementById("liveHistoryAdminList");
+    if (!host) return;
+
+    if (!history.length) {
+        host.innerHTML = "";
+        return;
+    }
+
+    host.innerHTML = history.map((item, index) => {
+        const title = escapeHtml(item.title || `Directo ${index + 1}`);
+        const url = escapeHtml(item.url || "");
+        const badge = index === history.length - 1 ? " (actual)" : "";
+        return `
+            <div class="live-history-admin-item">
+                <div class="live-history-admin-text">
+                    <div class="live-history-admin-title">${title}${badge}</div>
+                    <div class="live-history-admin-url">${url}</div>
+                </div>
+                <button type="button" class="btn-live-delete-one" data-live-remove-index="${index}">Borrar</button>
+            </div>
+        `;
+    }).join("");
+
+    host.querySelectorAll("[data-live-remove-index]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const idx = Number(button.getAttribute("data-live-remove-index"));
+            if (!Number.isInteger(idx) || idx < 0) return;
+
+            const current = readLiveHistory();
+            if (idx >= current.length) return;
+
+            current.splice(idx, 1);
+            persistLiveHistory(current);
+
+            const titleInput = document.getElementById("liveStreamTitle");
+            const urlInput = document.getElementById("liveYoutubeUrl");
+            const latest = current.length ? current[current.length - 1] : null;
+
+            if (titleInput) titleInput.value = latest?.title || "";
+            if (urlInput) urlInput.value = latest?.url || "";
+
+            renderLiveHistoryInfo(current);
+            renderLiveHistoryAdminList(current);
+            updateLiveStatus("Directo eliminado del historial.");
+        });
+    });
 }
 
 function readLiveHistory() {
@@ -363,10 +429,10 @@ async function saveLiveSettings() {
         last.title = title;
     }
 
-    localStorage.setItem(LIVE_STREAM_URL_KEY, value);
-    localStorage.setItem(LIVE_STREAM_HISTORY_KEY, JSON.stringify(history));
+    persistLiveHistory(history);
     updateLiveStatus(`Enlace guardado. Historial de directos: ${history.length}.`);
     renderLiveHistoryInfo(history);
+    renderLiveHistoryAdminList(history);
 }
 
 function bindLiveSettings() {
@@ -389,6 +455,7 @@ function bindLiveSettings() {
 
             updateLiveStatus("Directo e historial borrados. Ya puedes hacer pruebas desde cero.");
             renderLiveHistoryInfo([]);
+            renderLiveHistoryAdminList([]);
         });
     }
 }

@@ -227,6 +227,7 @@ font-weight:600;
 }
 
 #tournamentApiUrl,
+#liveStreamTitle,
 #liveYoutubeUrl,
 #scheduleDate,
 #newGalleryFiles,
@@ -360,6 +361,53 @@ gap:10px;
 
 margin-top:14px;
 
+}
+
+.live-history-admin-list{
+display:grid;
+gap:8px;
+margin-top:10px;
+}
+
+.live-history-admin-item{
+display:grid;
+grid-template-columns:1fr auto;
+gap:10px;
+align-items:center;
+background:#10293E;
+border:1px solid #2D4861;
+border-radius:10px;
+padding:10px 12px;
+}
+
+.live-history-admin-text{
+min-width:0;
+}
+
+.live-history-admin-title{
+font-weight:700;
+font-size:.92rem;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+}
+
+.live-history-admin-url{
+font-size:.78rem;
+color:#B7C4D1;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+}
+
+.btn-live-delete-one{
+padding:8px 10px;
+border:none;
+border-radius:8px;
+font-weight:700;
+cursor:pointer;
+background:#b13a3a;
+color:#fff;
 }
 
 #saveMatchResult,
