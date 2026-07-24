@@ -1312,6 +1312,20 @@ function getMatchWinner(match) {
     return p1Sets > p2Sets ? match.p1 : match.p2;
 }
 
+function buildGamesFromSets(p1Sets, p2Sets) {
+    const games = [];
+
+    for (let i = 0; i < p1Sets; i += 1) {
+        games.push({ p1: 11, p2: 7 });
+    }
+
+    for (let i = 0; i < p2Sets; i += 1) {
+        games.push({ p1: 7, p2: 11 });
+    }
+
+    return Array.from({ length: 5 }, (_, i) => games[i] || { p1: null, p2: null });
+}
+
 function normalizeBracket(bracket) {
     bracket.rounds.forEach((round) => {
         round.matches.forEach((match) => {
@@ -1494,10 +1508,26 @@ function saveMatchResult() {
     if (!selected) return;
     const { match } = selected;
 
-    match.games = Array.from({ length: 5 }, (_, i) => ({
+    const enteredGames = Array.from({ length: 5 }, (_, i) => ({
         p1: toScore(document.getElementById(`p1g${i + 1}`).value),
         p2: toScore(document.getElementById(`p2g${i + 1}`).value)
     }));
+
+    const hasAnyGameScore = enteredGames.some((game) => game.p1 !== null || game.p2 !== null);
+
+    if (hasAnyGameScore) {
+        match.games = enteredGames;
+    } else {
+        const p1SetsInput = toScore(document.getElementById("p1Sets")?.value);
+        const p2SetsInput = toScore(document.getElementById("p2Sets")?.value);
+
+        if (p1SetsInput === null || p2SetsInput === null || p1SetsInput === p2SetsInput) {
+            updateDrawStatus("Introduce tanteo por juego o sets validos para publicar el resultado.");
+            return;
+        }
+
+        match.games = buildGamesFromSets(p1SetsInput, p2SetsInput);
+    }
 
     autoAdvanceBracket(drawState);
     saveDrawState();
