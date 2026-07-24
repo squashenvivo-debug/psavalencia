@@ -427,7 +427,6 @@ async function loadDraws(){
                     </div>
                     <div class="draw-match-footer">
                         <span class="draw-match-date">${footerDate}</span>
-                        <span class="draw-match-h2h">Head-to-head</span>
                     </div>
                 `;
 
