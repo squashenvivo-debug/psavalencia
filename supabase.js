@@ -5,8 +5,8 @@
 
 window.AdminSupabase = (() => {
     const config = {
-        url: "",
-        anonKey: ""
+        url: "https://texjzaanugmssmolzwgb.supabase.co",
+        anonKey: "sb_publishable_lTEaFAp9lgMMInv-0TjeCA_ViWtDg2J"
     };
 
     let client = null;
