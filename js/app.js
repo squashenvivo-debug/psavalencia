@@ -8,6 +8,7 @@
 ========================================================== */
 let CONFIG = {};
 const LIVE_STREAM_URL_KEY = "liveStreamYoutubeUrl";
+const LIVE_STREAM_HISTORY_KEY = "liveStreamYoutubeHistory";
 const GALLERY_COLLECTION_KEY = "galleryCollections";
 const NEWS_COLLECTION_KEY = "newsCollection";
 const DYNAMIC_LANGS = ["es", "va", "en", "fr"];
@@ -33,6 +34,7 @@ await loadDraws();
 loadTournamentCenter();
 
     document.addEventListener("app-language-changed", () => {
+        initLiveStream();
         loadHomeGallery();
         loadNews();
     });
@@ -622,16 +624,96 @@ function extractYouTubeVideoId(url) {
 function initLiveStream() {
 
     const videoContainer = document.querySelector("#live .live-video");
+    const archivePanel = document.getElementById("liveArchivePanel");
+    const archiveGrid = document.getElementById("liveArchiveGrid");
     if (!videoContainer) return;
 
-    const savedUrl = (localStorage.getItem(LIVE_STREAM_URL_KEY) || "").trim();
-    const videoId = extractYouTubeVideoId(savedUrl);
+    const history = readLiveHistory();
+    if (history.length === 0) {
+        if (archivePanel) archivePanel.hidden = true;
+        if (archiveGrid) archiveGrid.innerHTML = "";
+        return;
+    }
 
+    const currentUrl = history[history.length - 1];
+    renderLivePlayer(videoContainer, currentUrl);
+
+    if (!archivePanel || !archiveGrid) return;
+
+    const previous = history.slice(0, -1);
+    if (previous.length === 0) {
+        archivePanel.hidden = true;
+        archiveGrid.innerHTML = "";
+        return;
+    }
+
+    archivePanel.hidden = false;
+    const lang = getCurrentLanguage();
+    const replayWord = {
+        es: "Directo",
+        va: "Directe",
+        en: "Stream",
+        fr: "Direct"
+    };
+
+    archiveGrid.innerHTML = previous.map((url, index) => {
+        const id = extractYouTubeVideoId(url);
+        if (!id) return "";
+        const thumb = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+        return `
+            <button class="live-archive-card" type="button" data-live-url="${url.replace(/"/g, "&quot;")}" aria-label="${replayWord[lang] || replayWord.es} ${index + 1}">
+                <img class="live-archive-thumb" src="${thumb}" alt="${replayWord[lang] || replayWord.es} ${index + 1}">
+                <div class="live-archive-meta">${replayWord[lang] || replayWord.es} ${index + 1}</div>
+            </button>
+        `;
+    }).join("");
+
+    archiveGrid.querySelectorAll("[data-live-url]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const selectedUrl = button.getAttribute("data-live-url") || "";
+            if (!selectedUrl) return;
+            renderLivePlayer(videoContainer, selectedUrl);
+        });
+    });
+
+}
+
+function readLiveHistory() {
+    try {
+        const raw = localStorage.getItem(LIVE_STREAM_HISTORY_KEY);
+        const current = (localStorage.getItem(LIVE_STREAM_URL_KEY) || "").trim();
+        if (!raw) {
+            return current ? [current] : [];
+        }
+
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) {
+            return current ? [current] : [];
+        }
+
+        const urls = parsed
+            .map((value) => String(value || "").trim())
+            .filter(Boolean)
+            .filter((url) => !!extractYouTubeVideoId(url));
+
+        if (urls.length === 0 && current) {
+            return [current];
+        }
+
+        return urls;
+    } catch (error) {
+        const current = (localStorage.getItem(LIVE_STREAM_URL_KEY) || "").trim();
+        return current ? [current] : [];
+    }
+}
+
+function renderLivePlayer(container, streamUrl) {
+    const videoId = extractYouTubeVideoId(streamUrl);
     if (!videoId) return;
 
     const embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`;
 
-    videoContainer.innerHTML = `
+    container.innerHTML = `
         <iframe
             src="${embedUrl}"
             title="PSA Valencia Open Live"
@@ -641,7 +723,6 @@ function initLiveStream() {
             referrerpolicy="strict-origin-when-cross-origin">
         </iframe>
     `;
-
 }
 
 function getCurrentLanguage() {

@@ -6,6 +6,7 @@ const TOURNAMENT_MODE_KEY = "tournamentContentMode";
 const TOURNAMENT_API_URL_KEY = "tournamentApiUrl";
 const DRAW_BRACKET_KEY = "drawBracketState";
 const LIVE_STREAM_URL_KEY = "liveStreamYoutubeUrl";
+const LIVE_STREAM_HISTORY_KEY = "liveStreamYoutubeHistory";
 const GALLERY_COLLECTION_KEY = "galleryCollections";
 const NEWS_COLLECTION_KEY = "newsCollection";
 const LANGS = ["es", "va", "en", "fr"];
@@ -236,7 +237,39 @@ function updateLiveStatus(message) {
 function loadLiveSettings() {
     const input = document.getElementById("liveYoutubeUrl");
     if (!input) return;
-    input.value = localStorage.getItem(LIVE_STREAM_URL_KEY) || "";
+    const history = readLiveHistory();
+    input.value = history.length > 0
+        ? history[history.length - 1]
+        : (localStorage.getItem(LIVE_STREAM_URL_KEY) || "");
+}
+
+function readLiveHistory() {
+    try {
+        const raw = localStorage.getItem(LIVE_STREAM_HISTORY_KEY);
+        const current = (localStorage.getItem(LIVE_STREAM_URL_KEY) || "").trim();
+
+        if (!raw) {
+            return current ? [current] : [];
+        }
+
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) {
+            return current ? [current] : [];
+        }
+
+        const cleaned = parsed
+            .map((item) => String(item || "").trim())
+            .filter(Boolean);
+
+        if (cleaned.length === 0 && current) {
+            return [current];
+        }
+
+        return cleaned;
+    } catch (error) {
+        const current = (localStorage.getItem(LIVE_STREAM_URL_KEY) || "").trim();
+        return current ? [current] : [];
+    }
 }
 
 function saveLiveSettings() {
@@ -247,6 +280,7 @@ function saveLiveSettings() {
 
     if (!value) {
         localStorage.removeItem(LIVE_STREAM_URL_KEY);
+        localStorage.removeItem(LIVE_STREAM_HISTORY_KEY);
         updateLiveStatus("Enlace eliminado. Se mostrara el placeholder en LIVE.");
         return;
     }
@@ -257,8 +291,15 @@ function saveLiveSettings() {
         return;
     }
 
+    const history = readLiveHistory();
+    const last = history[history.length - 1] || "";
+    if (value !== last) {
+        history.push(value);
+    }
+
     localStorage.setItem(LIVE_STREAM_URL_KEY, value);
-    updateLiveStatus("Enlace de directo guardado correctamente.");
+    localStorage.setItem(LIVE_STREAM_HISTORY_KEY, JSON.stringify(history));
+    updateLiveStatus(`Enlace guardado. Historial de directos: ${history.length}.`);
 }
 
 function bindLiveSettings() {
