@@ -287,3 +287,166 @@
 
 }
 
+@media (max-width:768px){
+
+    .section-title{
+        font-size:2.25rem;
+        margin-bottom:44px;
+        line-height:1.1;
+    }
+
+    #venue{
+        padding:90px 0;
+    }
+
+    #venue .venue-grid{
+        grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);
+        gap:12px;
+        align-items:start;
+    }
+
+    #venue .venue-info{
+        padding:18px;
+        border-radius:14px;
+    }
+
+    #venue .venue-info h3{
+        font-size:1.25rem;
+        margin-bottom:18px;
+    }
+
+    #venue .venue-item{
+        gap:10px;
+        margin-bottom:14px;
+        font-size:.94rem;
+    }
+
+    #venue .venue-buttons{
+        gap:10px;
+        margin:18px 0;
+    }
+
+    #venue .venue-buttons .btn{
+        padding:10px 14px;
+        font-size:.82rem;
+    }
+
+    #venue .venue-services{
+        grid-template-columns:1fr 1fr;
+        gap:8px;
+    }
+
+    #venue .venue-services span{
+        padding:9px;
+        font-size:.82rem;
+    }
+
+    #venue .venue-map iframe{
+        min-height:250px;
+        border-radius:14px;
+    }
+
+    #discover .discover-grid{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+        gap:12px;
+    }
+
+    #discover .discover-card img{
+        height:180px;
+    }
+
+    #discover .discover-overlay{
+        padding:14px;
+    }
+
+    #discover .discover-overlay h3{
+        font-size:1.02rem;
+        margin-bottom:6px;
+    }
+
+    #discover .discover-overlay p{
+        font-size:.8rem;
+    }
+
+    #sponsors .sponsors-header h2,
+    #venue .venue-header .section-title{
+        font-size:2.25rem;
+    }
+
+    #sponsors .sponsors-grid{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+        gap:12px;
+    }
+
+    #sponsors .sponsor-card{
+        height:108px;
+        padding:14px;
+        border-radius:12px;
+    }
+
+    #sponsors .sponsor-card img{
+        max-width:120px;
+        max-height:54px;
+    }
+
+}
+
+@media (max-width:576px){
+
+    .section-title{
+        font-size:1.9rem;
+        margin-bottom:34px;
+    }
+
+    #venue .venue-grid{
+        grid-template-columns:minmax(0, 1.05fr) minmax(0, .95fr);
+        gap:10px;
+    }
+
+    #venue .venue-header p,
+    #sponsors .sponsors-header p,
+    #discover .section-header p{
+        font-size:.93rem;
+    }
+
+    #venue .venue-info{
+        padding:14px;
+    }
+
+    #venue .venue-map iframe{
+        min-height:220px;
+    }
+
+    #discover .discover-card img{
+        height:150px;
+    }
+
+    #discover .discover-overlay h3{
+        font-size:.9rem;
+    }
+
+    #discover .discover-overlay p{
+        font-size:.72rem;
+    }
+
+    #sponsors .sponsors-grid{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+
+    #sponsors .sponsor-card{
+        height:94px;
+        padding:10px;
+    }
+
+    #sponsors .sponsor-card img{
+        max-width:95px;
+        max-height:42px;
+    }
+
+    #sponsors .sponsors-header h2,
+    #venue .venue-header .section-title{
+        font-size:1.9rem;
+    }
+
+}
+
