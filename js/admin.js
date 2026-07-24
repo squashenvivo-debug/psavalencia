@@ -241,6 +241,19 @@ function loadLiveSettings() {
     input.value = history.length > 0
         ? history[history.length - 1]
         : (localStorage.getItem(LIVE_STREAM_URL_KEY) || "");
+    renderLiveHistoryInfo(history);
+}
+
+function renderLiveHistoryInfo(history = readLiveHistory()) {
+    const info = document.getElementById("liveHistoryInfo");
+    if (!info) return;
+
+    if (!history.length) {
+        info.textContent = "Historial de directos: 0";
+        return;
+    }
+
+    info.textContent = `Historial de directos: ${history.length} (actual: ${history.length}, miniaturas: ${Math.max(0, history.length - 1)})`;
 }
 
 function readLiveHistory() {
@@ -300,6 +313,7 @@ function saveLiveSettings() {
     localStorage.setItem(LIVE_STREAM_URL_KEY, value);
     localStorage.setItem(LIVE_STREAM_HISTORY_KEY, JSON.stringify(history));
     updateLiveStatus(`Enlace guardado. Historial de directos: ${history.length}.`);
+    renderLiveHistoryInfo(history);
 }
 
 function bindLiveSettings() {
@@ -319,6 +333,7 @@ function bindLiveSettings() {
             if (input) input.value = "";
 
             updateLiveStatus("Directo e historial borrados. Ya puedes hacer pruebas desde cero.");
+            renderLiveHistoryInfo([]);
         });
     }
 }

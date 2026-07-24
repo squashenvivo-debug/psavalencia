@@ -659,7 +659,7 @@ function initLiveStream() {
     archiveGrid.innerHTML = previous.map((url, index) => {
         const id = extractYouTubeVideoId(url);
         if (!id) return "";
-        const thumb = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+        const thumb = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
         return `
             <a class="live-archive-card" href="${url.replace(/"/g, "&quot;")}" target="_blank" rel="noopener noreferrer" aria-label="${replayWord[lang] || replayWord.es} ${index + 1}">
                 <img class="live-archive-thumb" src="${thumb}" alt="${replayWord[lang] || replayWord.es} ${index + 1}">
