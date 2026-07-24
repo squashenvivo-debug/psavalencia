@@ -121,7 +121,13 @@ async function initAdminAuth() {
     if (logoutBtn) {
         logoutBtn.addEventListener("click", async (event) => {
             event.preventDefault();
-            await supabaseClient.auth.signOut();
+            const { error } = await supabaseClient.auth.signOut();
+            if (!error) {
+                window.location.href = "index.html";
+                return;
+            }
+
+            setAdminAuthStatus(`No se pudo cerrar sesión: ${error.message}`, true);
         });
     }
 
