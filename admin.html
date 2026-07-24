@@ -15,7 +15,26 @@
 
 <body>
 
-<div class="admin">
+<section id="admin-auth" class="admin-auth-screen">
+    <div class="admin-auth-card">
+        <h1>Acceso Admin</h1>
+        <p class="admin-muted">Inicia sesión con tu cuenta de Supabase para acceder al panel.</p>
+
+        <label for="adminEmail" class="field-label">Email</label>
+        <input id="adminEmail" type="email" placeholder="admin@tu-dominio.com" autocomplete="username">
+
+        <label for="adminPassword" class="field-label">Contraseña</label>
+        <input id="adminPassword" type="password" placeholder="••••••••" autocomplete="current-password">
+
+        <div class="results-actions">
+            <button id="adminLoginBtn" type="button">Entrar</button>
+        </div>
+
+        <p id="adminAuthStatus" class="admin-status" aria-live="polite"></p>
+    </div>
+</section>
+
+<div class="admin" id="adminApp" hidden>
 
     <aside class="sidebar">
 
@@ -44,6 +63,8 @@
             <a href="#draw-results-panel">Resultados</a>
 
             <a href="#">Idiomas</a>
+
+            <a href="#" id="adminLogoutBtn">Cerrar sesión</a>
 
             <a href="index.html" class="menu-exit-link">Salir a Inicio</a>
 
@@ -282,6 +303,8 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
 <script src="js/admin.js"></script>
 
 </body>

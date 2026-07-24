@@ -15,6 +15,112 @@ let pendingGalleryPhotos = [];
 let galleryEditMode = false;
 let pendingNewsImageSrc = "";
 let newsEditMode = false;
+let adminModulesStarted = false;
+
+function setAdminAuthStatus(message, isError = false) {
+    const status = document.getElementById("adminAuthStatus");
+    if (!status) return;
+    status.textContent = message;
+    status.style.color = isError ? "#ff8f8f" : "#93E4A2";
+}
+
+function showAdminApp() {
+    const authSection = document.getElementById("admin-auth");
+    const app = document.getElementById("adminApp");
+    if (authSection) authSection.hidden = true;
+    if (app) app.hidden = false;
+}
+
+function showAuthScreen() {
+    const authSection = document.getElementById("admin-auth");
+    const app = document.getElementById("adminApp");
+    if (authSection) authSection.hidden = false;
+    if (app) app.hidden = true;
+}
+
+function startAdminModulesOnce() {
+    if (adminModulesStarted) return;
+    adminModulesStarted = true;
+
+    loadTournamentSettings();
+    bindTournamentSettings();
+    loadLiveSettings();
+    bindLiveSettings();
+    initNewsAdmin();
+    initGalleryAdmin();
+    initDrawAdmin();
+}
+
+async function initAdminAuth() {
+    const loginBtn = document.getElementById("adminLoginBtn");
+    const emailInput = document.getElementById("adminEmail");
+    const passwordInput = document.getElementById("adminPassword");
+    const logoutBtn = document.getElementById("adminLogoutBtn");
+
+    const supabaseClient = window.AdminSupabase?.getClient?.();
+
+    if (!supabaseClient) {
+        showAuthScreen();
+        setAdminAuthStatus("Configura Supabase en supabase.js (URL y anon key).", true);
+        return;
+    }
+
+    if (loginBtn) {
+        loginBtn.addEventListener("click", async () => {
+            const email = (emailInput?.value || "").trim();
+            const password = passwordInput?.value || "";
+
+            if (!email || !password) {
+                setAdminAuthStatus("Introduce email y contraseña.", true);
+                return;
+            }
+
+            loginBtn.disabled = true;
+            setAdminAuthStatus("Verificando acceso...");
+
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+            loginBtn.disabled = false;
+            if (error) {
+                setAdminAuthStatus(`No se pudo iniciar sesión: ${error.message}`, true);
+                return;
+            }
+
+            setAdminAuthStatus("Acceso correcto.");
+        });
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", async (event) => {
+            event.preventDefault();
+            await supabaseClient.auth.signOut();
+        });
+    }
+
+    supabaseClient.auth.onAuthStateChange((_event, session) => {
+        if (session) {
+            showAdminApp();
+            startAdminModulesOnce();
+        } else {
+            showAuthScreen();
+        }
+    });
+
+    const { data, error } = await supabaseClient.auth.getSession();
+    if (error) {
+        showAuthScreen();
+        setAdminAuthStatus(`Error de sesión: ${error.message}`, true);
+        return;
+    }
+
+    if (data?.session) {
+        showAdminApp();
+        startAdminModulesOnce();
+    } else {
+        showAuthScreen();
+        setAdminAuthStatus("Inicia sesión para entrar al panel.");
+    }
+}
 
 function getSavedTournamentMode() {
     const mode = localStorage.getItem(TOURNAMENT_MODE_KEY);
@@ -1283,11 +1389,5 @@ async function initDrawAdmin() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    loadTournamentSettings();
-    bindTournamentSettings();
-    loadLiveSettings();
-    bindLiveSettings();
-    initNewsAdmin();
-    initGalleryAdmin();
-    initDrawAdmin();
+    initAdminAuth();
 });
