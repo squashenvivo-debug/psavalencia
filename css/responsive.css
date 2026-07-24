@@ -191,8 +191,8 @@
 
     .countdown {
         gap: 10px;
-        margin-top: 10px;
-        transform: translateY(-35px) scale(.95);
+        margin-top: 12px;
+        transform: scale(.82);
         transform-origin: center;
     }
 
@@ -210,24 +210,24 @@
     }
 
     .hero-event {
-        bottom: 25px;
+        bottom: -45px;
     }
 
     .event-label {
-        font-size: 1.2rem;
-        letter-spacing: 8px;
-        margin-bottom: 6px;
+        font-size: 0.95rem;
+        letter-spacing: 6px;
+        margin-bottom: 4px;
     }
 
     .event-title {
-        font-size: 2.2rem;
-        letter-spacing: 2px;
+        font-size: 1.6rem;
+        letter-spacing: 1.5px;
     }
 
     .event-location {
-        font-size: 1rem;
-        letter-spacing: 5px;
-        margin-top: 10px;
+        font-size: 0.82rem;
+        letter-spacing: 3px;
+        margin-top: 6px;
     }
 
     #header .logo img{
@@ -311,7 +311,7 @@
     .countdown {
         gap: 8px;
         margin-top: 5px;
-        transform: translateY(-35px) scale(.95);
+        transform: scale(.75);
         transform-origin: center;
     }
 
@@ -329,7 +329,7 @@
     }
 
     .hero-event {
-        bottom: -15px;
+        bottom: -55px;
     }
 
     .event-label {
