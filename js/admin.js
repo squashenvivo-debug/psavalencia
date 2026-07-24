@@ -304,8 +304,23 @@ function saveLiveSettings() {
 
 function bindLiveSettings() {
     const saveButton = document.getElementById("saveLiveSettings");
-    if (!saveButton) return;
-    saveButton.addEventListener("click", saveLiveSettings);
+    const clearButton = document.getElementById("clearLiveHistory");
+
+    if (saveButton) {
+        saveButton.addEventListener("click", saveLiveSettings);
+    }
+
+    if (clearButton) {
+        clearButton.addEventListener("click", () => {
+            localStorage.removeItem(LIVE_STREAM_URL_KEY);
+            localStorage.removeItem(LIVE_STREAM_HISTORY_KEY);
+
+            const input = document.getElementById("liveYoutubeUrl");
+            if (input) input.value = "";
+
+            updateLiveStatus("Directo e historial borrados. Ya puedes hacer pruebas desde cero.");
+        });
+    }
 }
 
 function updateGalleryStatus(message) {
