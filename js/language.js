@@ -30,13 +30,18 @@ const translations = {
 },
 quick: {
 
+    tournament: {
+        title: "TORNEO",
+        text: "Información principal del evento"
+    },
+
     live: {
         title: "DIRECTO",
         text: "Ver los partidos en vivo"
     },
 
     draw: {
-        title: "CUADROS",
+        title: "CUADRO",
         text: "Resultados y enfrentamientos"
     },
 
@@ -78,13 +83,18 @@ quick: {
 },
 quick: {
 
+    tournament: {
+        title: "TORNEIG",
+        text: "Informació principal de l'esdeveniment"
+    },
+
     live: {
         title: "DIRECTE",
         text: "Veure els partits en directe"
     },
 
     draw: {
-        title: "QUADRES",
+        title: "QUADRE",
         text: "Resultats i enfrontaments"
     },
 
@@ -125,13 +135,18 @@ hero: {
 },
 quick: {
 
+    tournament: {
+        title: "TOURNAMENT",
+        text: "Main event information"
+    },
+
     live: {
         title: "LIVE",
         text: "Watch matches live"
     },
 
     draw: {
-        title: "DRAWS",
+        title: "DRAW",
         text: "Results and matchups"
     },
 
@@ -172,13 +187,18 @@ hero: {
 },
 quick: {
 
+    tournament: {
+        title: "TOURNOI",
+        text: "Informations principales de l'événement"
+    },
+
     live: {
         title: "DIRECT",
         text: "Regarder les matchs en direct"
     },
 
     draw: {
-        title: "TABLEAUX",
+        title: "TABLEAU",
         text: "Résultats et confrontations"
     },
 
