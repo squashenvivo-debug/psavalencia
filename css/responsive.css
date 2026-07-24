@@ -191,8 +191,8 @@
 
     .countdown {
         gap: 10px;
-        margin-top: 14px;
-        transform: scale(.95);
+        margin-top: 10px;
+        transform: translateY(-35px) scale(.95);
         transform-origin: center;
     }
 
@@ -310,8 +310,8 @@
 
     .countdown {
         gap: 8px;
-        margin-top: 10px;
-        transform: scale(.9);
+        margin-top: 5px;
+        transform: translateY(-35px) scale(.95);
         transform-origin: center;
     }
 
