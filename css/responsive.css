@@ -72,6 +72,25 @@
 
     }
 
+    .language-toggle{
+        min-width:96px;
+        height:34px;
+        padding:0 10px;
+        border-radius:8px;
+        font-size:.78rem;
+    }
+
+    .language-menu{
+        top:38px;
+        width:120px;
+        border-radius:8px;
+    }
+
+    .language-menu button{
+        padding:9px 10px;
+        font-size:.78rem;
+    }
+
     .live-button{
 
         display:none;
@@ -332,6 +351,25 @@
 
     #header .logo-group{
         gap:8px;
+    }
+
+    .language-toggle{
+        min-width:82px;
+        height:30px;
+        padding:0 8px;
+        font-size:.72rem;
+        border-radius:7px;
+    }
+
+    .language-menu{
+        top:34px;
+        width:108px;
+        border-radius:7px;
+    }
+
+    .language-menu button{
+        padding:8px 8px;
+        font-size:.72rem;
     }
 
     .header-right .admin-link{
