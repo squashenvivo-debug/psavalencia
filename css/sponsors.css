@@ -157,13 +157,14 @@ SPONSORS
 }
 
 .sponsor-card-olympia{
-    background:#0A1C2A;
-    border:1px solid rgba(255,255,255,.14);
+    background:#ffffff;
+    border:1px solid rgba(11,34,51,.12);
 }
 
 .sponsor-card-olympia img{
     max-width:190px;
     max-height:90px;
+    filter:brightness(0) saturate(100%);
 }
 
 .sponsor-card:hover img{
