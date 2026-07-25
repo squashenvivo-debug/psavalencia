@@ -351,23 +351,23 @@ const tournamentIntroByLanguage = {
 <article class="tournament-article">
     <div class="tournament-card">
         <header class="tournament-header">
-            <h3>!Bienvenidos al PSA Valencia 2026 - Memorial Chimo Marmaneu!</h3>
+            <h3>¡Bienvenidos al PSA Valencia 2026 - Memorial Chimo Marmaneu!</h3>
             <p>Valencia se convierte de nuevo en el epicentro del squash internacional.</p>
         </header>
         <section class="tournament-content">
-            <p>Del <strong>11 al 15 de agosto de 2026</strong>, nuestra ciudad acogera el <strong>PSA Valencia 2026 - Memorial Chimo Marmaneu</strong>, una cita imprescindible dentro del calendario de la Asociacion Profesional de Squash (PSA).</p>
-            <p>Este ano, el torneo da un salto historico de categoria al consolidarse como un evento <strong>PSA World Tour Copper</strong> en la modalidad masculina. Con una atractiva bolsa de premios de <strong>36.000 dolares</strong>, atraera a varias de las mejores raquetas del planeta, garantizando un espectaculo deportivo del mas alto nivel, una intensidad fisica inigualable y puntos cruciales para el ranking mundial.</p>
+            <p>Del <strong>11 al 15 de agosto de 2026</strong>, nuestra ciudad acogerá el <strong>PSA Valencia 2026 - Memorial Chimo Marmaneu</strong>, una cita imprescindible dentro del calendario de la Asociación Profesional de Squash (PSA).</p>
+            <p>Este año, el torneo da un salto histórico de categoría al consolidarse como un evento <strong>PSA World Tour Copper</strong> en la modalidad masculina. Con un coste de organización de <strong>más de 50.000 dólares</strong>, atraerá a varias de las mejores raquetas del planeta, garantizando un espectáculo deportivo del más alto nivel, una intensidad física inigualable y puntos cruciales para el ranking mundial.</p>
             <section class="tournament-history">
                 <h4>Nuestro legado: El camino hasta el World Tour</h4>
-                <p>El PSA Valencia no es solo un torneo; es un homenaje al legado de nuestro deporte y una evolucion constante:</p>
+                <p>El PSA Valencia no es solo un torneo; es un homenaje al legado de nuestro deporte y una evolución constante:</p>
                 <ul>
-                    <li><strong>Edicion 2025:</strong> El ano pasado, el torneo (en categoria Challenger 15K) corono al jugador espanol <strong>Iker Pajares</strong> como campeon indiscutible, levantando el trofeo sin ceder un solo juego.</li>
-                    <li><strong>Consolidacion:</strong> Tras anos de exito organizativo, la confianza de la PSA y el apoyo de los aficionados han hecho posible el ascenso a la prestigiosa categoria <em>Copper</em>, situando a Valencia en el mapa mundial.</li>
+                    <li><strong>Edición 2025:</strong> El año pasado, el torneo (en categoría Challenger 15K) coronó al jugador español <strong>Iker Pajares</strong> como campeón indiscutible, levantando el trofeo sin ceder un solo juego.</li>
+                    <li><strong>Consolidación:</strong> Tras años de éxito organizativo, la confianza de la PSA y el apoyo de los aficionados han hecho posible el ascenso a la prestigiosa categoría <em>Copper</em>, situando a Valencia en el mapa mundial.</li>
                 </ul>
             </section>
             <footer class="tournament-footer">
-                <p class="lead">Preparate para vivir cinco dias de pura adrenalina, velocidad y estrategia.</p>
-                <p>Sigue los partidos en directo en el club o vibra con la retransmision global a traves de <a href="https://squash.tv" target="_blank" rel="noopener">SquashTV</a>.</p>
+                <p class="lead">Prepárate para vivir cinco días de pura adrenalina, velocidad y estrategia.</p>
+                <p>Sigue los partidos en directo en el club o vibra con la retransmisión global a través de <a href="https://squash.tv" target="_blank" rel="noopener">SquashTV</a>.</p>
             </footer>
         </section>
     </div>
@@ -381,7 +381,7 @@ const tournamentIntroByLanguage = {
         </header>
         <section class="tournament-content">
             <p>Del <strong>11 al 15 d'agost de 2026</strong>, la nostra ciutat acollira el <strong>PSA Valencia 2026 - Memorial Chimo Marmaneu</strong>, una cita imprescindible dins del calendari de l'Associacio Professional de Squash (PSA).</p>
-            <p>Enguany, el torneig fa un salt historic de categoria en consolidar-se com un esdeveniment <strong>PSA World Tour Copper</strong> en la modalitat masculina. Amb una atractiva bossa de premis de <strong>36.000 dolars</strong>, atraura algunes de les millors raquetes del planeta, garantint un espectacle del mes alt nivell.</p>
+            <p>Enguany, el torneig fa un salt historic de categoria en consolidar-se com un esdeveniment <strong>PSA World Tour Copper</strong> en la modalitat masculina. Amb un cost d'organitzacio de <strong>mes de 50.000 dolars</strong>, atraura algunes de les millors raquetes del planeta, garantint un espectacle del mes alt nivell.</p>
             <section class="tournament-history">
                 <h4>El nostre llegat: El cami cap al World Tour</h4>
                 <p>El PSA Valencia no es nomes un torneig; es un homenatge al llegat del nostre esport i una evolucio constant:</p>
@@ -406,7 +406,7 @@ const tournamentIntroByLanguage = {
         </header>
         <section class="tournament-content">
             <p>From <strong>August 11th to 15th, 2026</strong>, our city will host the <strong>PSA Valencia 2026 - Memorial Chimo Marmaneu</strong>, an essential stop on the Professional Squash Association (PSA) calendar.</p>
-            <p>This year, the tournament reaches a historic milestone by upgrading to a <strong>PSA World Tour Copper</strong> men's event. With a prize purse of <strong>$36,000</strong>, it will bring top players together for elite-level performance, unmatched intensity and crucial ranking points.</p>
+            <p>This year, the tournament reaches a historic milestone by upgrading to a <strong>PSA World Tour Copper</strong> men's event. With an organizational cost of <strong>more than $50,000</strong>, it will bring top players together for elite-level performance, unmatched intensity and crucial ranking points.</p>
             <section class="tournament-history">
                 <h4>Our Legacy: The Road to the World Tour</h4>
                 <p>PSA Valencia is more than a tournament; it is a tribute to our sport and a story of constant growth:</p>
@@ -431,7 +431,7 @@ const tournamentIntroByLanguage = {
         </header>
         <section class="tournament-content">
             <p>Du <strong>11 au 15 aout 2026</strong>, notre ville accueillera le <strong>PSA Valencia 2026 - Memorial Chimo Marmaneu</strong>, un rendez-vous majeur du calendrier de la Professional Squash Association (PSA).</p>
-            <p>Cette annee, le tournoi franchit un cap historique en rejoignant la categorie <strong>PSA World Tour Copper</strong> chez les hommes. Avec une dotation de <strong>36 000 dollars</strong>, l'evenement reunira des joueurs d'elite et des points precieux pour le classement mondial.</p>
+            <p>Cette annee, le tournoi franchit un cap historique en rejoignant la categorie <strong>PSA World Tour Copper</strong> chez les hommes. Avec un cout d'organisation de <strong>plus de 50 000 dollars</strong>, l'evenement reunira des joueurs d'elite et des points precieux pour le classement mondial.</p>
             <section class="tournament-history">
                 <h4>Notre heritage: Le chemin vers le World Tour</h4>
                 <p>Le PSA Valencia est bien plus qu'un tournoi; c'est un hommage a l'histoire de notre sport et une evolution continue:</p>

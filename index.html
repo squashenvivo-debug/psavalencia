@@ -7,7 +7,7 @@
 <link rel="icon" type="image/x-icon" href="assets/images/icons/favicon.ico">
 <link rel="stylesheet" href="css/variables.css">
 <link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/header.css">
+<link rel="stylesheet" href="css/header.css?v=20260725-1">
 <link rel="stylesheet" href="css/hero.css">
 <link rel="stylesheet" href="css/quick-access.css?v=20260723-2">
 <link rel="stylesheet" href="css/live.css?v=20260724-4">
@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="css/venue.css">
 <link rel="stylesheet" href="css/draw.css?v=20260724-1">
 <link rel="stylesheet" href="css/tournament-center.css">
-<link rel="stylesheet" href="css/sponsors.css">
+<link rel="stylesheet" href="css/sponsors.css?v=20260725-1">
 <link rel="stylesheet" href="css/discover.css">
 <link rel="stylesheet" href="css/tournament.css">
 <!-- Siempre al final: los ajustes de móvil deben ganar a los estilos base. -->
@@ -62,6 +62,9 @@
         </nav>
 
         <div class="header-right">
+    <a class="header-main-sponsor" href="#sponsors" aria-label="Sponsor principal Comunitat de l'Esport">
+        <img src="assets/images/sponsors/comunitat-esport.png" alt="Comunitat de l'Esport">
+    </a>
     <div class="language-selector">
 
     <button id="languageToggle" class="language-toggle">
@@ -603,13 +606,14 @@ VENUE
         </div>
 
         <div class="main-sponsor">
-
-            <a href="#" target="_blank">
-
-                <img src="assets/images/logos/copper.png" alt="Copper">
-
-            </a>
-
+            <div class="main-sponsor-logos">
+                <a class="main-sponsor-item" href="#" target="_blank" rel="noopener noreferrer">
+                    <img src="assets/images/logos/copper.png" alt="Copper">
+                </a>
+                <a class="main-sponsor-item main-sponsor-item-olympia" href="https://www.olympiahotel.com/" target="_blank" rel="noopener noreferrer">
+                    <img src="assets/images/sponsors/olympia.png" alt="Olympia">
+                </a>
+            </div>
         </div>
 
         <div class="sponsors-grid">
@@ -656,7 +660,7 @@ FOOTER
     </div>
 
 </footer> 
-<script src="js/language.js?v=20260724-2"></script>
+<script src="js/language.js?v=20260725-1"></script>
 <script src="js/navigation.js"></script>
 <script src="js/countdown.js"></script>
 <script src="js/router.js"></script>
