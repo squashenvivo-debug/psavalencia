@@ -218,6 +218,10 @@ TOURNAMENT
 
 @media (max-width:576px){
 
+    #tournament .section-header{
+        margin-bottom:16px;
+    }
+
     #tournament{
 
         padding:80px 0;
@@ -226,13 +230,13 @@ TOURNAMENT
 
     #tournament-intro{
 
-        margin-top:24px;
+        margin-top:10px;
 
     }
 
     .tournament-main-sponsor{
         max-width:130px;
-        margin-top:14px;
+        margin-top:2px;
         padding:6px;
     }
 
