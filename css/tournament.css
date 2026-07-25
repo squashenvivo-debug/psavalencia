@@ -231,9 +231,13 @@ TOURNAMENT
     }
 
     .tournament-main-sponsor{
-        max-width:260px;
+        max-width:130px;
         margin-top:14px;
-        padding:12px;
+        padding:6px;
+    }
+
+    .tournament-main-sponsor img{
+        max-width:120px;
     }
 
     .tournament-card{
