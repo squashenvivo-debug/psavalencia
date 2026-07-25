@@ -380,19 +380,19 @@ const tournamentIntroByLanguage = {
             <p>Valencia es convertix de nou en l'epicentre del squash internacional.</p>
         </header>
         <section class="tournament-content">
-            <p>Del <strong>11 al 15 d'agost de 2026</strong>, la nostra ciutat acollira el <strong>PSA Valencia 2026 - Memorial Chimo Marmaneu</strong>, una cita imprescindible dins del calendari de l'Associacio Professional de Squash (PSA).</p>
-            <p>Enguany, el torneig fa un salt historic de categoria en consolidar-se com un esdeveniment <strong>PSA World Tour Copper</strong> en la modalitat masculina. Amb un cost d'organitzacio de <strong>mes de 50.000 dolars</strong>, atraura algunes de les millors raquetes del planeta, garantint un espectacle del mes alt nivell.</p>
+            <p>Del <strong>11 al 15 d'agost de 2026</strong>, la nostra ciutat acollirà el <strong>PSA Valencia 2026 - Memorial Chimo Marmaneu</strong>, una cita imprescindible dins del calendari de l'Associació Professional de Squash (PSA).</p>
+            <p>Enguany, el torneig fa un salt històric de categoria en consolidar-se com un esdeveniment <strong>PSA World Tour Copper</strong> en la modalitat masculina. Amb un cost d'organització de <strong>més de 50.000 dòlars</strong>, atraurà algunes de les millors raquetes del planeta, garantint un espectacle del més alt nivell.</p>
             <section class="tournament-history">
-                <h4>El nostre llegat: El cami cap al World Tour</h4>
-                <p>El PSA Valencia no es nomes un torneig; es un homenatge al llegat del nostre esport i una evolucio constant:</p>
+                <h4>El nostre llegat: El camí cap al World Tour</h4>
+                <p>El PSA Valencia no és només un torneig; és un homenatge al llegat del nostre esport i una evolució constant:</p>
                 <ul>
-                    <li><strong>Edicio 2025:</strong> L'any passat, el torneig (categoria Challenger 15K) va coronar el jugador espanyol <strong>Iker Pajares</strong> com a campio indiscutible.</li>
-                    <li><strong>Consolidacio:</strong> Despres d'anys d'exit organitzatiu, la confianca de la PSA i el suport dels aficionats han fet possible l'ascens a la categoria <em>Copper</em>.</li>
+                    <li><strong>Edició 2025:</strong> L'any passat, el torneig (categoria Challenger 15K) va coronar el jugador espanyol <strong>Iker Pajares</strong> com a campió indiscutible.</li>
+                    <li><strong>Consolidació:</strong> Després d'anys d'èxit organitzatiu, la confiança de la PSA i el suport dels aficionats han fet possible l'ascens a la categoria <em>Copper</em>.</li>
                 </ul>
             </section>
             <footer class="tournament-footer">
-                <p class="lead">Prepara't per a viure cinc dies de pura adrenalina, velocitat i estrategia.</p>
-                <p>Seguix els partits en directe al club o a traves de <a href="https://squash.tv" target="_blank" rel="noopener">SquashTV</a>.</p>
+                <p class="lead">Prepara't per a viure cinc dies de pura adrenalina, velocitat i estratègia.</p>
+                <p>Seguix els partits en directe al club o a través de <a href="https://squash.tv" target="_blank" rel="noopener">SquashTV</a>.</p>
             </footer>
         </section>
     </div>
@@ -427,22 +427,22 @@ const tournamentIntroByLanguage = {
     <div class="tournament-card">
         <header class="tournament-header">
             <h3>Bienvenue au PSA Valencia 2026 - Memorial Chimo Marmaneu!</h3>
-            <p>Valence redevient le centre nevralgique du squash international.</p>
+            <p>Valence redevient le centre névralgique du squash international.</p>
         </header>
         <section class="tournament-content">
-            <p>Du <strong>11 au 15 aout 2026</strong>, notre ville accueillera le <strong>PSA Valencia 2026 - Memorial Chimo Marmaneu</strong>, un rendez-vous majeur du calendrier de la Professional Squash Association (PSA).</p>
-            <p>Cette annee, le tournoi franchit un cap historique en rejoignant la categorie <strong>PSA World Tour Copper</strong> chez les hommes. Avec un cout d'organisation de <strong>plus de 50 000 dollars</strong>, l'evenement reunira des joueurs d'elite et des points precieux pour le classement mondial.</p>
+            <p>Du <strong>11 au 15 août 2026</strong>, notre ville accueillera le <strong>PSA Valencia 2026 - Memorial Chimo Marmaneu</strong>, un rendez-vous majeur du calendrier de la Professional Squash Association (PSA).</p>
+            <p>Cette année, le tournoi franchit un cap historique en rejoignant la catégorie <strong>PSA World Tour Copper</strong> chez les hommes. Avec un coût d'organisation de <strong>plus de 50 000 dollars</strong>, l'événement réunira des joueurs d'élite et des points précieux pour le classement mondial.</p>
             <section class="tournament-history">
-                <h4>Notre heritage: Le chemin vers le World Tour</h4>
-                <p>Le PSA Valencia est bien plus qu'un tournoi; c'est un hommage a l'histoire de notre sport et une evolution continue:</p>
+                <h4>Notre héritage: Le chemin vers le World Tour</h4>
+                <p>Le PSA Valencia est bien plus qu'un tournoi; c'est un hommage à l'histoire de notre sport et une évolution continue:</p>
                 <ul>
-                    <li><strong>Edition 2025:</strong> L'an dernier, en Challenger 15K, l'Espagnol <strong>Iker Pajares</strong> a ete sacre champion sans perdre un seul jeu.</li>
-                    <li><strong>Consolidation:</strong> Le succes organisationnel, la confiance de la PSA et le soutien des supporters ont permis l'ascension vers la categorie <em>Copper</em>.</li>
+                    <li><strong>Édition 2025:</strong> L'an dernier, en Challenger 15K, l'Espagnol <strong>Iker Pajares</strong> a été sacré champion sans perdre un seul jeu.</li>
+                    <li><strong>Consolidation:</strong> Le succès organisationnel, la confiance de la PSA et le soutien des supporters ont permis l'ascension vers la catégorie <em>Copper</em>.</li>
                 </ul>
             </section>
             <footer class="tournament-footer">
-                <p class="lead">Preparez-vous a vivre cinq jours de pure adrenaline, vitesse et strategie.</p>
-                <p>Suivez les matchs en direct au club ou a travers la diffusion mondiale sur <a href="https://squash.tv" target="_blank" rel="noopener">SquashTV</a>.</p>
+                <p class="lead">Préparez-vous à vivre cinq jours de pure adrénaline, vitesse et stratégie.</p>
+                <p>Suivez les matchs en direct au club ou à travers la diffusion mondiale sur <a href="https://squash.tv" target="_blank" rel="noopener">SquashTV</a>.</p>
             </footer>
         </section>
     </div>
