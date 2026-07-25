@@ -16,6 +16,25 @@ TOURNAMENT
 
 }
 
+.tournament-main-sponsor{
+    max-width:320px;
+    margin:18px auto 0;
+    padding:16px 18px;
+    border-radius:16px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.14);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.tournament-main-sponsor img{
+    width:100%;
+    max-width:240px;
+    height:auto;
+    object-fit:contain;
+}
+
 .tournament-article{
 
     max-width:900px;
@@ -208,6 +227,12 @@ TOURNAMENT
 
         margin-top:24px;
 
+    }
+
+    .tournament-main-sponsor{
+        max-width:260px;
+        margin-top:14px;
+        padding:12px;
     }
 
     .tournament-card{
