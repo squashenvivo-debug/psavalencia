@@ -68,7 +68,23 @@
     .header-right{
 
         gap:15px;
+        margin-left:auto;
 
+    }
+
+    .language-selector{
+        order:1;
+    }
+
+    .mobile-toggle{
+        order:2;
+    }
+
+    .header-right .admin-link{
+        order:3;
+        width:34px;
+        height:34px;
+        border-radius:8px;
     }
 
     .language-toggle{
@@ -96,10 +112,8 @@
 
     }
 
-    .header-right .admin-link{
-        font-size:.78rem;
-        font-weight:600;
-        line-height:1;
+    .header-right .admin-link::before{
+        font-size:.92rem;
     }
 
     .logo-group{
@@ -372,7 +386,13 @@
     }
 
     .header-right .admin-link{
-        font-size:.72rem;
+        width:30px;
+        height:30px;
+        border-radius:7px;
+    }
+
+    .header-right .admin-link::before{
+        font-size:.82rem;
     }
 
     #header .logo img {
