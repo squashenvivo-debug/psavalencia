@@ -2622,6 +2622,27 @@ function copyDrawJson() {
     fallbackCopy();
 }
 
+function importDrawFromWeb() {
+    const raw = localStorage.getItem(DRAW_BRACKET_KEY);
+    if (!raw) {
+        updateDrawStatus("No hay cuadro actual guardado en la web para importar.");
+        return;
+    }
+
+    try {
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.rounds)) {
+            updateDrawStatus("El cuadro guardado no tiene formato válido.");
+            return;
+        }
+
+        drawState = cloneDeep(parsed);
+        hydrateDrawAfterStructuralChange("Cuadro actual de la web importado correctamente.");
+    } catch (error) {
+        updateDrawStatus(`No se pudo importar el cuadro: ${error.message}`);
+    }
+}
+
 function saveMatchResult() {
     const selected = getSelectedMatch();
     if (!selected) return;
@@ -2789,6 +2810,7 @@ async function initDrawAdmin() {
     const matchSelect = document.getElementById("matchSelect");
     const saveBtn = document.getElementById("saveMatchResult");
     const resetBtn = document.getElementById("resetDrawState");
+    const importDrawBtn = document.getElementById("importDrawFromWeb");
     const loadJsonBtn = document.getElementById("loadCurrentDrawJson");
     const applyJsonBtn = document.getElementById("applyDrawJson");
     const copyJsonBtn = document.getElementById("copyDrawJson");
@@ -2800,6 +2822,9 @@ async function initDrawAdmin() {
     matchSelect.addEventListener("change", fillMatchEditor);
     saveBtn.addEventListener("click", saveMatchResult);
     resetBtn.addEventListener("click", resetDrawState);
+    if (importDrawBtn) {
+        importDrawBtn.addEventListener("click", importDrawFromWeb);
+    }
     if (loadJsonBtn) {
         loadJsonBtn.addEventListener("click", setDrawJsonEditorFromState);
     }
