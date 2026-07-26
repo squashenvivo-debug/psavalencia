@@ -1,6 +1,13 @@
 const NEWS_COLLECTION_KEY = "newsCollection";
 const DYNAMIC_LANGS = ["es", "va", "en", "fr"];
 
+async function syncNewsStateFromCloud() {
+    const cloud = window.PSACloudStore;
+    if (!cloud?.isReady?.()) return;
+
+    await cloud.syncLocalStorageFromCloud([NEWS_COLLECTION_KEY]);
+}
+
 function getCurrentLanguage() {
     const lang = (localStorage.getItem("language") || "es").toLowerCase();
     return DYNAMIC_LANGS.includes(lang) ? lang : "es";
@@ -116,4 +123,7 @@ async function renderNewsDetail() {
     dateEl.textContent = formatNewsDate(item.createdAt, lang);
 }
 
-document.addEventListener("DOMContentLoaded", renderNewsDetail);
+document.addEventListener("DOMContentLoaded", async () => {
+    await syncNewsStateFromCloud();
+    await renderNewsDetail();
+});

@@ -11,11 +11,36 @@ const LIVE_STREAM_URL_KEY = "liveStreamYoutubeUrl";
 const LIVE_STREAM_HISTORY_KEY = "liveStreamYoutubeHistory";
 const GALLERY_COLLECTION_KEY = "galleryCollections";
 const NEWS_COLLECTION_KEY = "newsCollection";
+const SPONSORS_COLLECTION_KEY = "sponsorsCollection";
+const PLAYERS_COLLECTION_KEY = "playersCollection";
+const HERO_SETTINGS_KEY = "heroSettings";
+const TOURNAMENT_MODE_KEY = "tournamentContentMode";
+const TOURNAMENT_API_URL_KEY = "tournamentApiUrl";
+const TOURNAMENT_MANUAL_CONTENT_KEY = "tournamentManualContent";
+const DRAW_BRACKET_KEY = "drawBracketState";
 const DYNAMIC_LANGS = ["es", "va", "en", "fr"];
+let countdownTimerId = null;
+const CLOUD_PUBLIC_KEYS = [
+    LIVE_STREAM_URL_KEY,
+    LIVE_STREAM_HISTORY_KEY,
+    GALLERY_COLLECTION_KEY,
+    NEWS_COLLECTION_KEY,
+    SPONSORS_COLLECTION_KEY,
+    PLAYERS_COLLECTION_KEY,
+    HERO_SETTINGS_KEY,
+    TOURNAMENT_MODE_KEY,
+    TOURNAMENT_API_URL_KEY,
+    TOURNAMENT_MANUAL_CONTENT_KEY,
+    DRAW_BRACKET_KEY
+];
 
 document.addEventListener("DOMContentLoaded", async () => {
 
+    await syncPublicStateFromCloud();
+
     await loadConfig();
+
+    applyHeroSettings();
 
     initHeader();
 
@@ -24,6 +49,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     revealSections();
 
     await loadPlayers();
+    loadSponsors();
 
     initLiveStream();
     loadHomeGallery();
@@ -34,11 +60,85 @@ await loadDraws();
 loadTournamentCenter();
 
     document.addEventListener("app-language-changed", () => {
+        applyHeroSettings();
+        initCountdown();
         initLiveStream();
         loadHomeGallery();
         loadNews();
     });
 });
+
+async function syncPublicStateFromCloud() {
+    const cloud = window.PSACloudStore;
+    if (!cloud?.isReady?.()) return;
+
+    await cloud.syncLocalStorageFromCloud(CLOUD_PUBLIC_KEYS);
+}
+
+function readHeroSettings() {
+    try {
+        const raw = localStorage.getItem(HERO_SETTINGS_KEY);
+        if (!raw) return null;
+
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object") return null;
+
+        return {
+            eventLabel: parsed?.eventLabel || null,
+            eventTitle: parsed?.eventTitle || null,
+            eventLocation: parsed?.eventLocation || null,
+            countdownDate: String(parsed?.countdownDate || "").trim(),
+            backgroundImage: String(parsed?.backgroundImage || "").trim()
+        };
+    } catch (error) {
+        return null;
+    }
+}
+
+function resolveDynamicImage(pathValue, folder) {
+    const raw = String(pathValue || "").trim();
+    if (!raw) return "";
+    if (raw.startsWith("data:")) return raw;
+    if (/^https?:\/\//i.test(raw)) return raw;
+    if (raw.includes("/")) return raw;
+    return `${folder}/${raw}`;
+}
+
+function getLocalizedHeroText(value, lang) {
+    if (!value) return "";
+    if (typeof value === "string") return value;
+    if (typeof value === "object") {
+        return String(value?.[lang] || value?.es || value?.va || value?.en || value?.fr || "").trim();
+    }
+    return "";
+}
+
+function applyHeroSettings() {
+    const heroSettings = readHeroSettings();
+    if (!heroSettings) return;
+
+    const lang = getCurrentLanguage();
+
+    const label = getLocalizedHeroText(heroSettings.eventLabel, lang);
+    const title = getLocalizedHeroText(heroSettings.eventTitle, lang);
+    const location = getLocalizedHeroText(heroSettings.eventLocation, lang);
+
+    const labelEl = document.querySelector("#hero .event-label");
+    const titleEl = document.querySelector("#hero .event-title");
+    const locationEl = document.querySelector("#hero .event-location");
+    const heroBgImage = document.querySelector("#hero .hero-background img");
+
+    if (labelEl && label) labelEl.textContent = label;
+    if (titleEl && title) titleEl.textContent = title;
+    if (locationEl && location) locationEl.textContent = location;
+
+    if (heroBgImage && heroSettings.backgroundImage) {
+        const src = resolveDynamicImage(heroSettings.backgroundImage, "assets/images/hero");
+        if (src) {
+            heroBgImage.src = src;
+        }
+    }
+}
 
 
 /* ==========================================================
@@ -71,7 +171,13 @@ function initHeader() {
 
 function initCountdown() {
 
-    const targetDate = new Date("2026-08-11T10:00:00").getTime();
+    const heroSettings = readHeroSettings();
+    const fallback = "2026-08-11T10:00:00";
+    const targetDateRaw = heroSettings?.countdownDate || fallback;
+    const parsedTargetDate = new Date(targetDateRaw).getTime();
+    const targetDate = Number.isFinite(parsedTargetDate)
+        ? parsedTargetDate
+        : new Date(fallback).getTime();
 
     const days = document.getElementById("days");
     const hours = document.getElementById("hours");
@@ -86,7 +192,13 @@ function initCountdown() {
 
         const distance = targetDate - now;
 
-        if (distance <= 0) return;
+        if (distance <= 0) {
+            days.textContent = "00";
+            hours.textContent = "00";
+            minutes.textContent = "00";
+            seconds.textContent = "00";
+            return;
+        }
 
         const d = Math.floor(distance / (1000 * 60 * 60 * 24));
         const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -102,7 +214,11 @@ function initCountdown() {
 
     updateCountdown();
 
-    setInterval(updateCountdown, 1000);
+    if (countdownTimerId) {
+        clearInterval(countdownTimerId);
+    }
+
+    countdownTimerId = setInterval(updateCountdown, 1000);
 
 }
 
@@ -152,17 +268,22 @@ async function loadPlayers() {
 
     try {
 
-        let response = await fetch("data/players.json", { cache: "no-store" });
+        const customPlayers = readPlayersCollection();
+        let players = customPlayers;
 
-        if (!response.ok) {
-            response = await fetch("data/translations/players.json", { cache: "no-store" });
+        if (!Array.isArray(players) || players.length === 0) {
+            let response = await fetch("data/players.json", { cache: "no-store" });
+
+            if (!response.ok) {
+                response = await fetch("data/translations/players.json", { cache: "no-store" });
+            }
+
+            if (!response.ok) {
+                throw new Error("No se pudo cargar data/players.json ni data/translations/players.json");
+            }
+
+            players = await response.json();
         }
-
-        if (!response.ok) {
-            throw new Error("No se pudo cargar data/players.json ni data/translations/players.json");
-        }
-
-        const players = await response.json();
 
         grid.innerHTML = "";
 
@@ -176,12 +297,14 @@ async function loadPlayers() {
                 ? ` style="object-position:${player.photoPosition};"`
                 : "";
 
+            const imageSrc = resolvePlayerImageSrc(player.image || player.imageSrc || "");
+
             grid.innerHTML += `
 
                 <article class="player-card">
 
                     <div class="player-photo">
-                        <img src="assets/images/players/${player.image}" alt="${player.name}"${positionStyle}>
+                        <img src="${imageSrc}" alt="${player.name}"${positionStyle}>
                     </div>
 
                     <div class="player-info">
@@ -216,6 +339,92 @@ async function loadPlayers() {
 
     }
 
+}
+
+function resolvePlayerImageSrc(image) {
+    const value = String(image || "").trim();
+    if (!value) return "";
+    if (value.startsWith("data:")) return value;
+    if (/^https?:\/\//i.test(value)) return value;
+    if (value.includes("/")) return value;
+    return `assets/images/players/${value}`;
+}
+
+function readPlayersCollection() {
+    try {
+        const raw = localStorage.getItem(PLAYERS_COLLECTION_KEY);
+        if (!raw) return null;
+
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return null;
+
+        return parsed
+            .map((player) => ({
+                name: String(player?.name || "").trim(),
+                country: String(player?.country || "").trim().toUpperCase(),
+                ranking: Number(player?.ranking) || "",
+                image: String(player?.image || player?.imageSrc || "").trim(),
+                seed: String(player?.seed || "").trim(),
+                photoPosition: String(player?.photoPosition || "").trim()
+            }))
+            .filter((player) => player.name && player.country && player.image);
+    } catch (error) {
+        return null;
+    }
+}
+
+function readSponsorsCollection() {
+    try {
+        const raw = localStorage.getItem(SPONSORS_COLLECTION_KEY);
+        if (!raw) return null;
+
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return null;
+
+        return parsed
+            .map((sponsor) => ({
+                name: String(sponsor?.name || "Sponsor").trim() || "Sponsor",
+                link: String(sponsor?.link || sponsor?.href || "#").trim() || "#",
+                imageSrc: String(sponsor?.imageSrc || sponsor?.src || "").trim(),
+                cardClass: String(sponsor?.cardClass || "sponsor-card").trim() || "sponsor-card"
+            }))
+            .filter((sponsor) => !!sponsor.imageSrc);
+    } catch (error) {
+        return null;
+    }
+}
+
+function resolveSponsorImageSrc(image) {
+    const value = String(image || "").trim();
+    if (!value) return "";
+    if (value.startsWith("data:")) return value;
+    if (/^https?:\/\//i.test(value)) return value;
+    if (value.includes("/")) return value;
+    return `assets/images/sponsors/${value}`;
+}
+
+function loadSponsors() {
+    const grid = document.querySelector("#sponsors .sponsors-grid");
+    if (!grid) return;
+
+    const sponsors = readSponsorsCollection();
+    if (!sponsors) {
+        return;
+    }
+
+    if (sponsors.length === 0) {
+        // Si la colección dinámica está vacía, mantenemos los sponsors base del HTML.
+        return;
+    }
+
+    grid.innerHTML = sponsors.map((sponsor) => {
+        const imageSrc = resolveSponsorImageSrc(sponsor.imageSrc);
+        const safeName = escapeHtml(sponsor.name || "Sponsor");
+        const safeLink = escapeHtml(sponsor.link || "#");
+        const classes = escapeHtml(sponsor.cardClass || "sponsor-card");
+
+        return `<a class="${classes}" href="${safeLink}" target="_blank" rel="noopener noreferrer"><img src="${imageSrc}" alt="${safeName}"></a>`;
+    }).join("");
 }
 
 

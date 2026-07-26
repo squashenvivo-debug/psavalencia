@@ -345,6 +345,14 @@ localStorage.getItem("language") || "es";
 
 const TOURNAMENT_MODE_KEY = "tournamentContentMode";
 const TOURNAMENT_API_URL_KEY = "tournamentApiUrl";
+const TOURNAMENT_MANUAL_CONTENT_KEY = "tournamentManualContent";
+const HERO_SETTINGS_KEY = "heroSettings";
+const LANGUAGE_CLOUD_KEYS = [
+    TOURNAMENT_MODE_KEY,
+    TOURNAMENT_API_URL_KEY,
+    TOURNAMENT_MANUAL_CONTENT_KEY,
+    HERO_SETTINGS_KEY
+];
 
 const tournamentIntroByLanguage = {
         es: `
@@ -487,6 +495,90 @@ function readTournamentApiResponse(payload, lang){
 
 }
 
+function readTournamentManualContent(){
+
+    try{
+
+        const raw = localStorage.getItem(TOURNAMENT_MANUAL_CONTENT_KEY);
+        if(!raw) return null;
+
+        const parsed = JSON.parse(raw);
+        if(!parsed || typeof parsed !== "object") return null;
+
+        return {
+            title: parsed?.title || null,
+            body: parsed?.body || null
+        };
+
+    } catch(error){
+
+        return null;
+
+    }
+
+}
+
+function getLocalizedValue(value, lang){
+
+    if(!value) return "";
+
+    if(typeof value === "string"){
+
+        return value;
+
+    }
+
+    if(typeof value === "object"){
+
+        return value[lang] || value.es || value.va || value.en || value.fr || "";
+
+    }
+
+    return "";
+
+}
+
+function escapeHtml(value){
+
+    return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+
+}
+
+function renderTournamentManualHtml(content, lang){
+
+    if(!content) return "";
+
+    const title = getLocalizedValue(content.title, lang).trim();
+    const body = getLocalizedValue(content.body, lang).trim();
+
+    if(!title || !body) return "";
+
+    const paragraphs = body
+        .split(/\n{2,}/)
+        .map((chunk) => chunk.trim())
+        .filter(Boolean)
+        .map((chunk) => `<p>${escapeHtml(chunk).replace(/\n/g, "<br>")}</p>`)
+        .join("");
+
+    return `
+<article class="tournament-article">
+    <div class="tournament-card">
+        <header class="tournament-header">
+            <h3>${escapeHtml(title)}</h3>
+        </header>
+        <section class="tournament-content">
+            ${paragraphs}
+        </section>
+    </div>
+</article>`;
+
+}
+
 async function fetchTournamentIntroFromApi(lang, apiUrl){
 
     const separator = apiUrl.includes("?") ? "&" : "?";
@@ -521,11 +613,14 @@ async function renderTournamentIntro(lang){
     if(!container) return;
 
     const manualHtml = tournamentIntroByLanguage[lang] || tournamentIntroByLanguage.es;
+    const manualContent = readTournamentManualContent();
+    const customManualHtml = renderTournamentManualHtml(manualContent, lang);
+    const defaultManualHtml = customManualHtml || manualHtml;
     const mode = getTournamentMode();
 
     if(mode !== "api"){
 
-        container.innerHTML = manualHtml;
+        container.innerHTML = defaultManualHtml;
         return;
 
     }
@@ -534,7 +629,7 @@ async function renderTournamentIntro(lang){
 
     if(!apiUrl){
 
-        container.innerHTML = manualHtml;
+        container.innerHTML = defaultManualHtml;
         return;
 
     }
@@ -543,13 +638,13 @@ async function renderTournamentIntro(lang){
 
         const apiHtml = await fetchTournamentIntroFromApi(lang, apiUrl);
 
-        container.innerHTML = apiHtml || manualHtml;
+        container.innerHTML = apiHtml || defaultManualHtml;
 
     } catch(error){
 
         console.warn("No se pudo cargar Torneo desde API. Usando contenido manual.", error);
 
-        container.innerHTML = manualHtml;
+        container.innerHTML = defaultManualHtml;
 
     }
 
@@ -643,7 +738,19 @@ function closeLanguageMenu(){
     }
 
 }
-document.addEventListener("DOMContentLoaded",()=>{
+
+async function syncLanguageStateFromCloud(){
+
+    const cloud = window.PSACloudStore;
+    if(!cloud?.isReady?.()) return;
+
+    await cloud.syncLocalStorageFromCloud(LANGUAGE_CLOUD_KEYS);
+
+}
+
+document.addEventListener("DOMContentLoaded", async ()=>{
+
+    await syncLanguageStateFromCloud();
 
     setLanguage(currentLanguage);
 

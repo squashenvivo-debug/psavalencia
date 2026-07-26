@@ -9,7 +9,24 @@ const LIVE_STREAM_URL_KEY = "liveStreamYoutubeUrl";
 const LIVE_STREAM_HISTORY_KEY = "liveStreamYoutubeHistory";
 const GALLERY_COLLECTION_KEY = "galleryCollections";
 const NEWS_COLLECTION_KEY = "newsCollection";
+const SPONSORS_COLLECTION_KEY = "sponsorsCollection";
+const PLAYERS_COLLECTION_KEY = "playersCollection";
+const TOURNAMENT_MANUAL_CONTENT_KEY = "tournamentManualContent";
+const HERO_SETTINGS_KEY = "heroSettings";
 const LANGS = ["es", "va", "en", "fr"];
+const CLOUD_SYNC_KEYS = [
+    TOURNAMENT_MODE_KEY,
+    TOURNAMENT_API_URL_KEY,
+    DRAW_BRACKET_KEY,
+    LIVE_STREAM_URL_KEY,
+    LIVE_STREAM_HISTORY_KEY,
+    GALLERY_COLLECTION_KEY,
+    NEWS_COLLECTION_KEY,
+    SPONSORS_COLLECTION_KEY,
+    PLAYERS_COLLECTION_KEY,
+    TOURNAMENT_MANUAL_CONTENT_KEY,
+    HERO_SETTINGS_KEY
+];
 
 let drawState = null;
 let pendingGalleryPhotos = [];
@@ -17,6 +34,173 @@ let galleryEditMode = false;
 let pendingNewsImageSrc = "";
 let newsEditMode = false;
 let adminModulesStarted = false;
+let pendingHeroBackgroundSrc = "";
+let adminStartPromise = null;
+let storageCloudPatchInstalled = false;
+let adminSectionViewBound = false;
+const ADMIN_DEFAULT_SECTION = String(window.ADMIN_DEFAULT_SECTION || "dashboard").trim() || "dashboard";
+const ADMIN_MULTI_PAGE_MODE = window.ADMIN_MULTI_PAGE_MODE !== false;
+const ADMIN_SECTION_IDS = [
+    "tournament-mode-panel",
+    "hero-admin-panel",
+    "tournament-text-panel",
+    "players-admin-panel",
+    "sponsors-admin-panel",
+    "live-settings-panel",
+    "news-admin-panel",
+    "gallery-admin-panel",
+    "draw-schedule-panel",
+    "draw-results-panel"
+];
+const ADMIN_SECTION_TO_PAGE = {
+    dashboard: "admin-dashboard.html",
+    "news-admin-panel": "admin-news.html",
+    "live-settings-panel": "admin-streaming.html",
+    "sponsors-admin-panel": "admin-sponsors.html",
+    "gallery-admin-panel": "admin-gallery.html",
+    "hero-admin-panel": "admin-hero.html",
+    "tournament-mode-panel": "admin-tournament.html",
+    "tournament-text-panel": "admin-tournament-text.html",
+    "players-admin-panel": "admin-players.html",
+    "draw-schedule-panel": "admin-draw-schedule.html",
+    "draw-results-panel": "admin-draw-results.html"
+};
+
+function getSectionFromHash() {
+    const raw = (window.location.hash || "").replace(/^#/, "").trim();
+    if (!raw || raw === "dashboard") {
+        if (ADMIN_DEFAULT_SECTION === "dashboard") return "dashboard";
+        return ADMIN_SECTION_IDS.includes(ADMIN_DEFAULT_SECTION) ? ADMIN_DEFAULT_SECTION : "dashboard";
+    }
+    return ADMIN_SECTION_IDS.includes(raw) ? raw : "dashboard";
+}
+
+function updateAdminMenuActiveState(activeView) {
+    const menuLinks = document.querySelectorAll(".sidebar nav a[data-section]");
+    menuLinks.forEach((link) => {
+        const target = String(link.getAttribute("data-section") || "dashboard").trim() || "dashboard";
+        const isActive = (activeView === "dashboard" && target === "dashboard") || target === activeView;
+        link.classList.toggle("is-active", isActive);
+    });
+}
+
+function configureAdminMenuLinks() {
+    const menuLinks = document.querySelectorAll(".sidebar nav a[data-section]");
+
+    menuLinks.forEach((link) => {
+        const section = String(link.getAttribute("data-section") || "dashboard").trim() || "dashboard";
+        const targetPage = ADMIN_SECTION_TO_PAGE[section] || "admin-dashboard.html";
+
+        if (ADMIN_MULTI_PAGE_MODE) {
+            link.setAttribute("href", targetPage);
+        } else {
+            link.setAttribute("href", section === "dashboard" ? "#dashboard" : `#${section}`);
+        }
+    });
+}
+
+function showAdminSection(sectionId) {
+    const dashboardIntro = document.getElementById("adminDashboardIntro");
+    const allSections = document.querySelectorAll("main.content .admin-card");
+
+    if (sectionId === "dashboard") {
+        if (dashboardIntro) dashboardIntro.classList.remove("is-hidden");
+        allSections.forEach((section) => {
+            section.classList.remove("is-view-visible");
+        });
+        updateAdminMenuActiveState("dashboard");
+        return;
+    }
+
+    if (dashboardIntro) dashboardIntro.classList.add("is-hidden");
+
+    allSections.forEach((section) => {
+        const shouldShow = section.id === sectionId;
+        section.classList.toggle("is-view-visible", shouldShow);
+    });
+
+    updateAdminMenuActiveState(sectionId);
+}
+
+function applyAdminViewFromHash() {
+    const section = getSectionFromHash();
+    showAdminSection(section);
+}
+
+function bindAdminSectionView() {
+    if (adminSectionViewBound) return;
+
+    configureAdminMenuLinks();
+
+    const menuLinks = document.querySelectorAll(".sidebar nav a[data-section]");
+
+    if (ADMIN_MULTI_PAGE_MODE) {
+        adminSectionViewBound = true;
+        applyAdminViewFromHash();
+        return;
+    }
+
+    menuLinks.forEach((link) => {
+        link.addEventListener("click", (event) => {
+            const href = String(link.getAttribute("href") || "").trim();
+            if (!href.startsWith("#")) return;
+
+            event.preventDefault();
+            const target = href.replace(/^#/, "").trim() || "dashboard";
+            const nextHash = target === "dashboard" ? "#dashboard" : `#${target}`;
+
+            if (window.location.hash !== nextHash) {
+                window.location.hash = nextHash;
+            } else {
+                applyAdminViewFromHash();
+            }
+        });
+    });
+
+    window.addEventListener("hashchange", applyAdminViewFromHash);
+    adminSectionViewBound = true;
+    applyAdminViewFromHash();
+}
+
+function installCloudStorageAutosync() {
+    if (storageCloudPatchInstalled) return;
+
+    const cloud = window.PSACloudStore;
+    if (!cloud?.isReady?.()) return;
+
+    const syncKeys = new Set(CLOUD_SYNC_KEYS);
+    const originalSetItem = localStorage.setItem.bind(localStorage);
+    const originalRemoveItem = localStorage.removeItem.bind(localStorage);
+
+    localStorage.setItem = function patchedSetItem(key, value) {
+        originalSetItem(key, value);
+
+        if (syncKeys.has(key)) {
+            cloud.saveLocalStorageKeyToCloud(key).catch(() => {
+                // No interrumpimos UX de admin si la nube falla.
+            });
+        }
+    };
+
+    localStorage.removeItem = function patchedRemoveItem(key) {
+        originalRemoveItem(key);
+
+        if (syncKeys.has(key)) {
+            cloud.removeLocalStorageKeyFromCloud(key).catch(() => {
+                // No interrumpimos UX de admin si la nube falla.
+            });
+        }
+    };
+
+    storageCloudPatchInstalled = true;
+}
+
+async function hydrateAdminStateFromCloud() {
+    const cloud = window.PSACloudStore;
+    if (!cloud?.isReady?.()) return;
+
+    await cloud.syncLocalStorageFromCloud(CLOUD_SYNC_KEYS);
+}
 
 function setAdminAuthStatus(message, isError = false) {
     const status = document.getElementById("adminAuthStatus");
@@ -51,17 +235,30 @@ function showAuthScreen() {
     }
 }
 
-function startAdminModulesOnce() {
+async function startAdminModulesOnce() {
     if (adminModulesStarted) return;
-    adminModulesStarted = true;
+    if (adminStartPromise) return adminStartPromise;
 
-    loadTournamentSettings();
-    bindTournamentSettings();
-    loadLiveSettings();
-    bindLiveSettings();
-    initNewsAdmin();
-    initGalleryAdmin();
-    initDrawAdmin();
+    adminStartPromise = (async () => {
+        bindAdminSectionView();
+        await hydrateAdminStateFromCloud();
+        installCloudStorageAutosync();
+
+        adminModulesStarted = true;
+        loadTournamentSettings();
+        bindTournamentSettings();
+        initHeroAdmin();
+        initTournamentManualAdmin();
+        loadLiveSettings();
+        bindLiveSettings();
+        initPlayersAdmin();
+        initSponsorsAdmin();
+        initNewsAdmin();
+        initGalleryAdmin();
+        await initDrawAdmin();
+    })();
+
+    return adminStartPromise;
 }
 
 async function initAdminAuth() {
@@ -104,7 +301,7 @@ async function initAdminAuth() {
             // Abrir panel inmediatamente tras login correcto.
             if (data?.session) {
                 showAdminApp();
-                startAdminModulesOnce();
+                await startAdminModulesOnce();
                 return;
             }
 
@@ -112,7 +309,7 @@ async function initAdminAuth() {
             const fallback = await supabaseClient.auth.getSession();
             if (fallback?.data?.session) {
                 showAdminApp();
-                startAdminModulesOnce();
+                await startAdminModulesOnce();
             } else {
                 setAdminAuthStatus("Acceso correcto, pero no se pudo abrir el panel. Recarga la página.", true);
             }
@@ -135,13 +332,13 @@ async function initAdminAuth() {
     supabaseClient.auth.onAuthStateChange(async (_event, session) => {
         if (session) {
             showAdminApp();
-            startAdminModulesOnce();
+            await startAdminModulesOnce();
         } else {
             // Evita falsos negativos por eventos transitorios: verificamos sesión real.
             const fallback = await supabaseClient.auth.getSession();
             if (fallback?.data?.session) {
                 showAdminApp();
-                startAdminModulesOnce();
+                await startAdminModulesOnce();
                 return;
             }
 
@@ -158,7 +355,7 @@ async function initAdminAuth() {
 
     if (data?.session) {
         showAdminApp();
-        startAdminModulesOnce();
+        await startAdminModulesOnce();
     } else {
         showAuthScreen();
         setAdminAuthStatus("Inicia sesión para entrar al panel.");
@@ -561,16 +758,36 @@ async function translateFromSpanish(text, targetLang) {
     const target = langMap[targetLang] || targetLang;
 
     try {
-        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(source)}&langpair=es|${encodeURIComponent(target)}`;
-        const response = await fetch(url, { cache: "no-store" });
-        if (!response.ok) return source;
+        const googleUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=es&tl=${encodeURIComponent(target)}&dt=t&q=${encodeURIComponent(source)}`;
+        const googleResponse = await fetch(googleUrl, { cache: "no-store" });
+        if (googleResponse.ok) {
+            const payload = await googleResponse.json();
+            const translated = Array.isArray(payload?.[0])
+                ? payload[0].map((part) => String(part?.[0] || "")).join("").trim()
+                : "";
+            if (translated) return translated;
+        }
+    } catch (error) {
+        // Intentamos fallback si este proveedor falla.
+    }
 
-        const payload = await response.json();
-        const translated = String(payload?.responseData?.translatedText || "").trim();
+    try {
+        const memoryUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(source)}&langpair=es|${encodeURIComponent(target)}`;
+        const memoryResponse = await fetch(memoryUrl, { cache: "no-store" });
+        if (!memoryResponse.ok) return source;
+
+        const payload = await memoryResponse.json();
+        const translated = decodeHtmlEntities(String(payload?.responseData?.translatedText || "").trim());
         return translated || source;
     } catch (error) {
         return source;
     }
+}
+
+function decodeHtmlEntities(value) {
+    const parser = document.createElement("textarea");
+    parser.innerHTML = String(value || "");
+    return parser.value;
 }
 
 async function buildLocalizedFromSpanish(sourceText) {
@@ -586,6 +803,235 @@ async function buildLocalizedFromSpanish(sourceText) {
     ]);
 
     return { es, va, en, fr };
+}
+
+function updateTournamentManualStatus(message) {
+    const el = document.getElementById("tournamentManualStatus");
+    if (!el) return;
+    el.textContent = message;
+}
+
+function readTournamentManualContent() {
+    try {
+        const raw = localStorage.getItem(TOURNAMENT_MANUAL_CONTENT_KEY);
+        if (!raw) return null;
+
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object") return null;
+
+        return {
+            title: normalizeLocalizedText(parsed.title),
+            body: normalizeLocalizedText(parsed.body),
+            updatedAt: parsed.updatedAt || new Date().toISOString()
+        };
+    } catch (error) {
+        return null;
+    }
+}
+
+function fillTournamentManualInputs() {
+    const saved = readTournamentManualContent();
+    const titleInput = document.getElementById("tournamentManualTitle_es");
+    const bodyInput = document.getElementById("tournamentManualBody_es");
+    if (!titleInput || !bodyInput) return;
+
+    titleInput.value = saved?.title?.es || "";
+    bodyInput.value = saved?.body?.es || "";
+}
+
+async function saveTournamentManualContent() {
+    const titleEs = (document.getElementById("tournamentManualTitle_es")?.value || "").trim();
+    const bodyEs = (document.getElementById("tournamentManualBody_es")?.value || "").trim();
+
+    if (!titleEs || !bodyEs) {
+        updateTournamentManualStatus("Escribe título y texto en español.");
+        return;
+    }
+
+    updateTournamentManualStatus("Traduciendo contenido...");
+    const [title, body] = await Promise.all([
+        buildLocalizedFromSpanish(titleEs),
+        buildLocalizedFromSpanish(bodyEs)
+    ]);
+
+    const payload = {
+        title,
+        body,
+        updatedAt: new Date().toISOString()
+    };
+
+    localStorage.setItem(TOURNAMENT_MANUAL_CONTENT_KEY, JSON.stringify(payload));
+    updateTournamentManualStatus("Contenido del torneo guardado y traducido.");
+}
+
+function resetTournamentManualContent() {
+    localStorage.removeItem(TOURNAMENT_MANUAL_CONTENT_KEY);
+    fillTournamentManualInputs();
+    updateTournamentManualStatus("Contenido manual eliminado. Se usará el texto base de la web.");
+}
+
+function initTournamentManualAdmin() {
+    const panel = document.getElementById("tournament-text-panel");
+    if (!panel) return;
+
+    const saveButton = document.getElementById("saveTournamentManualContent");
+    const resetButton = document.getElementById("resetTournamentManualContent");
+
+    if (saveButton) {
+        saveButton.addEventListener("click", saveTournamentManualContent);
+    }
+    if (resetButton) {
+        resetButton.addEventListener("click", resetTournamentManualContent);
+
+    function updateHeroStatus(message) {
+        const el = document.getElementById("heroAdminStatus");
+        if (!el) return;
+        el.textContent = message;
+    }
+
+    function normalizeHeroSettings(payload) {
+        if (!payload || typeof payload !== "object") return null;
+
+        return {
+            eventLabel: normalizeLocalizedText(payload.eventLabel),
+            eventTitle: normalizeLocalizedText(payload.eventTitle),
+            eventLocation: normalizeLocalizedText(payload.eventLocation),
+            countdownDate: String(payload.countdownDate || "").trim(),
+            backgroundImage: String(payload.backgroundImage || "").trim(),
+            updatedAt: payload.updatedAt || new Date().toISOString()
+        };
+    }
+
+    function readHeroSettings() {
+        try {
+            const raw = localStorage.getItem(HERO_SETTINGS_KEY);
+            if (!raw) return null;
+            return normalizeHeroSettings(JSON.parse(raw));
+        } catch (error) {
+            return null;
+        }
+    }
+
+    function toDateTimeLocalInputValue(value) {
+        const dt = new Date(value || "");
+        if (Number.isNaN(dt.getTime())) return "";
+        const pad = (num) => String(num).padStart(2, "0");
+        const yyyy = dt.getFullYear();
+        const mm = pad(dt.getMonth() + 1);
+        const dd = pad(dt.getDate());
+        const hh = pad(dt.getHours());
+        const mi = pad(dt.getMinutes());
+        return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+    }
+
+    function fromDateTimeLocalInputValue(value) {
+        const raw = String(value || "").trim();
+        if (!raw) return "";
+        const dt = new Date(raw);
+        if (Number.isNaN(dt.getTime())) return "";
+        return dt.toISOString();
+    }
+
+    function fillHeroInputs() {
+        const saved = readHeroSettings();
+
+        const labelInput = document.getElementById("heroEventLabel_es");
+        const titleInput = document.getElementById("heroEventTitle_es");
+        const locationInput = document.getElementById("heroEventLocation_es");
+        const countdownInput = document.getElementById("heroCountdownDate");
+        const bgPathInput = document.getElementById("heroBackgroundPath");
+
+        if (labelInput) labelInput.value = saved?.eventLabel?.es || "";
+        if (titleInput) titleInput.value = saved?.eventTitle?.es || "";
+        if (locationInput) locationInput.value = saved?.eventLocation?.es || "";
+        if (countdownInput) countdownInput.value = toDateTimeLocalInputValue(saved?.countdownDate || "");
+        if (bgPathInput) bgPathInput.value = saved?.backgroundImage || "";
+    }
+
+    async function onHeroBackgroundChange(event) {
+        const file = event.target.files?.[0];
+        if (!file) {
+            pendingHeroBackgroundSrc = "";
+            return;
+        }
+
+        pendingHeroBackgroundSrc = await readFileAsDataUrl(file);
+    }
+
+    async function saveHeroSettings() {
+        const labelEs = (document.getElementById("heroEventLabel_es")?.value || "").trim();
+        const titleEs = (document.getElementById("heroEventTitle_es")?.value || "").trim();
+        const locationEs = (document.getElementById("heroEventLocation_es")?.value || "").trim();
+        const countdownRaw = (document.getElementById("heroCountdownDate")?.value || "").trim();
+        const bgPath = (document.getElementById("heroBackgroundPath")?.value || "").trim();
+
+        if (!labelEs || !titleEs || !locationEs) {
+            updateHeroStatus("Etiqueta, título y ubicación en español son obligatorios.");
+            return;
+        }
+
+        updateHeroStatus("Traduciendo textos del hero...");
+
+        const [eventLabel, eventTitle, eventLocation] = await Promise.all([
+            buildLocalizedFromSpanish(labelEs),
+            buildLocalizedFromSpanish(titleEs),
+            buildLocalizedFromSpanish(locationEs)
+        ]);
+
+        const countdownDate = fromDateTimeLocalInputValue(countdownRaw);
+        const backgroundImage = pendingHeroBackgroundSrc || bgPath;
+
+        const payload = {
+            eventLabel,
+            eventTitle,
+            eventLocation,
+            countdownDate,
+            backgroundImage,
+            updatedAt: new Date().toISOString()
+        };
+
+        localStorage.setItem(HERO_SETTINGS_KEY, JSON.stringify(payload));
+        pendingHeroBackgroundSrc = "";
+        const fileInput = document.getElementById("heroBackgroundFile");
+        if (fileInput) fileInput.value = "";
+
+        updateHeroStatus("Hero guardado y traducido para todos los idiomas.");
+    }
+
+    function resetHeroSettings() {
+        localStorage.removeItem(HERO_SETTINGS_KEY);
+        pendingHeroBackgroundSrc = "";
+        fillHeroInputs();
+
+        const fileInput = document.getElementById("heroBackgroundFile");
+        if (fileInput) fileInput.value = "";
+
+        updateHeroStatus("Hero restaurado a la configuración base.");
+    }
+
+    function initHeroAdmin() {
+        const panel = document.getElementById("hero-admin-panel");
+        if (!panel) return;
+
+        const saveButton = document.getElementById("saveHeroSettings");
+        const resetButton = document.getElementById("resetHeroSettings");
+        const bgFileInput = document.getElementById("heroBackgroundFile");
+
+        if (saveButton) {
+            saveButton.addEventListener("click", saveHeroSettings);
+        }
+        if (resetButton) {
+            resetButton.addEventListener("click", resetHeroSettings);
+        }
+        if (bgFileInput) {
+            bgFileInput.addEventListener("change", onHeroBackgroundChange);
+        }
+
+        fillHeroInputs();
+    }
+    }
+
+    fillTournamentManualInputs();
 }
 
 function normalizeGallery(gallery) {
@@ -1274,6 +1720,517 @@ function initGalleryAdmin() {
     renderPendingGalleryPhotos();
     renderGalleryDeleteSelect();
     renderGalleryAdminList();
+}
+
+function updatePlayersStatus(message) {
+    const el = document.getElementById("playersAdminStatus");
+    if (!el) return;
+    el.textContent = message;
+}
+
+function updateSponsorsStatus(message) {
+    const el = document.getElementById("sponsorsAdminStatus");
+    if (!el) return;
+    el.textContent = message;
+}
+
+function normalizePlayerImagePath(pathValue) {
+    const raw = String(pathValue || "").trim();
+    if (!raw) return "";
+    if (raw.startsWith("data:")) return raw;
+    if (/^https?:\/\//i.test(raw)) return raw;
+    if (raw.includes("/")) return raw;
+    return `assets/images/players/${raw}`;
+}
+
+function normalizeSponsorImagePath(pathValue) {
+    const raw = String(pathValue || "").trim();
+    if (!raw) return "";
+    if (raw.startsWith("data:")) return raw;
+    if (/^https?:\/\//i.test(raw)) return raw;
+    if (raw.includes("/")) return raw;
+    return `assets/images/sponsors/${raw}`;
+}
+
+function normalizePlayerItem(item) {
+    return {
+        id: item?.id || createId("player"),
+        name: String(item?.name || "").trim(),
+        country: String(item?.country || "").trim().toUpperCase(),
+        ranking: Number(item?.ranking) || "",
+        image: normalizePlayerImagePath(item?.image || item?.imageSrc || ""),
+        seed: String(item?.seed || "").trim(),
+        photoPosition: String(item?.photoPosition || "").trim()
+    };
+}
+
+function normalizeSponsorItem(item) {
+    return {
+        id: item?.id || createId("sponsor"),
+        name: String(item?.name || "Sponsor").trim() || "Sponsor",
+        link: String(item?.link || item?.href || "#").trim() || "#",
+        imageSrc: normalizeSponsorImagePath(item?.imageSrc || item?.src || ""),
+        cardClass: String(item?.cardClass || "sponsor-card").trim() || "sponsor-card"
+    };
+}
+
+function readPlayersFromStorage() {
+    try {
+        const raw = localStorage.getItem(PLAYERS_COLLECTION_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return null;
+        return parsed.map(normalizePlayerItem).filter((item) => item.name && item.country && item.image);
+    } catch (error) {
+        return null;
+    }
+}
+
+function savePlayersToStorage(collection) {
+    try {
+        localStorage.setItem(PLAYERS_COLLECTION_KEY, JSON.stringify(collection));
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+async function readBasePlayersFromFile() {
+    try {
+        const response = await fetch("data/players.json", { cache: "no-store" });
+        if (!response.ok) return [];
+        const payload = await response.json();
+        if (!Array.isArray(payload)) return [];
+        return payload
+            .map((item, index) => normalizePlayerItem({ ...item, id: `player_base_${index}` }))
+            .filter((entry) => entry.name && entry.country && entry.image);
+    } catch (error) {
+        return [];
+    }
+}
+
+async function getPlayersCollectionForAdmin() {
+    const stored = readPlayersFromStorage();
+    if (stored) return stored;
+    return readBasePlayersFromFile();
+}
+
+function readSponsorsFromStorage() {
+    try {
+        const raw = localStorage.getItem(SPONSORS_COLLECTION_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return null;
+        return parsed.map(normalizeSponsorItem).filter((item) => item.imageSrc);
+    } catch (error) {
+        return null;
+    }
+}
+
+function saveSponsorsToStorage(collection) {
+    try {
+        localStorage.setItem(SPONSORS_COLLECTION_KEY, JSON.stringify(collection));
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+function getSponsorsCollectionForAdmin() {
+    const stored = readSponsorsFromStorage();
+    if (Array.isArray(stored) && stored.length > 0) {
+        return stored;
+    }
+    return getDefaultSponsors();
+}
+
+function getDefaultSponsors() {
+    return [
+        { id: "sponsor_default_olympia", name: "Olympia", link: "https://www.olympiahotel.com/", imageSrc: "assets/images/sponsors/olympia.png", cardClass: "sponsor-card sponsor-card-olympia" },
+        { id: "sponsor_default_01", name: "Sponsor 01", link: "#", imageSrc: "assets/images/sponsors/sponsor-01.jpg", cardClass: "sponsor-card" },
+        { id: "sponsor_default_02", name: "Sponsor 02", link: "#", imageSrc: "assets/images/sponsors/sponsor-02.jpg", cardClass: "sponsor-card" },
+        { id: "sponsor_default_03", name: "Sponsor 03", link: "#", imageSrc: "assets/images/sponsors/sponsor-03.jpg", cardClass: "sponsor-card" },
+        { id: "sponsor_default_04", name: "Sponsor 04", link: "#", imageSrc: "assets/images/sponsors/sponsor-04.jpg", cardClass: "sponsor-card" },
+        { id: "sponsor_default_05", name: "Sponsor 05", link: "#", imageSrc: "assets/images/sponsors/sponsor-05.jpg", cardClass: "sponsor-card" },
+        { id: "sponsor_default_06", name: "Sponsor 06", link: "#", imageSrc: "assets/images/sponsors/sponsor-06.jpg", cardClass: "sponsor-card" },
+        { id: "sponsor_default_07", name: "Sponsor 07", link: "#", imageSrc: "assets/images/sponsors/sponsor-07.jpg", cardClass: "sponsor-card" },
+        { id: "sponsor_default_08", name: "Sponsor 08", link: "#", imageSrc: "assets/images/sponsors/sponsor-08.jpg", cardClass: "sponsor-card" },
+        { id: "sponsor_default_09", name: "Sponsor 09", link: "#", imageSrc: "assets/images/sponsors/sponsor-09.jpg", cardClass: "sponsor-card" },
+        { id: "sponsor_default_10", name: "Sponsor 10", link: "#", imageSrc: "assets/images/sponsors/sponsor-10.jpg", cardClass: "sponsor-card" }
+    ].map(normalizeSponsorItem);
+}
+
+async function createPlayerFromInputs() {
+    const name = (document.getElementById("newPlayerName")?.value || "").trim();
+    const country = (document.getElementById("newPlayerCountry")?.value || "").trim().toUpperCase();
+    const rankingRaw = (document.getElementById("newPlayerRanking")?.value || "").trim();
+    const seed = (document.getElementById("newPlayerSeed")?.value || "").trim();
+    const photoPosition = (document.getElementById("newPlayerPhotoPosition")?.value || "").trim();
+    const imagePath = normalizePlayerImagePath((document.getElementById("newPlayerImagePath")?.value || "").trim());
+    const imageFile = document.getElementById("newPlayerImage")?.files?.[0] || null;
+
+    if (!name || !country || !rankingRaw) {
+        updatePlayersStatus("Nombre, país y ranking son obligatorios.");
+        return null;
+    }
+
+    let image = imagePath;
+    if (imageFile) {
+        image = await readFileAsDataUrl(imageFile);
+    }
+
+    if (!image) {
+        updatePlayersStatus("Indica ruta de imagen o sube una foto para el jugador.");
+        return null;
+    }
+
+    return normalizePlayerItem({
+        id: createId("player"),
+        name,
+        country,
+        ranking: Number(rankingRaw),
+        image,
+        seed,
+        photoPosition
+    });
+}
+
+async function createSponsorFromInputs() {
+    const name = (document.getElementById("newSponsorName")?.value || "").trim();
+    const link = (document.getElementById("newSponsorLink")?.value || "").trim();
+    const imagePath = normalizeSponsorImagePath((document.getElementById("newSponsorImagePath")?.value || "").trim());
+    const imageFile = document.getElementById("newSponsorImage")?.files?.[0] || null;
+
+    if (!name) {
+        updateSponsorsStatus("El nombre del sponsor es obligatorio.");
+        return null;
+    }
+
+    let imageSrc = imagePath;
+    if (imageFile) {
+        imageSrc = await readFileAsDataUrl(imageFile);
+    }
+
+    if (!imageSrc) {
+        updateSponsorsStatus("Indica ruta de imagen o sube una imagen para el sponsor.");
+        return null;
+    }
+
+    return normalizeSponsorItem({
+        id: createId("sponsor"),
+        name,
+        link: link || "#",
+        imageSrc,
+        cardClass: "sponsor-card"
+    });
+}
+
+async function renderPlayersAdminList() {
+    const host = document.getElementById("playersAdminList");
+    if (!host) return;
+
+    const players = await getPlayersCollectionForAdmin();
+    if (players.length === 0) {
+        host.innerHTML = '<p class="admin-muted">No hay jugadores cargados.</p>';
+        return;
+    }
+
+    host.innerHTML = players.map((player) => `
+        <article class="gallery-admin-card" data-player-id="${player.id}">
+            <img class="gallery-thumb" src="${escapeHtml(player.image)}" alt="${escapeHtml(player.name)}">
+            <label class="field-label" for="playerName_${player.id}">Nombre</label>
+            <input id="playerName_${player.id}" type="text" value="${escapeHtml(player.name)}">
+            <div class="results-grid">
+                <div>
+                    <label class="field-label" for="playerCountry_${player.id}">País</label>
+                    <input id="playerCountry_${player.id}" type="text" value="${escapeHtml(player.country)}" maxlength="3">
+                </div>
+                <div>
+                    <label class="field-label" for="playerRanking_${player.id}">Ranking</label>
+                    <input id="playerRanking_${player.id}" type="number" min="1" value="${escapeHtml(player.ranking)}">
+                </div>
+            </div>
+            <div class="results-grid">
+                <div>
+                    <label class="field-label" for="playerSeed_${player.id}">Seed</label>
+                    <input id="playerSeed_${player.id}" type="text" value="${escapeHtml(player.seed || "")}">
+                </div>
+                <div>
+                    <label class="field-label" for="playerPhotoPos_${player.id}">Posición foto</label>
+                    <input id="playerPhotoPos_${player.id}" type="text" value="${escapeHtml(player.photoPosition || "")}">
+                </div>
+            </div>
+            <label class="field-label" for="playerImagePath_${player.id}">Ruta imagen</label>
+            <input id="playerImagePath_${player.id}" type="text" value="${escapeHtml(player.image)}">
+            <label class="field-label" for="playerImageFile_${player.id}">O subir imagen nueva</label>
+            <input id="playerImageFile_${player.id}" type="file" accept="image/*">
+            <div class="gallery-photo-actions">
+                <button type="button" class="btn-gallery-save" data-action="save-player" data-player-id="${player.id}">Guardar</button>
+                <button type="button" class="btn-gallery-danger" data-action="delete-player" data-player-id="${player.id}">Borrar</button>
+            </div>
+        </article>
+    `).join("");
+
+    host.querySelectorAll("[data-action='save-player']").forEach((button) => {
+        button.addEventListener("click", async () => {
+            const playerId = button.getAttribute("data-player-id");
+            const collection = await getPlayersCollectionForAdmin();
+            const player = collection.find((entry) => entry.id === playerId);
+            if (!player) return;
+
+            const name = (document.getElementById(`playerName_${playerId}`)?.value || "").trim();
+            const country = (document.getElementById(`playerCountry_${playerId}`)?.value || "").trim().toUpperCase();
+            const rankingRaw = (document.getElementById(`playerRanking_${playerId}`)?.value || "").trim();
+            const seed = (document.getElementById(`playerSeed_${playerId}`)?.value || "").trim();
+            const photoPosition = (document.getElementById(`playerPhotoPos_${playerId}`)?.value || "").trim();
+            const imagePath = normalizePlayerImagePath((document.getElementById(`playerImagePath_${playerId}`)?.value || "").trim());
+            const fileInput = document.getElementById(`playerImageFile_${playerId}`);
+            const file = fileInput?.files?.[0] || null;
+
+            if (!name || !country || !rankingRaw) {
+                updatePlayersStatus("Nombre, país y ranking son obligatorios para guardar.");
+                return;
+            }
+
+            let image = imagePath;
+            if (file) {
+                image = await readFileAsDataUrl(file);
+            }
+
+            if (!image) {
+                updatePlayersStatus("Cada jugador debe tener imagen.");
+                return;
+            }
+
+            Object.assign(player, normalizePlayerItem({
+                id: player.id,
+                name,
+                country,
+                ranking: Number(rankingRaw),
+                image,
+                seed,
+                photoPosition
+            }));
+
+            const saved = savePlayersToStorage(collection);
+            if (!saved) {
+                updatePlayersStatus("No se pudo guardar la lista de jugadores.");
+                return;
+            }
+
+            updatePlayersStatus("Jugador actualizado.");
+            renderPlayersAdminList();
+        });
+    });
+
+    host.querySelectorAll("[data-action='delete-player']").forEach((button) => {
+        button.addEventListener("click", async () => {
+            const playerId = button.getAttribute("data-player-id");
+            const collection = await getPlayersCollectionForAdmin();
+            const next = collection.filter((entry) => entry.id !== playerId);
+            const saved = savePlayersToStorage(next);
+            if (!saved) {
+                updatePlayersStatus("No se pudo borrar el jugador.");
+                return;
+            }
+
+            updatePlayersStatus("Jugador eliminado.");
+            renderPlayersAdminList();
+        });
+    });
+}
+
+async function renderSponsorsAdminList() {
+    const host = document.getElementById("sponsorsAdminList");
+    if (!host) return;
+
+    const sponsors = getSponsorsCollectionForAdmin();
+    if (sponsors.length === 0) {
+        host.innerHTML = '<p class="admin-muted">No hay sponsors cargados.</p>';
+        return;
+    }
+
+    host.innerHTML = sponsors.map((sponsor) => `
+        <article class="gallery-admin-card" data-sponsor-id="${sponsor.id}">
+            <img class="gallery-thumb" src="${escapeHtml(sponsor.imageSrc)}" alt="${escapeHtml(sponsor.name)}">
+            <label class="field-label" for="sponsorName_${sponsor.id}">Nombre</label>
+            <input id="sponsorName_${sponsor.id}" type="text" value="${escapeHtml(sponsor.name)}">
+            <label class="field-label" for="sponsorLink_${sponsor.id}">Enlace</label>
+            <input id="sponsorLink_${sponsor.id}" type="url" value="${escapeHtml(sponsor.link || "#")}">
+            <label class="field-label" for="sponsorImagePath_${sponsor.id}">Ruta imagen</label>
+            <input id="sponsorImagePath_${sponsor.id}" type="text" value="${escapeHtml(sponsor.imageSrc)}">
+            <label class="field-label" for="sponsorImageFile_${sponsor.id}">O subir imagen nueva</label>
+            <input id="sponsorImageFile_${sponsor.id}" type="file" accept="image/*">
+            <div class="gallery-photo-actions">
+                <button type="button" class="btn-gallery-save" data-action="save-sponsor" data-sponsor-id="${sponsor.id}">Guardar</button>
+                <button type="button" class="btn-gallery-danger" data-action="delete-sponsor" data-sponsor-id="${sponsor.id}">Borrar</button>
+            </div>
+        </article>
+    `).join("");
+
+    host.querySelectorAll("[data-action='save-sponsor']").forEach((button) => {
+        button.addEventListener("click", async () => {
+            const sponsorId = button.getAttribute("data-sponsor-id");
+            const collection = getSponsorsCollectionForAdmin();
+            const sponsor = collection.find((entry) => entry.id === sponsorId);
+            if (!sponsor) return;
+
+            const name = (document.getElementById(`sponsorName_${sponsorId}`)?.value || "").trim();
+            const link = (document.getElementById(`sponsorLink_${sponsorId}`)?.value || "").trim();
+            const pathValue = normalizeSponsorImagePath((document.getElementById(`sponsorImagePath_${sponsorId}`)?.value || "").trim());
+            const fileInput = document.getElementById(`sponsorImageFile_${sponsorId}`);
+            const file = fileInput?.files?.[0] || null;
+
+            if (!name) {
+                updateSponsorsStatus("El nombre del sponsor es obligatorio.");
+                return;
+            }
+
+            let imageSrc = pathValue;
+            if (file) {
+                imageSrc = await readFileAsDataUrl(file);
+            }
+
+            if (!imageSrc) {
+                updateSponsorsStatus("Cada sponsor debe tener imagen.");
+                return;
+            }
+
+            Object.assign(sponsor, normalizeSponsorItem({
+                id: sponsor.id,
+                name,
+                link: link || "#",
+                imageSrc,
+                cardClass: sponsor.cardClass || "sponsor-card"
+            }));
+
+            const saved = saveSponsorsToStorage(collection);
+            if (!saved) {
+                updateSponsorsStatus("No se pudo guardar la lista de sponsors.");
+                return;
+            }
+
+            updateSponsorsStatus("Sponsor actualizado.");
+            renderSponsorsAdminList();
+        });
+    });
+
+    host.querySelectorAll("[data-action='delete-sponsor']").forEach((button) => {
+        button.addEventListener("click", () => {
+            const sponsorId = button.getAttribute("data-sponsor-id");
+            const collection = getSponsorsCollectionForAdmin();
+            const next = collection.filter((entry) => entry.id !== sponsorId);
+
+            const saved = saveSponsorsToStorage(next);
+            if (!saved) {
+                updateSponsorsStatus("No se pudo borrar el sponsor.");
+                return;
+            }
+
+            updateSponsorsStatus("Sponsor eliminado.");
+            renderSponsorsAdminList();
+        });
+    });
+}
+
+async function saveNewPlayer() {
+    const newPlayer = await createPlayerFromInputs();
+    if (!newPlayer) return;
+
+    const collection = await getPlayersCollectionForAdmin();
+    collection.push(newPlayer);
+
+    const saved = savePlayersToStorage(collection);
+    if (!saved) {
+        updatePlayersStatus("No se pudo guardar el nuevo jugador.");
+        return;
+    }
+
+    ["newPlayerName", "newPlayerCountry", "newPlayerRanking", "newPlayerSeed", "newPlayerPhotoPosition", "newPlayerImagePath"].forEach((id) => {
+        const input = document.getElementById(id);
+        if (input) input.value = "";
+    });
+    const imageInput = document.getElementById("newPlayerImage");
+    if (imageInput) imageInput.value = "";
+
+    updatePlayersStatus("Jugador añadido correctamente.");
+    renderPlayersAdminList();
+}
+
+async function saveNewSponsor() {
+    const newSponsor = await createSponsorFromInputs();
+    if (!newSponsor) return;
+
+    const collection = getSponsorsCollectionForAdmin();
+    collection.push(newSponsor);
+
+    const saved = saveSponsorsToStorage(collection);
+    if (!saved) {
+        updateSponsorsStatus("No se pudo guardar el nuevo sponsor.");
+        return;
+    }
+
+    ["newSponsorName", "newSponsorLink", "newSponsorImagePath"].forEach((id) => {
+        const input = document.getElementById(id);
+        if (input) input.value = "";
+    });
+    const imageInput = document.getElementById("newSponsorImage");
+    if (imageInput) imageInput.value = "";
+
+    updateSponsorsStatus("Sponsor añadido correctamente.");
+    renderSponsorsAdminList();
+}
+
+function resetSponsorsCollection() {
+    const defaults = getDefaultSponsors();
+    const saved = saveSponsorsToStorage(defaults);
+    if (!saved) {
+        updateSponsorsStatus("No se pudo restaurar la lista base de sponsors.");
+        return;
+    }
+
+    updateSponsorsStatus("Sponsors base restaurados.");
+    renderSponsorsAdminList();
+}
+
+function resetPlayersCollection() {
+    localStorage.removeItem(PLAYERS_COLLECTION_KEY);
+    updatePlayersStatus("Jugadores base restaurados.");
+    renderPlayersAdminList();
+}
+
+function initPlayersAdmin() {
+    const panel = document.getElementById("players-admin-panel");
+    if (!panel) return;
+
+    const saveBtn = document.getElementById("saveNewPlayer");
+    const resetBtn = document.getElementById("resetPlayersCollection");
+
+    if (saveBtn) {
+        saveBtn.addEventListener("click", saveNewPlayer);
+    }
+    if (resetBtn) {
+        resetBtn.addEventListener("click", resetPlayersCollection);
+    }
+
+    renderPlayersAdminList();
+}
+
+function initSponsorsAdmin() {
+    const panel = document.getElementById("sponsors-admin-panel");
+    if (!panel) return;
+
+    const saveBtn = document.getElementById("saveNewSponsor");
+    const resetBtn = document.getElementById("resetSponsorsCollection");
+
+    if (saveBtn) {
+        saveBtn.addEventListener("click", saveNewSponsor);
+    }
+    if (resetBtn) {
+        resetBtn.addEventListener("click", resetSponsorsCollection);
+    }
+
+    renderSponsorsAdminList();
 }
 
 function toScore(value) {
