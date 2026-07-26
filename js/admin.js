@@ -1827,6 +1827,60 @@ function readSponsorsFromStorage() {
     }
 }
 
+let sponsorsTemplateCache = null;
+
+function filenameToSponsorName(src, fallbackIndex) {
+    const raw = String(src || "").trim();
+    if (!raw) return `Sponsor ${String(fallbackIndex + 1).padStart(2, "0")}`;
+
+    const file = raw.split("/").pop() || "";
+    const base = file.replace(/\.[^.]+$/, "");
+    const cleaned = base.replace(/[-_]+/g, " ").trim();
+    if (!cleaned) return `Sponsor ${String(fallbackIndex + 1).padStart(2, "0")}`;
+
+    return cleaned
+        .split(" ")
+        .map((word) => word ? `${word.charAt(0).toUpperCase()}${word.slice(1)}` : "")
+        .join(" ");
+}
+
+async function readSponsorsFromIndexTemplate() {
+    if (Array.isArray(sponsorsTemplateCache)) {
+        return sponsorsTemplateCache;
+    }
+
+    try {
+        const response = await fetch("index.html", { cache: "no-store" });
+        if (!response.ok) return [];
+
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const anchors = Array.from(doc.querySelectorAll("#sponsors .sponsors-grid a"));
+
+        const parsed = anchors.map((anchor, index) => {
+            const img = anchor.querySelector("img");
+            const imageSrc = normalizeSponsorImagePath(img?.getAttribute("src") || "");
+            const alt = String(img?.getAttribute("alt") || "").trim();
+            const link = String(anchor.getAttribute("href") || "#").trim() || "#";
+            const cardClass = String(anchor.getAttribute("class") || "sponsor-card").trim() || "sponsor-card";
+
+            return normalizeSponsorItem({
+                id: `sponsor_template_${index}`,
+                name: alt || filenameToSponsorName(imageSrc, index),
+                link,
+                imageSrc,
+                cardClass
+            });
+        }).filter((item) => !!item.imageSrc);
+
+        sponsorsTemplateCache = parsed;
+        return parsed;
+    } catch (error) {
+        return [];
+    }
+}
+
 function saveSponsorsToStorage(collection) {
     try {
         localStorage.setItem(SPONSORS_COLLECTION_KEY, JSON.stringify(collection));
@@ -1836,11 +1890,17 @@ function saveSponsorsToStorage(collection) {
     }
 }
 
-function getSponsorsCollectionForAdmin() {
+async function getSponsorsCollectionForAdmin() {
     const stored = readSponsorsFromStorage();
     if (Array.isArray(stored) && stored.length > 0) {
         return stored;
     }
+
+    const fromTemplate = await readSponsorsFromIndexTemplate();
+    if (Array.isArray(fromTemplate) && fromTemplate.length > 0) {
+        return fromTemplate;
+    }
+
     return getDefaultSponsors();
 }
 
@@ -2044,7 +2104,7 @@ async function renderSponsorsAdminList() {
     const host = document.getElementById("sponsorsAdminList");
     if (!host) return;
 
-    const sponsors = getSponsorsCollectionForAdmin();
+    const sponsors = await getSponsorsCollectionForAdmin();
     if (sponsors.length === 0) {
         host.innerHTML = '<p class="admin-muted">No hay sponsors cargados.</p>';
         return;
@@ -2071,7 +2131,7 @@ async function renderSponsorsAdminList() {
     host.querySelectorAll("[data-action='save-sponsor']").forEach((button) => {
         button.addEventListener("click", async () => {
             const sponsorId = button.getAttribute("data-sponsor-id");
-            const collection = getSponsorsCollectionForAdmin();
+            const collection = await getSponsorsCollectionForAdmin();
             const sponsor = collection.find((entry) => entry.id === sponsorId);
             if (!sponsor) return;
 
@@ -2116,9 +2176,9 @@ async function renderSponsorsAdminList() {
     });
 
     host.querySelectorAll("[data-action='delete-sponsor']").forEach((button) => {
-        button.addEventListener("click", () => {
+        button.addEventListener("click", async () => {
             const sponsorId = button.getAttribute("data-sponsor-id");
-            const collection = getSponsorsCollectionForAdmin();
+            const collection = await getSponsorsCollectionForAdmin();
             const next = collection.filter((entry) => entry.id !== sponsorId);
 
             const saved = saveSponsorsToStorage(next);
@@ -2161,7 +2221,7 @@ async function saveNewSponsor() {
     const newSponsor = await createSponsorFromInputs();
     if (!newSponsor) return;
 
-    const collection = getSponsorsCollectionForAdmin();
+    const collection = await getSponsorsCollectionForAdmin();
     collection.push(newSponsor);
 
     const saved = saveSponsorsToStorage(collection);
@@ -2181,8 +2241,11 @@ async function saveNewSponsor() {
     renderSponsorsAdminList();
 }
 
-function resetSponsorsCollection() {
-    const defaults = getDefaultSponsors();
+async function resetSponsorsCollection() {
+    const fromTemplate = await readSponsorsFromIndexTemplate();
+    const defaults = (Array.isArray(fromTemplate) && fromTemplate.length > 0)
+        ? fromTemplate
+        : getDefaultSponsors();
     const saved = saveSponsorsToStorage(defaults);
     if (!saved) {
         updateSponsorsStatus("No se pudo restaurar la lista base de sponsors.");
