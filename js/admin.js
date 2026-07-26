@@ -42,7 +42,7 @@ let adminSectionViewBound = false;
 let adminDiagnosticsInstalled = false;
 const ADMIN_DEFAULT_SECTION = String(window.ADMIN_DEFAULT_SECTION || "dashboard").trim() || "dashboard";
 const ADMIN_MULTI_PAGE_MODE = window.ADMIN_MULTI_PAGE_MODE !== false;
-const ADMIN_PAGE_VERSION = "20260726-16";
+const ADMIN_PAGE_VERSION = "20260726-17";
 const ADMIN_SECTION_IDS = [
     "tournament-mode-panel",
     "hero-admin-panel",
@@ -1115,27 +1115,46 @@ async function onHeroBackgroundChange(event) {
 }
 
 async function saveHeroSettings() {
+    const saved = readHeroSettings();
     const labelEs = (document.getElementById("heroEventLabel_es")?.value || "").trim();
     const titleEs = (document.getElementById("heroEventTitle_es")?.value || "").trim();
     const locationEs = (document.getElementById("heroEventLocation_es")?.value || "").trim();
     const countdownRaw = (document.getElementById("heroCountdownDate")?.value || "").trim();
     const bgPath = (document.getElementById("heroBackgroundPath")?.value || "").trim();
 
-    if (!labelEs || !titleEs || !locationEs) {
-        updateHeroStatus("Etiqueta, título y ubicación en español son obligatorios.");
-        return;
+    const baseLabelEs = String(saved?.eventLabel?.es || "").trim();
+    const baseTitleEs = String(saved?.eventTitle?.es || "").trim();
+    const baseLocationEs = String(saved?.eventLocation?.es || "").trim();
+
+    const finalLabelEs = labelEs || baseLabelEs;
+    const finalTitleEs = titleEs || baseTitleEs;
+    const finalLocationEs = locationEs || baseLocationEs;
+
+    const shouldTranslateTexts = !!(labelEs || titleEs || locationEs);
+
+    let eventLabel = saved?.eventLabel || (finalLabelEs ? normalizeLocalizedText(finalLabelEs) : null);
+    let eventTitle = saved?.eventTitle || (finalTitleEs ? normalizeLocalizedText(finalTitleEs) : null);
+    let eventLocation = saved?.eventLocation || (finalLocationEs ? normalizeLocalizedText(finalLocationEs) : null);
+
+    if (shouldTranslateTexts) {
+        if (!finalLabelEs || !finalTitleEs || !finalLocationEs) {
+            updateHeroStatus("Si editas textos, deja los 3 campos completos (Etiqueta, Título, Ubicación). Para solo countdown, deja textos como están.");
+            return;
+        }
+
+        updateHeroStatus("Traduciendo textos del hero...");
+
+        [eventLabel, eventTitle, eventLocation] = await Promise.all([
+            buildLocalizedFromSpanish(finalLabelEs),
+            buildLocalizedFromSpanish(finalTitleEs),
+            buildLocalizedFromSpanish(finalLocationEs)
+        ]);
     }
 
-    updateHeroStatus("Traduciendo textos del hero...");
-
-    const [eventLabel, eventTitle, eventLocation] = await Promise.all([
-        buildLocalizedFromSpanish(labelEs),
-        buildLocalizedFromSpanish(titleEs),
-        buildLocalizedFromSpanish(locationEs)
-    ]);
-
-    const countdownDate = fromDateTimeLocalInputValue(countdownRaw);
-    const backgroundImage = pendingHeroBackgroundSrc || bgPath;
+    const countdownDate = countdownRaw
+        ? fromDateTimeLocalInputValue(countdownRaw)
+        : String(saved?.countdownDate || "").trim();
+    const backgroundImage = pendingHeroBackgroundSrc || bgPath || String(saved?.backgroundImage || "").trim();
 
     const payload = {
         eventLabel,
@@ -1151,7 +1170,11 @@ async function saveHeroSettings() {
     const fileInput = document.getElementById("heroBackgroundFile");
     if (fileInput) fileInput.value = "";
 
-    updateHeroStatus("Hero guardado y traducido para todos los idiomas.");
+    if (shouldTranslateTexts) {
+        updateHeroStatus("Hero guardado y traducido para todos los idiomas.");
+    } else {
+        updateHeroStatus("Countdown/imagen guardados sin tocar textos.");
+    }
 }
 
 function resetHeroSettings() {
