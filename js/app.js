@@ -72,7 +72,11 @@ async function syncPublicStateFromCloud() {
     const cloud = window.PSACloudStore;
     if (!cloud?.isReady?.()) return;
 
-    await cloud.syncLocalStorageFromCloud(CLOUD_PUBLIC_KEYS);
+    try {
+        await cloud.syncLocalStorageFromCloud(CLOUD_PUBLIC_KEYS);
+    } catch (error) {
+        console.warn("Cloud sync pública falló. Continuamos con local.", error);
+    }
 }
 
 function readHeroSettings() {
@@ -523,15 +527,18 @@ async function loadSchedule() {
 
     if (!list) return;
 
-    const response = await fetch("data/schedule.json");
+    try {
+        const response = await fetch("data/schedule.json", { cache: "no-store" });
+        if (!response.ok) {
+            throw new Error("No se pudo cargar schedule.json");
+        }
 
-    const matches = await response.json();
+        const matches = await response.json();
+        list.innerHTML = "";
 
-    list.innerHTML = "";
+        matches.forEach(match => {
 
-    matches.forEach(match => {
-
-        list.innerHTML += `
+            list.innerHTML += `
 
         <div class="schedule-match">
 
@@ -545,7 +552,11 @@ async function loadSchedule() {
 
         `;
 
-    });
+        });
+    } catch (error) {
+        console.error("Error cargando schedule:", error);
+        list.innerHTML = "";
+    }
 
 }
 /* ==========================================================
