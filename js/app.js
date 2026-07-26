@@ -589,6 +589,8 @@ async function loadDraws(){
     const bracket = document.querySelector(".draw-bracket");
     if(!bracket) return;
 
+    initDrawOpenInNewTab();
+
     try {
         const bracketResponse = await fetch("data/draw-bracket.json", { cache: "no-store" });
         if (!bracketResponse.ok) {
@@ -645,12 +647,14 @@ async function loadDraws(){
                 const gameCells1 = renderGameCells(match.games, "p1");
                 const gameCells2 = renderGameCells(match.games, "p2");
                 const footerDate = match.date || "-";
+                const p1Image = resolveDrawPlayerImage(match.p1.image);
+                const p2Image = resolveDrawPlayerImage(match.p2.image);
 
                 card.innerHTML = `
                     <div class="draw-player ${p1Muted ? "is-muted" : ""}">
                         <div class="draw-player-main">
                             <span class="draw-avatar-wrap">
-                                ${match.p1.image ? `<img class="draw-avatar" src="assets/images/players/${match.p1.image}" alt="${match.p1.name}">` : ""}
+                                ${p1Image ? `<img class="draw-avatar" src="${p1Image}" alt="${match.p1.name}">` : ""}
                             </span>
                             <span class="draw-player-name">${match.p1.name}</span>
                         </div>
@@ -662,7 +666,7 @@ async function loadDraws(){
                     <div class="draw-player ${p2Muted ? "is-muted" : ""}">
                         <div class="draw-player-main">
                             <span class="draw-avatar-wrap">
-                                ${match.p2.image ? `<img class="draw-avatar" src="assets/images/players/${match.p2.image}" alt="${match.p2.name}">` : ""}
+                                ${p2Image ? `<img class="draw-avatar" src="${p2Image}" alt="${match.p2.name}">` : ""}
                             </span>
                             <span class="draw-player-name">${match.p2.name}</span>
                         </div>
@@ -685,6 +689,47 @@ async function loadDraws(){
         console.error("Error cargando bracket:", error);
         bracket.innerHTML = '<p class="draw-error">No se pudo cargar el cuadro.</p>';
     }
+
+}
+
+function resolveDrawPlayerImage(value){
+
+    const raw = String(value || "").trim();
+    if(!raw) return "";
+    if(raw.startsWith("data:")) return raw;
+    if(/^https?:\/\//i.test(raw)) return raw;
+    if(raw.includes("/")) return raw;
+    return `assets/images/players/${raw}`;
+
+}
+
+function initDrawOpenInNewTab(){
+
+    const wrapper = document.querySelector("#draw .draw-bracket-wrapper");
+    if(!wrapper) return;
+    if(wrapper.dataset.openLargeBound === "1") return;
+
+    const openLargeDraw = () => {
+        window.open("draw.html", "_blank", "noopener,noreferrer");
+    };
+
+    wrapper.dataset.openLargeBound = "1";
+    wrapper.classList.add("draw-openable");
+    wrapper.setAttribute("role", "link");
+    wrapper.setAttribute("tabindex", "0");
+    wrapper.setAttribute("title", "Abrir cuadro en grande");
+
+    wrapper.addEventListener("click", (event) => {
+        const interactiveTarget = event.target.closest("a, button, input, select, textarea, label");
+        if(interactiveTarget) return;
+        openLargeDraw();
+    });
+
+    wrapper.addEventListener("keydown", (event) => {
+        if(event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        openLargeDraw();
+    });
 
 }
 

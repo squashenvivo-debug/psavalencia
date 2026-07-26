@@ -28,6 +28,12 @@
 
 }
 
+.draw-bracket-wrapper.draw-openable{
+
+    cursor:zoom-in;
+
+}
+
 .draw-bracket{
 
     min-width:0;
