@@ -42,7 +42,7 @@ let adminSectionViewBound = false;
 let adminDiagnosticsInstalled = false;
 const ADMIN_DEFAULT_SECTION = String(window.ADMIN_DEFAULT_SECTION || "dashboard").trim() || "dashboard";
 const ADMIN_MULTI_PAGE_MODE = window.ADMIN_MULTI_PAGE_MODE !== false;
-const ADMIN_PAGE_VERSION = "20260726-17";
+const ADMIN_PAGE_VERSION = "20260726-18";
 const ADMIN_SECTION_IDS = [
     "tournament-mode-panel",
     "hero-admin-panel",
@@ -389,6 +389,7 @@ async function startAdminModulesOnce() {
         await runAdminModule("initNewsAdmin", initNewsAdmin);
         await runAdminModule("initGalleryAdmin", initGalleryAdmin);
         await runAdminModule("initDrawAdmin", initDrawAdmin);
+        await runAdminModule("initDashboardRestoreAction", initDashboardRestoreAction);
         appendAdminDebug("Panel admin inicializado.");
     })();
 
@@ -523,6 +524,94 @@ function setStatus(message) {
     const status = document.getElementById("adminStatus");
     if (!status) return;
     status.textContent = message;
+}
+
+function updateRestoreAllStatus(message) {
+    const status = document.getElementById("restoreAllStatus");
+    if (!status) return;
+    status.textContent = message;
+}
+
+async function pushKeyIfReady(key, value) {
+    const cloud = window.PSACloudStore;
+    if (!cloud?.isReady?.()) return;
+    try {
+        await cloud.pushKey(key, value);
+    } catch (_error) {
+        // no bloqueamos restauración local
+    }
+}
+
+async function buildDefaultNewsCollectionFromFile() {
+    try {
+        const response = await fetch("data/translations/news.json", { cache: "no-store" });
+        if (!response.ok) return [];
+        const payload = await response.json();
+        if (!Array.isArray(payload)) return [];
+
+        return payload.map((item, index) => normalizeNewsItem({
+            id: `news_base_${index}`,
+            imageSrc: `assets/images/news/${item.image || ""}`,
+            title: item.title || "",
+            article: item.summary || "",
+            createdAt: new Date().toISOString()
+        })).filter((item) => !!item.imageSrc);
+    } catch (_error) {
+        return [];
+    }
+}
+
+async function restoreAllBaseNow() {
+    updateRestoreAllStatus("Restaurando contenido base...");
+
+    const players = await readBasePlayersFromFile();
+    const drawResponse = await fetch("data/draw-bracket.json", { cache: "no-store" });
+    const draw = drawResponse.ok ? await drawResponse.json() : null;
+    const sponsors = await readSponsorsFromIndexTemplate();
+    const safeSponsors = sponsors.length ? sponsors : getDefaultSponsors();
+    const news = await buildDefaultNewsCollectionFromFile();
+
+    if (players.length) {
+        localStorage.setItem(PLAYERS_COLLECTION_KEY, JSON.stringify(players));
+        await pushKeyIfReady(PLAYERS_COLLECTION_KEY, players);
+    }
+
+    if (draw && Array.isArray(draw.rounds)) {
+        localStorage.setItem(DRAW_BRACKET_KEY, JSON.stringify(draw));
+        await pushKeyIfReady(DRAW_BRACKET_KEY, draw);
+    }
+
+    localStorage.setItem(SPONSORS_COLLECTION_KEY, JSON.stringify(safeSponsors));
+    await pushKeyIfReady(SPONSORS_COLLECTION_KEY, safeSponsors);
+
+    if (news.length) {
+        localStorage.setItem(NEWS_COLLECTION_KEY, JSON.stringify(news));
+        await pushKeyIfReady(NEWS_COLLECTION_KEY, news);
+    }
+
+    localStorage.removeItem(GALLERY_COLLECTION_KEY);
+    await pushKeyIfReady(GALLERY_COLLECTION_KEY, []);
+
+    renderPlayersAdminList();
+    renderSponsorsAdminList();
+    renderNewsDeleteSelect();
+    renderNewsAdminList();
+    renderGalleryDeleteSelect();
+    renderGalleryAdminList();
+
+    updateRestoreAllStatus("Restauración completa. Recarga la web pública para ver jugadores, cuadro y sponsors.");
+    appendAdminDebug("Restaurar TODO base ejecutado.");
+}
+
+function initDashboardRestoreAction() {
+    const button = document.getElementById("restoreAllBaseNow");
+    if (!button) return;
+    button.addEventListener("click", () => {
+        restoreAllBaseNow().catch((error) => {
+            updateRestoreAllStatus("Error restaurando contenido base.");
+            appendAdminDebug(`Restore-all error: ${errorToText(error)}`, "error");
+        });
+    });
 }
 
 function loadTournamentSettings() {

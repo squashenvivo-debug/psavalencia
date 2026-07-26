@@ -88,6 +88,11 @@
                 Bienvenido al panel del PSA Valencia Open.
 
             </p>
+
+            <div class="results-actions">
+                <button id="restoreAllBaseNow" type="button" class="btn-secondary-admin">Restaurar TODO base ahora</button>
+            </div>
+            <p id="restoreAllStatus" class="admin-status" aria-live="polite"></p>
         </div>
 
         <section class="admin-card" id="tournament-mode-panel">
@@ -434,14 +439,15 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase.js"></script>
-<script src="js/cloud-store.js?v=20260726-2"></script>
+<script src="js/cloud-store.js?v=20260726-3"></script>
 <script>
 window.ADMIN_DEFAULT_SECTION = "dashboard";
 window.ADMIN_MULTI_PAGE_MODE = true;
 </script>
-<script src="js/admin.js?v=20260726-17"></script>
+<script src="js/admin.js?v=20260726-18"></script>
 
 </body>
 
 </html>
+
 

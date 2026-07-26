@@ -11,7 +11,9 @@
 
 window.PSACloudStore = (() => {
     const TABLE_NAME = "site_content";
-     let schemaCache = null;
+    let schemaCache = null;
+    const SCHEMA_PRIMARY = { keyCol: "content_key", valueCol: "content_value" };
+    const SCHEMA_LEGACY = { keyCol: "key", valueCol: "value" };
 
     function getClient() {
         return window.AdminSupabase?.getClient?.() || null;
@@ -38,35 +40,30 @@ window.PSACloudStore = (() => {
         }
     }
 
+    function getSchemaCandidates() {
+        if (schemaCache) {
+            const other = schemaCache.keyCol === SCHEMA_PRIMARY.keyCol ? SCHEMA_LEGACY : SCHEMA_PRIMARY;
+            return [schemaCache, other];
+        }
+        return [SCHEMA_PRIMARY, SCHEMA_LEGACY];
+    }
+
     async function resolveSchema(client) {
         if (schemaCache) return schemaCache;
 
-        const primary = { keyCol: "content_key", valueCol: "content_value" };
-        const legacy = { keyCol: "key", valueCol: "value" };
+        for (const schema of getSchemaCandidates()) {
+            const probe = await client
+                .from(TABLE_NAME)
+                .select(`${schema.keyCol}, ${schema.valueCol}`)
+                .limit(1);
 
-        const primaryProbe = await client
-            .from(TABLE_NAME)
-            .select(`${primary.keyCol}, ${primary.valueCol}`)
-            .limit(1);
-
-        if (!primaryProbe.error) {
-            schemaCache = primary;
-            return schemaCache;
+            if (!probe.error) {
+                schemaCache = schema;
+                return schemaCache;
+            }
         }
 
-        const legacyProbe = await client
-            .from(TABLE_NAME)
-            .select(`${legacy.keyCol}, ${legacy.valueCol}`)
-            .limit(1);
-
-        if (!legacyProbe.error) {
-            schemaCache = legacy;
-            return schemaCache;
-        }
-
-        // Fallback para no romper flujo; devolvemos el esquema nuevo.
-        schemaCache = primary;
-        return schemaCache;
+        return null;
     }
 
     async function pullKeys(keys = []) {
@@ -79,24 +76,32 @@ window.PSACloudStore = (() => {
             return { ok: true, values: {} };
         }
 
-        const schema = await resolveSchema(client);
+        const resolved = await resolveSchema(client);
+        const candidates = resolved ? [resolved, ...getSchemaCandidates().filter((s) => s.keyCol !== resolved.keyCol)] : getSchemaCandidates();
         const uniqueKeys = Array.from(new Set(keys.filter(Boolean)));
-        const { data, error } = await client
-            .from(TABLE_NAME)
-            .select(`${schema.keyCol}, ${schema.valueCol}`)
-            .in(schema.keyCol, uniqueKeys);
 
-        if (error) {
-            return { ok: false, reason: error.message, values: {} };
+        let lastError = "schema-detection-failed";
+        for (const schema of candidates) {
+            const { data, error } = await client
+                .from(TABLE_NAME)
+                .select(`${schema.keyCol}, ${schema.valueCol}`)
+                .in(schema.keyCol, uniqueKeys);
+
+            if (error) {
+                lastError = error.message;
+                continue;
+            }
+
+            schemaCache = schema;
+            const values = {};
+            (data || []).forEach((row) => {
+                if (!row || !row[schema.keyCol]) return;
+                values[row[schema.keyCol]] = row[schema.valueCol];
+            });
+            return { ok: true, values };
         }
 
-        const values = {};
-        (data || []).forEach((row) => {
-            if (!row || !row[schema.keyCol]) return;
-            values[row[schema.keyCol]] = row[schema.valueCol];
-        });
-
-        return { ok: true, values };
+        return { ok: false, reason: lastError, values: {} };
     }
 
     async function pushKey(key, value) {
@@ -109,21 +114,30 @@ window.PSACloudStore = (() => {
             return { ok: false, reason: "missing-key" };
         }
 
-        const schema = await resolveSchema(client);
-        const row = {
-            [schema.keyCol]: key,
-            [schema.valueCol]: value
-        };
+        const resolved = await resolveSchema(client);
+        const candidates = resolved ? [resolved, ...getSchemaCandidates().filter((s) => s.keyCol !== resolved.keyCol)] : getSchemaCandidates();
 
-        const { error } = await client
-            .from(TABLE_NAME)
-            .upsert(row, { onConflict: schema.keyCol });
+        let lastError = "schema-detection-failed";
+        for (const schema of candidates) {
+            const row = {
+                [schema.keyCol]: key,
+                [schema.valueCol]: value
+            };
 
-        if (error) {
-            return { ok: false, reason: error.message };
+            const { error } = await client
+                .from(TABLE_NAME)
+                .upsert(row, { onConflict: schema.keyCol });
+
+            if (error) {
+                lastError = error.message;
+                continue;
+            }
+
+            schemaCache = schema;
+            return { ok: true };
         }
 
-        return { ok: true };
+        return { ok: false, reason: lastError };
     }
 
     async function deleteKey(key) {
@@ -136,18 +150,26 @@ window.PSACloudStore = (() => {
             return { ok: false, reason: "missing-key" };
         }
 
-        const schema = await resolveSchema(client);
+        const resolved = await resolveSchema(client);
+        const candidates = resolved ? [resolved, ...getSchemaCandidates().filter((s) => s.keyCol !== resolved.keyCol)] : getSchemaCandidates();
 
-        const { error } = await client
-            .from(TABLE_NAME)
-            .delete()
-            .eq(schema.keyCol, key);
+        let lastError = "schema-detection-failed";
+        for (const schema of candidates) {
+            const { error } = await client
+                .from(TABLE_NAME)
+                .delete()
+                .eq(schema.keyCol, key);
 
-        if (error) {
-            return { ok: false, reason: error.message };
+            if (error) {
+                lastError = error.message;
+                continue;
+            }
+
+            schemaCache = schema;
+            return { ok: true };
         }
 
-        return { ok: true };
+        return { ok: false, reason: lastError };
     }
 
     async function syncLocalStorageFromCloud(keys = []) {
