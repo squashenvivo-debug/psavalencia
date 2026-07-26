@@ -36,6 +36,11 @@ const CLOUD_PUBLIC_KEYS = [
     DRAW_BRACKET_KEY
 ];
 
+function isLocalHostRuntime() {
+    const host = String(window.location.hostname || "").toLowerCase();
+    return host === "127.0.0.1" || host === "localhost" || host === "";
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
 
     await syncPublicStateFromCloud();
@@ -71,6 +76,8 @@ loadTournamentCenter();
 });
 
 async function syncPublicStateFromCloud() {
+    if (isLocalHostRuntime()) return;
+
     const cloud = window.PSACloudStore;
     if (!cloud?.isReady?.()) return;
 
@@ -179,11 +186,23 @@ function initCountdown() {
 
     const heroSettings = readHeroSettings();
     const fallback = "2026-08-11T10:00:00";
-    const targetDateRaw = heroSettings?.countdownDate || fallback;
-    const parsedTargetDate = new Date(targetDateRaw).getTime();
-    const targetDate = Number.isFinite(parsedTargetDate)
-        ? parsedTargetDate
-        : new Date(fallback).getTime();
+    const targetDateRaw = String(heroSettings?.countdownDate || fallback).trim();
+
+    let targetDate = new Date(targetDateRaw).getTime();
+    if (!Number.isFinite(targetDate)) {
+        targetDate = new Date(fallback).getTime();
+    }
+
+    const now = Date.now();
+    if (targetDate <= now) {
+        const base = new Date(fallback);
+        if (!Number.isNaN(base.getTime())) {
+            while (base.getTime() <= now) {
+                base.setFullYear(base.getFullYear() + 1);
+            }
+            targetDate = base.getTime();
+        }
+    }
 
     const days = document.getElementById("days");
     const hours = document.getElementById("hours");

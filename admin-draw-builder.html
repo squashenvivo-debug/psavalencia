@@ -362,6 +362,19 @@
             <p id="scheduleAdminStatus" class="admin-status" aria-live="polite"></p>
         </section>
 
+        <section class="admin-card" id="draw-builder-panel">
+            <h2>Cruces del Cuadro</h2>
+            <p class="admin-muted">Selecciona qué jugador va en cada posición del Round 1. Puedes asignar BYE y conservar horarios ya cargados.</p>
+
+            <div class="results-actions">
+                <button id="saveDrawBuilder" type="button">Guardar cruces</button>
+                <button id="resetDrawBuilderToBase" type="button" class="btn-secondary-admin">Restaurar cruces base</button>
+            </div>
+
+            <div id="drawBuilderGrid" class="draw-builder-grid"></div>
+            <p id="drawBuilderStatus" class="admin-status" aria-live="polite"></p>
+        </section>
+
         <section class="admin-card" id="draw-results-panel">
             <h2>Resultados del Cuadro</h2>
             <p class="admin-muted">Introduce tanteo por juego y el ganador pasara automaticamente a la siguiente ronda.</p>
@@ -421,7 +434,7 @@
 <script src="supabase.js"></script>
 <script src="js/cloud-store.js?v=20260726-4"></script>
 <script>
-window.ADMIN_DEFAULT_SECTION = "tournament-mode-panel";
+window.ADMIN_DEFAULT_SECTION = "draw-builder-panel";
 window.ADMIN_MULTI_PAGE_MODE = true;
 </script>
 <script src="js/admin.js?v=20260726-10"></script>

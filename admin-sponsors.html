@@ -20,12 +20,12 @@
 <section id="admin-auth" class="admin-auth-screen">
     <div class="admin-auth-card">
         <h1>Acceso Admin</h1>
-        <p class="admin-muted">Inicia sesiÃ³n con tu cuenta de Supabase para acceder al panel.</p>
+        <p class="admin-muted">Inicia sesión con tu cuenta de Supabase para acceder al panel.</p>
 
         <label for="adminEmail" class="field-label">Email</label>
         <input id="adminEmail" type="email" placeholder="admin@tu-dominio.com" autocomplete="username">
 
-        <label for="adminPassword" class="field-label">ContraseÃ±a</label>
+        <label for="adminPassword" class="field-label">Contraseña</label>
         <input id="adminPassword" type="password" placeholder="********" autocomplete="current-password">
 
         <div class="results-actions">
@@ -52,11 +52,11 @@
 
             <a href="#sponsors-admin-panel" data-section="sponsors-admin-panel">Sponsors</a>
 
-            <a href="#gallery-admin-panel" data-section="gallery-admin-panel">GalerÃ­a</a>
+            <a href="#gallery-admin-panel" data-section="gallery-admin-panel">Galería</a>
 
             <a href="#hero-admin-panel" data-section="hero-admin-panel">Hero</a>
 
-            <a href="#tournament-mode-panel" data-section="tournament-mode-panel">ConfiguraciÃ³n</a>
+            <a href="#tournament-mode-panel" data-section="tournament-mode-panel">Configuración</a>
 
             <a href="#tournament-mode-panel" data-section="tournament-mode-panel">Torneo</a>
 
@@ -64,13 +64,13 @@
 
             <a href="#players-admin-panel" data-section="players-admin-panel">Jugadores</a>
 
-            <a href="#draw-schedule-panel" data-section="draw-schedule-panel">Horario Cuadro</a>
+            <a href="#draw-schedule-panel" data-section="draw-schedule-panel">Cuadro</a>
+
+            <a href="#draw-builder-panel" data-section="draw-builder-panel">Cruces</a>
 
             <a href="#draw-results-panel" data-section="draw-results-panel">Resultados</a>
 
-            <a href="#news-admin-panel" data-section="news-admin-panel">Idiomas</a>
-
-            <button id="adminLogoutBtn" type="button" class="sidebar-logout-btn">Cerrar sesiÃ³n</button>
+            <button id="adminLogoutBtn" type="button" class="sidebar-logout-btn">Cerrar sesión</button>
 
             <a href="index.html" class="menu-exit-link">Salir a Inicio</a>
 
@@ -81,7 +81,7 @@
     <main class="content">
 
         <div id="adminDashboardIntro" class="admin-dashboard-intro">
-            <h1>Panel de AdministraciÃ³n</h1>
+            <h1>Panel de Administración</h1>
 
             <p>
 
@@ -114,16 +114,16 @@
 
         <section class="admin-card" id="hero-admin-panel">
             <h2>Hero Principal</h2>
-            <p class="admin-muted">Configura portada del prÃ³ximo aÃ±o: imagen de fondo, textos y contador.</p>
+            <p class="admin-muted">Configura portada del próximo año: imagen de fondo, textos y contador.</p>
 
             <label for="heroEventLabel_es" class="field-label">Etiqueta ES (ej: MEMORIAL)</label>
             <input id="heroEventLabel_es" type="text" placeholder="MEMORIAL">
 
-            <label for="heroEventTitle_es" class="field-label">TÃ­tulo ES</label>
+            <label for="heroEventTitle_es" class="field-label">Título ES</label>
             <input id="heroEventTitle_es" type="text" placeholder="CHIMO MARMANEAU">
 
-            <label for="heroEventLocation_es" class="field-label">UbicaciÃ³n ES</label>
-            <input id="heroEventLocation_es" type="text" placeholder="Alboraya Â· Valencia">
+            <label for="heroEventLocation_es" class="field-label">Ubicación ES</label>
+            <input id="heroEventLocation_es" type="text" placeholder="Alboraya · Valencia">
 
             <label for="heroCountdownDate" class="field-label">Fecha y hora del contador</label>
             <input id="heroCountdownDate" type="datetime-local">
@@ -144,13 +144,13 @@
 
         <section class="admin-card" id="tournament-text-panel">
             <h2>Texto Manual de Torneo</h2>
-            <p class="admin-muted">Escribe en espaÃ±ol y se traducirÃ¡ automÃ¡ticamente a VA, EN y FR.</p>
+            <p class="admin-muted">Escribe en español y se traducirá automáticamente a VA, EN y FR.</p>
 
-            <label for="tournamentManualTitle_es" class="field-label">TÃ­tulo (ES)</label>
-            <input id="tournamentManualTitle_es" type="text" placeholder="TÃ­tulo del bloque de torneo en espaÃ±ol">
+            <label for="tournamentManualTitle_es" class="field-label">Título (ES)</label>
+            <input id="tournamentManualTitle_es" type="text" placeholder="Título del bloque de torneo en español">
 
             <label for="tournamentManualBody_es" class="field-label">Texto (ES)</label>
-            <textarea id="tournamentManualBody_es" rows="8" placeholder="Texto del torneo en espaÃ±ol"></textarea>
+            <textarea id="tournamentManualBody_es" rows="8" placeholder="Texto del torneo en español"></textarea>
 
             <div class="results-actions">
                 <button id="saveTournamentManualContent" type="button">Traducir y guardar texto</button>
@@ -162,14 +162,14 @@
 
         <section class="admin-card" id="players-admin-panel">
             <h2>Jugadores</h2>
-            <p class="admin-muted">AÃ±ade, edita o borra jugadores de la portada.</p>
+            <p class="admin-muted">Añade, edita o borra jugadores de la portada.</p>
 
             <label for="newPlayerName" class="field-label">Nombre jugador</label>
             <input id="newPlayerName" type="text" placeholder="Nombre completo">
 
             <div class="results-grid">
                 <div>
-                    <label for="newPlayerCountry" class="field-label">PaÃ­s (cÃ³digo bandera)</label>
+                    <label for="newPlayerCountry" class="field-label">País (código bandera)</label>
                     <input id="newPlayerCountry" type="text" placeholder="ESP, FRA, ENG..." maxlength="3">
                 </div>
                 <div>
@@ -184,7 +184,7 @@
                     <input id="newPlayerSeed" type="text" placeholder="[4] o WC [1]">
                 </div>
                 <div>
-                    <label for="newPlayerPhotoPosition" class="field-label">PosiciÃ³n foto (opcional)</label>
+                    <label for="newPlayerPhotoPosition" class="field-label">Posición foto (opcional)</label>
                     <input id="newPlayerPhotoPosition" type="text" placeholder="center 8%">
                 </div>
             </div>
@@ -196,7 +196,7 @@
             <input id="newPlayerImage" type="file" accept="image/*">
 
             <div class="results-actions">
-                <button id="saveNewPlayer" type="button">AÃ±adir jugador</button>
+                <button id="saveNewPlayer" type="button">Añadir jugador</button>
                 <button id="resetPlayersCollection" type="button" class="btn-secondary-admin">Restaurar jugadores base</button>
             </div>
 
@@ -208,7 +208,7 @@
 
         <section class="admin-card" id="sponsors-admin-panel">
             <h2>Sponsors</h2>
-            <p class="admin-muted">AÃ±ade o quita sponsors manteniendo el mismo patrÃ³n visual de tarjetas.</p>
+            <p class="admin-muted">Añade o quita sponsors manteniendo el mismo patrón visual de tarjetas.</p>
 
             <label for="newSponsorName" class="field-label">Nombre sponsor</label>
             <input id="newSponsorName" type="text" placeholder="Nombre del sponsor">
@@ -223,7 +223,7 @@
             <input id="newSponsorImage" type="file" accept="image/*">
 
             <div class="results-actions">
-                <button id="saveNewSponsor" type="button">AÃ±adir sponsor</button>
+                <button id="saveNewSponsor" type="button">Añadir sponsor</button>
                 <button id="resetSponsorsCollection" type="button" class="btn-secondary-admin">Restaurar sponsors base</button>
             </div>
 
@@ -235,10 +235,10 @@
 
         <section class="admin-card" id="live-settings-panel">
             <h2>Streaming en Directo</h2>
-            <p class="admin-muted">Pega aqui el enlace de YouTube del directo para mostrarlo en la seccion LIVE.</p>
+            <p class="admin-muted">Pega aqui el enlace de YouTube del directo para mostrarlo en la sección LIVE.</p>
 
-            <label for="liveStreamTitle" class="field-label">TÃ­tulo del directo (automÃ¡tico)</label>
-            <input id="liveStreamTitle" type="text" placeholder="Se detecta automÃ¡ticamente desde YouTube" readonly>
+            <label for="liveStreamTitle" class="field-label">Título del directo (automático)</label>
+            <input id="liveStreamTitle" type="text" placeholder="Se detecta automáticamente desde YouTube" readonly>
 
             <label for="liveYoutubeUrl" class="field-label">Enlace de YouTube</label>
             <input id="liveYoutubeUrl" type="url" placeholder="https://www.youtube.com/watch?v=XXXXXXXXXXX">
@@ -256,16 +256,16 @@
 
         <section class="admin-card" id="news-admin-panel">
             <h2>Noticias</h2>
-            <p class="admin-muted">Escribe solo en espaÃ±ol y el panel traducirÃ¡ automÃ¡ticamente a VA, EN y FR.</p>
+            <p class="admin-muted">Escribe solo en español y el panel traducirá automáticamente a VA, EN y FR.</p>
 
-            <label for="newNewsTitle_es" class="field-label">TÃ­tulo ES</label>
-            <input id="newNewsTitle_es" type="text" placeholder="TÃ­tulo en espaÃ±ol">
+            <label for="newNewsTitle_es" class="field-label">Título ES</label>
+            <input id="newNewsTitle_es" type="text" placeholder="Título en español">
 
             <label for="newNewsImage" class="field-label">Foto de noticia</label>
             <input id="newNewsImage" type="file" accept="image/*">
 
-            <label for="newNewsArticle_es" class="field-label">ArtÃ­culo ES</label>
-            <textarea id="newNewsArticle_es" rows="5" placeholder="ArtÃ­culo completo en espaÃ±ol"></textarea>
+            <label for="newNewsArticle_es" class="field-label">Artículo ES</label>
+            <textarea id="newNewsArticle_es" rows="5" placeholder="Artículo completo en español"></textarea>
 
             <div class="results-actions">
                 <button id="saveNewNews" type="button">Guardar noticia</button>
@@ -273,7 +273,7 @@
 
             <p id="newsAdminStatus" class="admin-status" aria-live="polite"></p>
 
-            <h3 class="gallery-admin-subtitle">GestiÃ³n de noticias</h3>
+            <h3 class="gallery-admin-subtitle">Gestión de noticias</h3>
             <div class="gallery-admin-actions">
                 <button id="toggleNewsEditMode" type="button" class="btn-gallery-save">Editar noticias</button>
             </div>
@@ -290,20 +290,20 @@
         </section>
 
         <section class="admin-card" id="gallery-admin-panel">
-            <h2>GalerÃ­a</h2>
-            <p class="admin-muted">Crea galerÃ­as por jornada, aÃ±ade pies de foto por imagen y gestiona ediciÃ³n o borrado por foto o por galerÃ­a.</p>
+            <h2>Galería</h2>
+            <p class="admin-muted">Crea galerías por jornada, añade pies de foto por imagen y gestiona edición o borrado por foto o por galería.</p>
 
             <div class="admin-lang-grid">
-                <label for="newGalleryTitle_es" class="field-label">TÃ­tulo galerÃ­a ES</label>
+                <label for="newGalleryTitle_es" class="field-label">Título galería ES</label>
                 <input id="newGalleryTitle_es" type="text" placeholder="Jornada primera ronda">
 
-                <label for="newGalleryTitle_va" class="field-label">TÃ­tulo galerÃ­a VA</label>
+                <label for="newGalleryTitle_va" class="field-label">Título galería VA</label>
                 <input id="newGalleryTitle_va" type="text" placeholder="Jornada primera ronda">
 
-                <label for="newGalleryTitle_en" class="field-label">TÃ­tulo galerÃ­a EN</label>
+                <label for="newGalleryTitle_en" class="field-label">Título galería EN</label>
                 <input id="newGalleryTitle_en" type="text" placeholder="First round morning session">
 
-                <label for="newGalleryTitle_fr" class="field-label">TÃ­tulo galerÃ­a FR</label>
+                <label for="newGalleryTitle_fr" class="field-label">Título galería FR</label>
                 <input id="newGalleryTitle_fr" type="text" placeholder="Session du matin premier tour">
             </div>
 
@@ -313,24 +313,24 @@
             <div id="newGalleryPhotosEditor" class="gallery-admin-photo-list"></div>
 
             <div class="results-actions">
-                <button id="saveNewGallery" type="button">Guardar galerÃ­a</button>
+                <button id="saveNewGallery" type="button">Guardar galería</button>
             </div>
 
             <p id="galleryAdminStatus" class="admin-status" aria-live="polite"></p>
 
-            <h3 class="gallery-admin-subtitle">GestiÃ³n de galerÃ­as</h3>
+            <h3 class="gallery-admin-subtitle">Gestión de galerías</h3>
 
             <div class="gallery-admin-actions">
-                <button id="toggleGalleryEditMode" type="button" class="btn-gallery-save">Editar galerÃ­as</button>
+                <button id="toggleGalleryEditMode" type="button" class="btn-gallery-save">Editar galerías</button>
             </div>
 
             <div class="gallery-admin-actions">
                 <select id="galleryDeleteSelect"></select>
-                <button id="deleteSelectedGallery" type="button" class="btn-gallery-danger">Borrar galerÃ­a</button>
+                <button id="deleteSelectedGallery" type="button" class="btn-gallery-danger">Borrar galería</button>
             </div>
 
             <div id="galleryAdminEditor" class="gallery-admin-editor is-hidden">
-                <h3 class="gallery-admin-subtitle">Editor de galerÃ­as</h3>
+                <h3 class="gallery-admin-subtitle">Editor de galerías</h3>
                 <div id="galleryAdminList" class="gallery-admin-list"></div>
             </div>
         </section>
@@ -353,7 +353,7 @@
             <p id="schedulePlayersPreview" class="admin-muted"></p>
 
             <label for="scheduleDate" class="field-label">Fecha y hora del partido</label>
-            <input id="scheduleDate" type="text" placeholder="17 APR 2026 Â· 17:45" />
+            <input id="scheduleDate" type="text" placeholder="17 APR 2026 · 17:45" />
 
             <div class="results-actions">
                 <button id="saveMatchSchedule" type="button">Guardar Horario</button>
@@ -424,9 +424,20 @@
 window.ADMIN_DEFAULT_SECTION = "sponsors-admin-panel";
 window.ADMIN_MULTI_PAGE_MODE = true;
 </script>
-<script src="js/admin.js?v=20260726-6"></script>
+<script src="js/admin.js?v=20260726-10"></script>
 
 </body>
 
 </html>
+
+
+
+
+
+
+
+
+
+
+
 

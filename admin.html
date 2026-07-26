@@ -64,11 +64,11 @@
 
             <a href="#players-admin-panel" data-section="players-admin-panel">Jugadores</a>
 
-            <a href="#draw-schedule-panel" data-section="draw-schedule-panel">Horario Cuadro</a>
+            <a href="#draw-schedule-panel" data-section="draw-schedule-panel">Cuadro</a>
+
+            <a href="#draw-builder-panel" data-section="draw-builder-panel">Cruces</a>
 
             <a href="#draw-results-panel" data-section="draw-results-panel">Resultados</a>
-
-            <a href="#news-admin-panel" data-section="news-admin-panel">Idiomas</a>
 
             <button id="adminLogoutBtn" type="button" class="sidebar-logout-btn">Cerrar sesión</button>
 
@@ -144,7 +144,7 @@
 
         <section class="admin-card" id="tournament-text-panel">
             <h2>Texto Manual de Torneo</h2>
-            <p class="admin-muted">Escribe en español y se traducirá automáticamente a VA, EN y FR.</p>
+            <p class="admin-muted">Escribe en español y se traducirá autom�ticamente a VA, EN y FR.</p>
 
             <label for="tournamentManualTitle_es" class="field-label">Título (ES)</label>
             <input id="tournamentManualTitle_es" type="text" placeholder="Título del bloque de torneo en español">
@@ -235,10 +235,10 @@
 
         <section class="admin-card" id="live-settings-panel">
             <h2>Streaming en Directo</h2>
-            <p class="admin-muted">Pega aqui el enlace de YouTube del directo para mostrarlo en la seccion LIVE.</p>
+            <p class="admin-muted">Pega aqui el enlace de YouTube del directo para mostrarlo en la sección LIVE.</p>
 
             <label for="liveStreamTitle" class="field-label">Título del directo (automático)</label>
-            <input id="liveStreamTitle" type="text" placeholder="Se detecta automáticamente desde YouTube" readonly>
+            <input id="liveStreamTitle" type="text" placeholder="Se detecta autom�ticamente desde YouTube" readonly>
 
             <label for="liveYoutubeUrl" class="field-label">Enlace de YouTube</label>
             <input id="liveYoutubeUrl" type="url" placeholder="https://www.youtube.com/watch?v=XXXXXXXXXXX">
@@ -256,7 +256,7 @@
 
         <section class="admin-card" id="news-admin-panel">
             <h2>Noticias</h2>
-            <p class="admin-muted">Escribe solo en español y el panel traducirá automáticamente a VA, EN y FR.</p>
+            <p class="admin-muted">Escribe solo en español y el panel traducirá autom�ticamente a VA, EN y FR.</p>
 
             <label for="newNewsTitle_es" class="field-label">Título ES</label>
             <input id="newNewsTitle_es" type="text" placeholder="Título en español">
@@ -291,7 +291,7 @@
 
         <section class="admin-card" id="gallery-admin-panel">
             <h2>Galería</h2>
-            <p class="admin-muted">Crea galerías por jornada, añade pies de foto por imagen y gestiona edición o borrado por foto o por galería.</p>
+            <p class="admin-muted">Crea galerías por jornada, a�ade pies de foto por imagen y gestiona edición o borrado por foto o por galería.</p>
 
             <div class="admin-lang-grid">
                 <label for="newGalleryTitle_es" class="field-label">Título galería ES</label>
@@ -353,7 +353,7 @@
             <p id="schedulePlayersPreview" class="admin-muted"></p>
 
             <label for="scheduleDate" class="field-label">Fecha y hora del partido</label>
-            <input id="scheduleDate" type="text" placeholder="17 APR 2026 · 17:45" />
+            <input id="scheduleDate" type="text" placeholder="17 APR 2026 � 17:45" />
 
             <div class="results-actions">
                 <button id="saveMatchSchedule" type="button">Guardar Horario</button>
@@ -424,10 +424,21 @@
 window.ADMIN_DEFAULT_SECTION = "dashboard";
 window.ADMIN_MULTI_PAGE_MODE = true;
 </script>
-<script src="js/admin.js?v=20260726-6"></script>
+<script src="js/admin.js?v=20260726-10"></script>
 
 </body>
 
 </html>
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -13,6 +13,8 @@ const SPONSORS_COLLECTION_KEY = "sponsorsCollection";
 const PLAYERS_COLLECTION_KEY = "playersCollection";
 const TOURNAMENT_MANUAL_CONTENT_KEY = "tournamentManualContent";
 const HERO_SETTINGS_KEY = "heroSettings";
+const VISITS_TABLE_NAME = "site_visits";
+const VISITS_LOCAL_EVENTS_KEY = "psa_local_visit_events";
 const LANGS = ["es", "va", "en", "fr"];
 const CLOUD_SYNC_KEYS = [
     TOURNAMENT_MODE_KEY,
@@ -50,6 +52,7 @@ const ADMIN_SECTION_IDS = [
     "news-admin-panel",
     "gallery-admin-panel",
     "draw-schedule-panel",
+    "draw-builder-panel",
     "draw-results-panel"
 ];
 const ADMIN_SECTION_TO_PAGE = {
@@ -63,8 +66,17 @@ const ADMIN_SECTION_TO_PAGE = {
     "tournament-text-panel": "admin-tournament-text.html",
     "players-admin-panel": "admin-players.html",
     "draw-schedule-panel": "admin-draw-schedule.html",
+    "draw-builder-panel": "admin-draw-builder.html",
     "draw-results-panel": "admin-draw-results.html"
 };
+
+function isLocalDevMode() {
+    const host = String(window.location.hostname || "").toLowerCase();
+    const isLocalHost = host === "127.0.0.1" || host === "localhost" || host === "";
+    const params = new URLSearchParams(window.location.search);
+    const forceLocal = params.get("local") === "1";
+    return forceLocal || isLocalHost;
+}
 
 function getSectionFromHash() {
     const raw = (window.location.hash || "").replace(/^#/, "").trim();
@@ -96,6 +108,219 @@ function configureAdminMenuLinks() {
         } else {
             link.setAttribute("href", section === "dashboard" ? "#dashboard" : `#${section}`);
         }
+    });
+}
+
+function parseStorageJson(key, fallbackValue) {
+    try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return fallbackValue;
+        return JSON.parse(raw);
+    } catch (error) {
+        return fallbackValue;
+    }
+}
+
+function countTotalDrawMatches() {
+    const state = parseStorageJson(DRAW_BRACKET_KEY, null);
+    if (!state?.rounds || !Array.isArray(state.rounds)) return 0;
+
+    return state.rounds.reduce((sum, round) => {
+        const matches = Array.isArray(round?.matches) ? round.matches.length : 0;
+        return sum + matches;
+    }, 0);
+}
+
+function countScheduledDrawMatches() {
+    const state = parseStorageJson(DRAW_BRACKET_KEY, null);
+    if (!state?.rounds || !Array.isArray(state.rounds)) return 0;
+
+    let scheduled = 0;
+    state.rounds.forEach((round) => {
+        const matches = Array.isArray(round?.matches) ? round.matches : [];
+        matches.forEach((match) => {
+            if (String(match?.date || "").trim()) {
+                scheduled += 1;
+            }
+        });
+    });
+
+    return scheduled;
+}
+
+function countResolvedDrawMatches() {
+    const state = parseStorageJson(DRAW_BRACKET_KEY, null);
+    if (!state?.rounds || !Array.isArray(state.rounds)) return 0;
+
+    let resolved = 0;
+    state.rounds.forEach((round) => {
+        const matches = Array.isArray(round?.matches) ? round.matches : [];
+        matches.forEach((match) => {
+            if (getMatchWinner(match)) {
+                resolved += 1;
+            }
+        });
+    });
+
+    return resolved;
+}
+
+function updateDashboardValue(id, value) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = String(value);
+}
+
+function getTodayStartIso() {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    return date.toISOString();
+}
+
+function computeTopPage(rows = []) {
+    const pageMap = new Map();
+    rows.forEach((row) => {
+        const page = String(row?.page_path || "-").trim() || "-";
+        pageMap.set(page, (pageMap.get(page) || 0) + 1);
+    });
+
+    let topPage = "-";
+    let topHits = 0;
+    for (const [page, hits] of pageMap.entries()) {
+        if (hits > topHits) {
+            topPage = page;
+            topHits = hits;
+        }
+    }
+
+    return topPage;
+}
+
+async function getCloudVisitMetrics() {
+    const client = window.AdminSupabase?.getClient?.();
+    if (!client) {
+        return { ok: false, reason: "missing-client" };
+    }
+
+    const todayIso = getTodayStartIso();
+
+    const totalReq = await client
+        .from(VISITS_TABLE_NAME)
+        .select("id", { count: "exact", head: true });
+
+    if (totalReq.error) {
+        return { ok: false, reason: totalReq.error.message };
+    }
+
+    const todayReq = await client
+        .from(VISITS_TABLE_NAME)
+        .select("session_id,page_path")
+        .gte("visited_at", todayIso)
+        .limit(5000);
+
+    if (todayReq.error) {
+        return { ok: false, reason: todayReq.error.message };
+    }
+
+    const todayRows = Array.isArray(todayReq.data) ? todayReq.data : [];
+    const uniqueToday = new Set(
+        todayRows
+            .map((row) => String(row?.session_id || "").trim())
+            .filter(Boolean)
+    );
+
+    return {
+        ok: true,
+        source: "cloud",
+        totalVisits: Number(totalReq.count || 0),
+        todayVisits: todayRows.length,
+        uniqueToday: uniqueToday.size,
+        topPage: computeTopPage(todayRows)
+    };
+}
+
+function getLocalVisitMetrics() {
+    const events = parseStorageJson(VISITS_LOCAL_EVENTS_KEY, []);
+    const rows = Array.isArray(events) ? events : [];
+    const todayIso = getTodayStartIso();
+    const todayRows = rows.filter((row) => String(row?.visited_at || "") >= todayIso);
+
+    const uniqueToday = new Set(
+        todayRows
+            .map((row) => String(row?.session_id || "").trim())
+            .filter(Boolean)
+    );
+
+    return {
+        ok: true,
+        source: "local",
+        totalVisits: rows.length,
+        todayVisits: todayRows.length,
+        uniqueToday: uniqueToday.size,
+        topPage: computeTopPage(todayRows)
+    };
+}
+
+async function loadVisitMetrics() {
+    try {
+        const cloud = await getCloudVisitMetrics();
+        if (cloud.ok) return cloud;
+    } catch (error) {
+        // Si la tabla/policies no están listas en Supabase, usamos fallback local.
+    }
+
+    return getLocalVisitMetrics();
+}
+
+async function initAdminDashboard() {
+    const host = document.getElementById("adminDashboardIntro");
+    if (!host) return;
+
+    const players = parseStorageJson(PLAYERS_COLLECTION_KEY, []);
+    const sponsors = parseStorageJson(SPONSORS_COLLECTION_KEY, []);
+    const news = parseStorageJson(NEWS_COLLECTION_KEY, []);
+    const galleries = parseStorageJson(GALLERY_COLLECTION_KEY, []);
+    const liveHistory = parseStorageJson(LIVE_STREAM_HISTORY_KEY, []);
+    const tournamentMode = localStorage.getItem(TOURNAMENT_MODE_KEY) === "api" ? "API" : "Manual";
+
+    const totalDrawMatches = countTotalDrawMatches();
+    const scheduledDrawMatches = countScheduledDrawMatches();
+    const resolvedDrawMatches = countResolvedDrawMatches();
+
+    updateDashboardValue("dashboardPlayersCount", Array.isArray(players) ? players.length : 0);
+    updateDashboardValue("dashboardSponsorsCount", Array.isArray(sponsors) ? sponsors.length : 0);
+    updateDashboardValue("dashboardNewsCount", Array.isArray(news) ? news.length : 0);
+    updateDashboardValue("dashboardGalleriesCount", Array.isArray(galleries) ? galleries.length : 0);
+    updateDashboardValue("dashboardLiveHistoryCount", Array.isArray(liveHistory) ? liveHistory.length : 0);
+    updateDashboardValue("dashboardTournamentMode", tournamentMode);
+    updateDashboardValue("dashboardDrawScheduled", `${scheduledDrawMatches}/${totalDrawMatches || 0}`);
+    updateDashboardValue("dashboardDrawResolved", `${resolvedDrawMatches}/${totalDrawMatches || 0}`);
+
+    const visitMetrics = await loadVisitMetrics();
+    updateDashboardValue("dashboardVisitsTotal", visitMetrics.totalVisits || 0);
+    updateDashboardValue("dashboardVisitsToday", visitMetrics.todayVisits || 0);
+    updateDashboardValue("dashboardVisitsUniqueToday", visitMetrics.uniqueToday || 0);
+    updateDashboardValue("dashboardVisitsTopPage", visitMetrics.topPage || "-");
+    updateDashboardValue(
+        "dashboardVisitsSource",
+        visitMetrics.source === "cloud" ? "Supabase" : "Local (fallback)"
+    );
+
+    const quickActions = host.querySelectorAll("[data-dashboard-target]");
+    quickActions.forEach((button) => {
+        button.addEventListener("click", () => {
+            const target = String(button.getAttribute("data-dashboard-target") || "").trim();
+            if (!target) return;
+
+            if (ADMIN_MULTI_PAGE_MODE) {
+                const page = ADMIN_SECTION_TO_PAGE[target] || "admin-dashboard.html";
+                window.location.href = page;
+                return;
+            }
+
+            const nextHash = target === "dashboard" ? "#dashboard" : `#${target}`;
+            window.location.hash = nextHash;
+        });
     });
 }
 
@@ -241,21 +466,34 @@ async function startAdminModulesOnce() {
 
     adminStartPromise = (async () => {
         bindAdminSectionView();
-        await hydrateAdminStateFromCloud();
-        installCloudStorageAutosync();
+
+        if (!isLocalDevMode()) {
+            await hydrateAdminStateFromCloud();
+            installCloudStorageAutosync();
+        }
 
         adminModulesStarted = true;
-        loadTournamentSettings();
-        bindTournamentSettings();
-        initHeroAdmin();
-        initTournamentManualAdmin();
-        loadLiveSettings();
-        bindLiveSettings();
-        initPlayersAdmin();
-        initSponsorsAdmin();
-        initNewsAdmin();
-        initGalleryAdmin();
-        await initDrawAdmin();
+
+        const safeRun = async (runner) => {
+            try {
+                await runner();
+            } catch (error) {
+                console.error("Error iniciando módulo admin:", error);
+            }
+        };
+
+        await safeRun(async () => loadTournamentSettings());
+        await safeRun(async () => bindTournamentSettings());
+        await safeRun(async () => initAdminDashboard());
+        await safeRun(async () => initHeroAdmin());
+        await safeRun(async () => initTournamentManualAdmin());
+        await safeRun(async () => loadLiveSettings());
+        await safeRun(async () => bindLiveSettings());
+        await safeRun(async () => initPlayersAdmin());
+        await safeRun(async () => initSponsorsAdmin());
+        await safeRun(async () => initNewsAdmin());
+        await safeRun(async () => initGalleryAdmin());
+        await safeRun(async () => initDrawAdmin());
     })();
 
     return adminStartPromise;
@@ -268,6 +506,13 @@ async function initAdminAuth() {
     const logoutBtn = document.getElementById("adminLogoutBtn");
 
     const supabaseClient = window.AdminSupabase?.getClient?.();
+
+    if (isLocalDevMode()) {
+        showAdminApp();
+        setAdminAuthStatus("Modo local activo: sin login cloud.");
+        await startAdminModulesOnce();
+        return;
+    }
 
     if (!supabaseClient) {
         showAuthScreen();
@@ -882,156 +1127,172 @@ function initTournamentManualAdmin() {
     }
     if (resetButton) {
         resetButton.addEventListener("click", resetTournamentManualContent);
-
-    function updateHeroStatus(message) {
-        const el = document.getElementById("heroAdminStatus");
-        if (!el) return;
-        el.textContent = message;
-    }
-
-    function normalizeHeroSettings(payload) {
-        if (!payload || typeof payload !== "object") return null;
-
-        return {
-            eventLabel: normalizeLocalizedText(payload.eventLabel),
-            eventTitle: normalizeLocalizedText(payload.eventTitle),
-            eventLocation: normalizeLocalizedText(payload.eventLocation),
-            countdownDate: String(payload.countdownDate || "").trim(),
-            backgroundImage: String(payload.backgroundImage || "").trim(),
-            updatedAt: payload.updatedAt || new Date().toISOString()
-        };
-    }
-
-    function readHeroSettings() {
-        try {
-            const raw = localStorage.getItem(HERO_SETTINGS_KEY);
-            if (!raw) return null;
-            return normalizeHeroSettings(JSON.parse(raw));
-        } catch (error) {
-            return null;
-        }
-    }
-
-    function toDateTimeLocalInputValue(value) {
-        const dt = new Date(value || "");
-        if (Number.isNaN(dt.getTime())) return "";
-        const pad = (num) => String(num).padStart(2, "0");
-        const yyyy = dt.getFullYear();
-        const mm = pad(dt.getMonth() + 1);
-        const dd = pad(dt.getDate());
-        const hh = pad(dt.getHours());
-        const mi = pad(dt.getMinutes());
-        return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
-    }
-
-    function fromDateTimeLocalInputValue(value) {
-        const raw = String(value || "").trim();
-        if (!raw) return "";
-        const dt = new Date(raw);
-        if (Number.isNaN(dt.getTime())) return "";
-        return dt.toISOString();
-    }
-
-    function fillHeroInputs() {
-        const saved = readHeroSettings();
-
-        const labelInput = document.getElementById("heroEventLabel_es");
-        const titleInput = document.getElementById("heroEventTitle_es");
-        const locationInput = document.getElementById("heroEventLocation_es");
-        const countdownInput = document.getElementById("heroCountdownDate");
-        const bgPathInput = document.getElementById("heroBackgroundPath");
-
-        if (labelInput) labelInput.value = saved?.eventLabel?.es || "";
-        if (titleInput) titleInput.value = saved?.eventTitle?.es || "";
-        if (locationInput) locationInput.value = saved?.eventLocation?.es || "";
-        if (countdownInput) countdownInput.value = toDateTimeLocalInputValue(saved?.countdownDate || "");
-        if (bgPathInput) bgPathInput.value = saved?.backgroundImage || "";
-    }
-
-    async function onHeroBackgroundChange(event) {
-        const file = event.target.files?.[0];
-        if (!file) {
-            pendingHeroBackgroundSrc = "";
-            return;
-        }
-
-        pendingHeroBackgroundSrc = await readFileAsDataUrl(file);
-    }
-
-    async function saveHeroSettings() {
-        const labelEs = (document.getElementById("heroEventLabel_es")?.value || "").trim();
-        const titleEs = (document.getElementById("heroEventTitle_es")?.value || "").trim();
-        const locationEs = (document.getElementById("heroEventLocation_es")?.value || "").trim();
-        const countdownRaw = (document.getElementById("heroCountdownDate")?.value || "").trim();
-        const bgPath = (document.getElementById("heroBackgroundPath")?.value || "").trim();
-
-        if (!labelEs || !titleEs || !locationEs) {
-            updateHeroStatus("Etiqueta, título y ubicación en español son obligatorios.");
-            return;
-        }
-
-        updateHeroStatus("Traduciendo textos del hero...");
-
-        const [eventLabel, eventTitle, eventLocation] = await Promise.all([
-            buildLocalizedFromSpanish(labelEs),
-            buildLocalizedFromSpanish(titleEs),
-            buildLocalizedFromSpanish(locationEs)
-        ]);
-
-        const countdownDate = fromDateTimeLocalInputValue(countdownRaw);
-        const backgroundImage = pendingHeroBackgroundSrc || bgPath;
-
-        const payload = {
-            eventLabel,
-            eventTitle,
-            eventLocation,
-            countdownDate,
-            backgroundImage,
-            updatedAt: new Date().toISOString()
-        };
-
-        localStorage.setItem(HERO_SETTINGS_KEY, JSON.stringify(payload));
-        pendingHeroBackgroundSrc = "";
-        const fileInput = document.getElementById("heroBackgroundFile");
-        if (fileInput) fileInput.value = "";
-
-        updateHeroStatus("Hero guardado y traducido para todos los idiomas.");
-    }
-
-    function resetHeroSettings() {
-        localStorage.removeItem(HERO_SETTINGS_KEY);
-        pendingHeroBackgroundSrc = "";
-        fillHeroInputs();
-
-        const fileInput = document.getElementById("heroBackgroundFile");
-        if (fileInput) fileInput.value = "";
-
-        updateHeroStatus("Hero restaurado a la configuración base.");
-    }
-
-    function initHeroAdmin() {
-        const panel = document.getElementById("hero-admin-panel");
-        if (!panel) return;
-
-        const saveButton = document.getElementById("saveHeroSettings");
-        const resetButton = document.getElementById("resetHeroSettings");
-        const bgFileInput = document.getElementById("heroBackgroundFile");
-
-        if (saveButton) {
-            saveButton.addEventListener("click", saveHeroSettings);
-        }
-        if (resetButton) {
-            resetButton.addEventListener("click", resetHeroSettings);
-        }
-        if (bgFileInput) {
-            bgFileInput.addEventListener("change", onHeroBackgroundChange);
-        }
-
-        fillHeroInputs();
-    }
     }
 
     fillTournamentManualInputs();
+}
+
+function updateHeroStatus(message) {
+    const el = document.getElementById("heroAdminStatus");
+    if (!el) return;
+    el.textContent = message;
+}
+
+function normalizeHeroSettings(payload) {
+    if (!payload || typeof payload !== "object") return null;
+
+    return {
+        eventLabel: normalizeLocalizedText(payload.eventLabel),
+        eventTitle: normalizeLocalizedText(payload.eventTitle),
+        eventLocation: normalizeLocalizedText(payload.eventLocation),
+        countdownDate: String(payload.countdownDate || "").trim(),
+        backgroundImage: String(payload.backgroundImage || "").trim(),
+        updatedAt: payload.updatedAt || new Date().toISOString()
+    };
+}
+
+function readHeroSettings() {
+    try {
+        const raw = localStorage.getItem(HERO_SETTINGS_KEY);
+        if (!raw) return null;
+        return normalizeHeroSettings(JSON.parse(raw));
+    } catch (error) {
+        return null;
+    }
+}
+
+function toDateTimeLocalInputValue(value) {
+    const dt = new Date(value || "");
+    if (Number.isNaN(dt.getTime())) return "";
+    const pad = (num) => String(num).padStart(2, "0");
+    const yyyy = dt.getFullYear();
+    const mm = pad(dt.getMonth() + 1);
+    const dd = pad(dt.getDate());
+    const hh = pad(dt.getHours());
+    const mi = pad(dt.getMinutes());
+    return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+}
+
+function fromDateTimeLocalInputValue(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return "";
+    const dt = new Date(raw);
+    if (Number.isNaN(dt.getTime())) return "";
+    return dt.toISOString();
+}
+
+function fillHeroInputs() {
+    const saved = readHeroSettings();
+
+    const labelInput = document.getElementById("heroEventLabel_es");
+    const titleInput = document.getElementById("heroEventTitle_es");
+    const locationInput = document.getElementById("heroEventLocation_es");
+    const countdownInput = document.getElementById("heroCountdownDate");
+    const bgPathInput = document.getElementById("heroBackgroundPath");
+
+    if (labelInput) labelInput.value = saved?.eventLabel?.es || "";
+    if (titleInput) titleInput.value = saved?.eventTitle?.es || "";
+    if (locationInput) locationInput.value = saved?.eventLocation?.es || "";
+    if (countdownInput) countdownInput.value = toDateTimeLocalInputValue(saved?.countdownDate || "");
+    if (bgPathInput) bgPathInput.value = saved?.backgroundImage || "";
+}
+
+async function onHeroBackgroundChange(event) {
+    const file = event.target.files?.[0];
+    if (!file) {
+        pendingHeroBackgroundSrc = "";
+        return;
+    }
+
+    pendingHeroBackgroundSrc = await readFileAsDataUrl(file);
+}
+
+async function saveHeroSettings() {
+    const existing = readHeroSettings();
+
+    const labelEs = (document.getElementById("heroEventLabel_es")?.value || "").trim();
+    const titleEs = (document.getElementById("heroEventTitle_es")?.value || "").trim();
+    const locationEs = (document.getElementById("heroEventLocation_es")?.value || "").trim();
+    const countdownRaw = (document.getElementById("heroCountdownDate")?.value || "").trim();
+    const bgPath = (document.getElementById("heroBackgroundPath")?.value || "").trim();
+
+    const nextCountdownDate = fromDateTimeLocalInputValue(countdownRaw) || existing?.countdownDate || "";
+    const nextBackgroundImage = pendingHeroBackgroundSrc || bgPath || existing?.backgroundImage || "";
+
+    const finalLabelEs = labelEs || existing?.eventLabel?.es || "";
+    const finalTitleEs = titleEs || existing?.eventTitle?.es || "";
+    const finalLocationEs = locationEs || existing?.eventLocation?.es || "";
+
+    if (!finalLabelEs && !finalTitleEs && !finalLocationEs && !nextCountdownDate && !nextBackgroundImage) {
+        updateHeroStatus("No hay cambios para guardar.");
+        return;
+    }
+
+    let eventLabel = existing?.eventLabel || normalizeLocalizedText("");
+    let eventTitle = existing?.eventTitle || normalizeLocalizedText("");
+    let eventLocation = existing?.eventLocation || normalizeLocalizedText("");
+
+    const needsTranslate = Boolean(labelEs || titleEs || locationEs);
+    if (needsTranslate) {
+        updateHeroStatus("Traduciendo campos del hero...");
+        [eventLabel, eventTitle, eventLocation] = await Promise.all([
+            buildLocalizedFromSpanish(finalLabelEs),
+            buildLocalizedFromSpanish(finalTitleEs),
+            buildLocalizedFromSpanish(finalLocationEs)
+        ]);
+    }
+
+    const payload = {
+        eventLabel,
+        eventTitle,
+        eventLocation,
+        countdownDate: nextCountdownDate,
+        backgroundImage: nextBackgroundImage,
+        updatedAt: new Date().toISOString()
+    };
+
+    localStorage.setItem(HERO_SETTINGS_KEY, JSON.stringify(payload));
+    pendingHeroBackgroundSrc = "";
+    const fileInput = document.getElementById("heroBackgroundFile");
+    if (fileInput) fileInput.value = "";
+
+    if (!needsTranslate && nextCountdownDate) {
+        updateHeroStatus("Countdown guardado correctamente.");
+    } else {
+        updateHeroStatus("Hero guardado correctamente.");
+    }
+}
+
+function resetHeroSettings() {
+    localStorage.removeItem(HERO_SETTINGS_KEY);
+    pendingHeroBackgroundSrc = "";
+    fillHeroInputs();
+
+    const fileInput = document.getElementById("heroBackgroundFile");
+    if (fileInput) fileInput.value = "";
+
+    updateHeroStatus("Hero restaurado a la configuración base.");
+}
+
+function initHeroAdmin() {
+    const panel = document.getElementById("hero-admin-panel");
+    if (!panel) return;
+
+    const saveButton = document.getElementById("saveHeroSettings");
+    const resetButton = document.getElementById("resetHeroSettings");
+    const bgFileInput = document.getElementById("heroBackgroundFile");
+
+    if (saveButton) {
+        saveButton.addEventListener("click", saveHeroSettings);
+    }
+    if (resetButton) {
+        resetButton.addEventListener("click", resetHeroSettings);
+    }
+    if (bgFileInput) {
+        bgFileInput.addEventListener("change", onHeroBackgroundChange);
+    }
+
+    fillHeroInputs();
 }
 
 function normalizeGallery(gallery) {
@@ -1752,6 +2013,27 @@ function normalizeSponsorImagePath(pathValue) {
     return `assets/images/sponsors/${raw}`;
 }
 
+function guessSponsorNameFromImage(imagePath, imageFile) {
+    const fromFile = String(imageFile?.name || "").trim();
+    const fromPath = String(imagePath || "").trim();
+    const source = fromFile || fromPath;
+    if (!source) return "";
+
+    const fileName = source.split("/").pop() || source;
+    const noExt = fileName.replace(/\.[^.]+$/, "");
+    const readable = noExt
+        .replace(/[_-]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+    if (!readable) return "";
+
+    return readable
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+}
+
 function normalizePlayerItem(item) {
     return {
         id: item?.id || createId("player"),
@@ -1901,11 +2183,6 @@ async function createSponsorFromInputs() {
     const imagePath = normalizeSponsorImagePath((document.getElementById("newSponsorImagePath")?.value || "").trim());
     const imageFile = document.getElementById("newSponsorImage")?.files?.[0] || null;
 
-    if (!name) {
-        updateSponsorsStatus("El nombre del sponsor es obligatorio.");
-        return null;
-    }
-
     let imageSrc = imagePath;
     if (imageFile) {
         imageSrc = await readFileAsDataUrl(imageFile);
@@ -1916,9 +2193,11 @@ async function createSponsorFromInputs() {
         return null;
     }
 
+    const resolvedName = name || guessSponsorNameFromImage(imagePath, imageFile) || "Sponsor";
+
     return normalizeSponsorItem({
         id: createId("sponsor"),
-        name,
+        name: resolvedName,
         link: link || "#",
         imageSrc,
         cardClass: "sponsor-card"
@@ -2343,6 +2622,293 @@ function updateScheduleStatus(message) {
     el.textContent = message;
 }
 
+function updateDrawBuilderStatus(message) {
+    const el = document.getElementById("drawBuilderStatus");
+    if (!el) return;
+    el.textContent = message;
+}
+
+function normalizeDrawPlayerName(value) {
+    return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\(\d+\)$/, "")
+        .replace(/[^a-zA-Z0-9]+/g, " ")
+        .toLowerCase()
+        .trim();
+}
+
+function extractSeedNumber(seedValue) {
+    const raw = String(seedValue || "").trim();
+    const match = raw.match(/\[(\d+)\]/);
+    return match ? match[1] : "";
+}
+
+function formatDrawPlayerName(player) {
+    const name = String(player?.name || "").trim();
+    if (!name) return "";
+    const seedNumber = extractSeedNumber(player?.seed);
+    return seedNumber ? `${name} (${seedNumber})` : name;
+}
+
+async function getDrawBuilderPlayers() {
+    const players = await getPlayersCollectionForAdmin();
+    return [...players].sort((a, b) => {
+        const rankA = Number(a?.ranking) || Number.MAX_SAFE_INTEGER;
+        const rankB = Number(b?.ranking) || Number.MAX_SAFE_INTEGER;
+        return rankA - rankB;
+    });
+}
+
+function findPlayerForDrawName(name, players) {
+    const target = normalizeDrawPlayerName(name);
+    if (!target) return null;
+
+    for (const player of players) {
+        const byName = normalizeDrawPlayerName(player?.name);
+        const byFormatted = normalizeDrawPlayerName(formatDrawPlayerName(player));
+        if (target === byName || target === byFormatted) {
+            return player;
+        }
+    }
+
+    return null;
+}
+
+function findPlayerBySeed(players, seedNumber) {
+    const target = String(seedNumber || "").trim();
+    if (!target) return null;
+    return players.find((player) => extractSeedNumber(player?.seed) === target) || null;
+}
+
+function getForcedSeedAssignments(players, totalMatches) {
+    const seed1 = findPlayerBySeed(players, "1");
+    const seed2 = findPlayerBySeed(players, "2");
+    const lastMatchIndex = Math.max(0, totalMatches - 1);
+
+    return {
+        seed1,
+        seed2,
+        bySlot: {
+            "0_p1": seed1?.id || "",
+            [`${lastMatchIndex}_p2`]: seed2?.id || ""
+        }
+    };
+}
+
+function resolveSelectionKeyForDuplicates(selectedValue, existingSlot, players) {
+    if (selectedValue === "__BYE__" || selectedValue === "__TBD__") {
+        return "";
+    }
+
+    if (selectedValue === "__KEEP__") {
+        const currentName = String(existingSlot?.name || "").trim();
+        if (isMutedPlayer(currentName)) return "";
+
+        const matched = findPlayerForDrawName(currentName, players);
+        if (matched?.id) return `player:${matched.id}`;
+
+        const normalized = normalizeDrawPlayerName(currentName);
+        return normalized ? `name:${normalized}` : "";
+    }
+
+    return `player:${selectedValue}`;
+}
+
+function getSelectionLabel(selectedValue, existingSlot, players) {
+    if (selectedValue === "__BYE__") return "BYE";
+    if (selectedValue === "__TBD__") return "TBD";
+    if (selectedValue === "__KEEP__") return String(existingSlot?.name || "TBD").trim() || "TBD";
+
+    const player = players.find((entry) => entry.id === selectedValue);
+    return player ? (formatDrawPlayerName(player) || player.name) : "Jugador";
+}
+
+function buildDrawBuilderSelect(selectId, currentName, players) {
+    const cleanName = String(currentName || "").trim();
+    const isBye = cleanName === "BYE";
+    const isTbd = cleanName === "TBD" || !cleanName;
+    const matchedPlayer = findPlayerForDrawName(cleanName, players);
+
+    const options = [];
+    options.push(`<option value="__TBD__" ${isTbd ? "selected" : ""}>TBD</option>`);
+    options.push(`<option value="__BYE__" ${isBye ? "selected" : ""}>BYE</option>`);
+
+    players.forEach((player) => {
+        const label = formatDrawPlayerName(player) || player.name;
+        const selected = matchedPlayer?.id === player.id ? "selected" : "";
+        options.push(`<option value="${escapeHtml(player.id)}" ${selected}>${escapeHtml(label)}</option>`);
+    });
+
+    if (!isBye && !isTbd && !matchedPlayer) {
+        options.unshift(`<option value="__KEEP__" selected>${escapeHtml(cleanName)}</option>`);
+    }
+
+    return `
+        <select id="${selectId}" class="draw-builder-select">
+            ${options.join("")}
+        </select>
+    `;
+}
+
+async function renderDrawBuilder() {
+    const panel = document.getElementById("draw-builder-panel");
+    const host = document.getElementById("drawBuilderGrid");
+    if (!panel || !host || !drawState?.rounds?.[0]?.matches) return;
+
+    const players = await getDrawBuilderPlayers();
+    const roundOneMatches = drawState.rounds[0].matches;
+    const forced = getForcedSeedAssignments(players, roundOneMatches.length);
+
+    host.innerHTML = roundOneMatches.map((match, index) => {
+        const p1SelectId = `drawBuilder_${index}_p1`;
+        const p2SelectId = `drawBuilder_${index}_p2`;
+        const forcedP1 = forced.bySlot[`${index}_p1`] || "";
+        const forcedP2 = forced.bySlot[`${index}_p2`] || "";
+        const p1CurrentName = forcedP1
+            ? (formatDrawPlayerName(players.find((entry) => entry.id === forcedP1)) || match?.p1?.name)
+            : match?.p1?.name;
+        const p2CurrentName = forcedP2
+            ? (formatDrawPlayerName(players.find((entry) => entry.id === forcedP2)) || match?.p2?.name)
+            : match?.p2?.name;
+
+        return `
+            <article class="draw-builder-card" data-match-index="${index}">
+                <h3>Partido ${index + 1}</h3>
+                <label class="field-label" for="${p1SelectId}">Posición ${index * 2 + 1}</label>
+                ${buildDrawBuilderSelect(p1SelectId, p1CurrentName, players)}
+                <label class="field-label" for="${p2SelectId}">Posición ${index * 2 + 2}</label>
+                ${buildDrawBuilderSelect(p2SelectId, p2CurrentName, players)}
+            </article>
+        `;
+    }).join("");
+
+    const topSelect = document.getElementById("drawBuilder_0_p1");
+    const bottomSelect = document.getElementById(`drawBuilder_${Math.max(0, roundOneMatches.length - 1)}_p2`);
+
+    if (topSelect && forced.seed1?.id) {
+        topSelect.value = forced.seed1.id;
+        topSelect.disabled = true;
+    }
+    if (bottomSelect && forced.seed2?.id) {
+        bottomSelect.value = forced.seed2.id;
+        bottomSelect.disabled = true;
+    }
+
+    if (forced.seed1?.id && forced.seed2?.id) {
+        updateDrawBuilderStatus("Seed 1 fijado arriba y seed 2 fijado abajo automáticamente.");
+    }
+}
+
+function buildDrawSlotFromSelection(selectedValue, existingSlot, players) {
+    if (selectedValue === "__BYE__") {
+        return { name: "BYE" };
+    }
+    if (selectedValue === "__TBD__") {
+        return { name: "TBD" };
+    }
+    if (selectedValue === "__KEEP__") {
+        return {
+            name: String(existingSlot?.name || "TBD").trim() || "TBD",
+            image: existingSlot?.image || null
+        };
+    }
+
+    const player = players.find((entry) => entry.id === selectedValue);
+    if (!player) return { name: "TBD" };
+
+    return {
+        name: formatDrawPlayerName(player) || player.name,
+        image: player.image || null
+    };
+}
+
+async function saveDrawBuilderAssignments() {
+    const panel = document.getElementById("draw-builder-panel");
+    if (!panel || !drawState?.rounds?.[0]?.matches) return;
+
+    const players = await getDrawBuilderPlayers();
+    const roundOneMatches = drawState.rounds[0].matches;
+    const forced = getForcedSeedAssignments(players, roundOneMatches.length);
+    const selections = [];
+
+    roundOneMatches.forEach((match, index) => {
+        let p1Value = document.getElementById(`drawBuilder_${index}_p1`)?.value || "__TBD__";
+        let p2Value = document.getElementById(`drawBuilder_${index}_p2`)?.value || "__TBD__";
+
+        const forcedP1 = forced.bySlot[`${index}_p1`];
+        const forcedP2 = forced.bySlot[`${index}_p2`];
+        if (forcedP1) p1Value = forcedP1;
+        if (forcedP2) p2Value = forcedP2;
+
+        selections.push({
+            index,
+            slot: "p1",
+            value: p1Value,
+            existingSlot: match.p1
+        });
+        selections.push({
+            index,
+            slot: "p2",
+            value: p2Value,
+            existingSlot: match.p2
+        });
+    });
+
+    const used = new Map();
+    for (const entry of selections) {
+        const key = resolveSelectionKeyForDuplicates(entry.value, entry.existingSlot, players);
+        if (!key) continue;
+
+        const label = getSelectionLabel(entry.value, entry.existingSlot, players);
+        if (used.has(key)) {
+            updateDrawBuilderStatus(`Jugador duplicado: ${label}. Cada jugador solo puede aparecer una vez.`);
+            return;
+        }
+        used.set(key, true);
+    }
+
+    roundOneMatches.forEach((match, index) => {
+        const p1Entry = selections.find((entry) => entry.index === index && entry.slot === "p1");
+        const p2Entry = selections.find((entry) => entry.index === index && entry.slot === "p2");
+        const p1Value = p1Entry?.value || "__TBD__";
+        const p2Value = p2Entry?.value || "__TBD__";
+
+        match.p1 = buildDrawSlotFromSelection(p1Value, match.p1, players);
+        match.p2 = buildDrawSlotFromSelection(p2Value, match.p2, players);
+        match.games = Array.from({ length: 5 }, () => ({ p1: null, p2: null }));
+    });
+
+    autoAdvanceBracket(drawState);
+    saveDrawState();
+    populateRoundSelect();
+    populateScheduleRoundSelect();
+    fillMatchEditor();
+    fillScheduleEditor();
+    updateDrawBuilderStatus("Cruces guardados correctamente (seed 1 arriba, seed 2 abajo, sin duplicados).");
+}
+
+function initDrawBuilder() {
+    const panel = document.getElementById("draw-builder-panel");
+    if (!panel) return;
+
+    const saveBtn = document.getElementById("saveDrawBuilder");
+    const resetBtn = document.getElementById("resetDrawBuilderToBase");
+
+    if (saveBtn) {
+        saveBtn.addEventListener("click", saveDrawBuilderAssignments);
+    }
+    if (resetBtn) {
+        resetBtn.addEventListener("click", async () => {
+            await createDrawFromZero();
+            await renderDrawBuilder();
+            updateDrawBuilderStatus("Cruces base restaurados.");
+        });
+    }
+
+    renderDrawBuilder();
+}
+
 function getSelectedMatch() {
     const roundSelect = document.getElementById("roundSelect");
     const matchSelect = document.getElementById("matchSelect");
@@ -2597,6 +3163,22 @@ function resetDrawState() {
     updateDrawStatus("Cuadro reseteado. Recarga para tomar el JSON base.");
 }
 
+async function createDrawFromZero() {
+    const response = await fetch("data/draw-bracket.json", { cache: "no-store" });
+    const baseBracket = await response.json();
+
+    drawState = baseBracket;
+    normalizeBracket(drawState);
+    autoAdvanceBracket(drawState);
+    saveDrawState();
+
+    populateRoundSelect();
+    populateScheduleRoundSelect();
+    await renderDrawBuilder();
+    updateDrawStatus("Cuadro creado desde 0 con cruces base.");
+    updateScheduleStatus("Cuadro base cargado correctamente.");
+}
+
 async function initDrawAdmin() {
     const panel = document.getElementById("draw-results-panel");
     if (!panel) return;
@@ -2620,6 +3202,7 @@ async function initDrawAdmin() {
     const scheduleRoundSelect = document.getElementById("scheduleRoundSelect");
     const scheduleMatchSelect = document.getElementById("scheduleMatchSelect");
     const saveScheduleBtn = document.getElementById("saveMatchSchedule");
+    const createDrawFromZeroBtn = document.getElementById("createDrawFromZero");
 
     roundSelect.addEventListener("change", populateMatchSelect);
     matchSelect.addEventListener("change", fillMatchEditor);
@@ -2635,6 +3218,11 @@ async function initDrawAdmin() {
     if (saveScheduleBtn) {
         saveScheduleBtn.addEventListener("click", saveMatchSchedule);
     }
+    if (createDrawFromZeroBtn) {
+        createDrawFromZeroBtn.addEventListener("click", createDrawFromZero);
+    }
+
+    initDrawBuilder();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
