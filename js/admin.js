@@ -42,7 +42,7 @@ let adminSectionViewBound = false;
 let adminDiagnosticsInstalled = false;
 const ADMIN_DEFAULT_SECTION = String(window.ADMIN_DEFAULT_SECTION || "dashboard").trim() || "dashboard";
 const ADMIN_MULTI_PAGE_MODE = window.ADMIN_MULTI_PAGE_MODE !== false;
-const ADMIN_PAGE_VERSION = "20260726-13";
+const ADMIN_PAGE_VERSION = "20260726-14";
 const ADMIN_SECTION_IDS = [
     "tournament-mode-panel",
     "hero-admin-panel",
@@ -285,7 +285,7 @@ function installCloudStorageAutosync() {
             try {
                 const maybePromise = cloud.saveLocalStorageKeyToCloud(key);
                 if (maybePromise && typeof maybePromise.then === "function") {
-                    maybePromise.catch(() => {
+                    Promise.resolve(maybePromise).catch(() => {
                         // No interrumpimos UX de admin si la nube falla.
                     });
                 }
@@ -302,7 +302,7 @@ function installCloudStorageAutosync() {
             try {
                 const maybePromise = cloud.removeLocalStorageKeyFromCloud(key);
                 if (maybePromise && typeof maybePromise.then === "function") {
-                    maybePromise.catch(() => {
+                    Promise.resolve(maybePromise).catch(() => {
                         // No interrumpimos UX de admin si la nube falla.
                     });
                 }
@@ -3062,5 +3062,18 @@ async function initDrawAdmin() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    initAdminAuth();
+    if (window.__PSA_ADMIN_BOOT_IN_PROGRESS__) {
+        return;
+    }
+
+    window.__PSA_ADMIN_BOOT_IN_PROGRESS__ = true;
+    appendAdminDebug("Bootstrap admin iniciado.");
+
+    Promise.resolve(initAdminAuth())
+        .catch((error) => {
+            appendAdminDebug(`Fallo en initAdminAuth: ${errorToText(error)}`, "error");
+        })
+        .finally(() => {
+            window.__PSA_ADMIN_BOOT_IN_PROGRESS__ = false;
+        });
 });
