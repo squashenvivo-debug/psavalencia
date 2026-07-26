@@ -42,7 +42,7 @@ let adminSectionViewBound = false;
 let adminDiagnosticsInstalled = false;
 const ADMIN_DEFAULT_SECTION = String(window.ADMIN_DEFAULT_SECTION || "dashboard").trim() || "dashboard";
 const ADMIN_MULTI_PAGE_MODE = window.ADMIN_MULTI_PAGE_MODE !== false;
-const ADMIN_PAGE_VERSION = "20260726-15";
+const ADMIN_PAGE_VERSION = "20260726-16";
 const ADMIN_SECTION_IDS = [
     "tournament-mode-panel",
     "hero-admin-panel",
@@ -2050,6 +2050,27 @@ function saveSponsorsToStorage(collection) {
     }
 }
 
+async function syncSponsorsToCloud(collection) {
+    const cloud = window.PSACloudStore;
+    if (!cloud?.isReady?.()) {
+        appendAdminDebug("Sponsors cloud: no disponible, guardado solo local.", "warn");
+        return { ok: false, reason: "cloud-not-ready" };
+    }
+
+    try {
+        const result = await cloud.pushKey(SPONSORS_COLLECTION_KEY, collection);
+        if (!result?.ok) {
+            appendAdminDebug(`Sponsors cloud: error ${String(result?.reason || "desconocido")}`, "warn");
+        } else {
+            appendAdminDebug(`Sponsors cloud: sincronizado (${collection.length}).`);
+        }
+        return result || { ok: false, reason: "unknown" };
+    } catch (error) {
+        appendAdminDebug(`Sponsors cloud: excepción ${errorToText(error)}`, "error");
+        return { ok: false, reason: errorToText(error) };
+    }
+}
+
 async function getSponsorsCollectionForAdmin() {
     const stored = readSponsorsFromStorage();
     if (Array.isArray(stored) && stored.length > 0) {
@@ -2341,6 +2362,8 @@ async function renderSponsorsAdminList() {
                 return;
             }
 
+            await syncSponsorsToCloud(collection);
+
             updateSponsorsStatus("Sponsor actualizado.");
             renderSponsorsAdminList();
         });
@@ -2357,6 +2380,8 @@ async function renderSponsorsAdminList() {
                 updateSponsorsStatus("No se pudo borrar el sponsor.");
                 return;
             }
+
+            await syncSponsorsToCloud(next);
 
             updateSponsorsStatus("Sponsor eliminado.");
             renderSponsorsAdminList();
@@ -2404,6 +2429,8 @@ async function saveNewSponsor() {
             return;
         }
 
+        const cloudResult = await syncSponsorsToCloud(collection);
+
         ["newSponsorName", "newSponsorLink", "newSponsorImagePath"].forEach((id) => {
             const input = document.getElementById(id);
             if (input) input.value = "";
@@ -2411,7 +2438,9 @@ async function saveNewSponsor() {
         const imageInput = document.getElementById("newSponsorImage");
         if (imageInput) imageInput.value = "";
 
-        updateSponsorsStatus("Sponsor añadido correctamente.");
+        updateSponsorsStatus(cloudResult?.ok
+            ? "Sponsor añadido correctamente. Visible en toda la web."
+            : "Sponsor añadido en local, pero falló sync cloud. Revisa diagnóstico.");
         renderSponsorsAdminList();
     } catch (error) {
         console.error("Error añadiendo sponsor:", error);
@@ -2426,6 +2455,8 @@ async function resetSponsorsCollection() {
         updateSponsorsStatus("No se pudo restaurar la lista base de sponsors.");
         return;
     }
+
+    await syncSponsorsToCloud(defaults);
 
     updateSponsorsStatus("Sponsors base restaurados.");
     renderSponsorsAdminList();
@@ -2450,6 +2481,8 @@ async function recoverCurrentSponsors() {
         updateSponsorsStatus("No se pudieron cargar sponsors actuales para edición.");
         return;
     }
+
+    await syncSponsorsToCloud(fromTemplate);
 
     updateSponsorsStatus(`Sponsors actuales cargados para edición: ${fromTemplate.length}.`);
     renderSponsorsAdminList();

@@ -73,10 +73,32 @@ async function syncPublicStateFromCloud() {
     const cloud = window.PSACloudStore;
     if (!cloud?.isReady?.()) return;
 
+    const localSponsorsBefore = readSponsorsCollection() || [];
+
     try {
         await cloud.syncLocalStorageFromCloud(CLOUD_PUBLIC_KEYS);
+
+        const cloudSponsorsAfter = readSponsorsCollection() || [];
+        if (localSponsorsBefore.length > cloudSponsorsAfter.length) {
+            const mergedSponsors = [...cloudSponsorsAfter, ...localSponsorsBefore];
+            const unique = [];
+            const seen = new Set();
+
+            mergedSponsors.forEach((item) => {
+                const key = `${item?.name || ""}|${item?.link || ""}|${item?.imageSrc || ""}`;
+                if (seen.has(key)) return;
+                seen.add(key);
+                unique.push(item);
+            });
+
+            localStorage.setItem(SPONSORS_COLLECTION_KEY, JSON.stringify(unique));
+            appendPublicDebug(`Sponsors merge post-cloud: local=${localSponsorsBefore.length}, cloud=${cloudSponsorsAfter.length}, merged=${unique.length}`);
+        } else {
+            appendPublicDebug(`Sponsors cloud usados: ${cloudSponsorsAfter.length}`);
+        }
     } catch (error) {
         console.warn("Cloud sync pública falló. Continuamos con contenido local.", error);
+        appendPublicDebug("Cloud sync falló. Continuamos con localStorage.");
     }
 }
 
@@ -144,6 +166,8 @@ function appendPublicDebug(message) {
     host.textContent += `[${stamp}] ${String(message || "")}\n`;
     host.scrollTop = host.scrollHeight;
 }
+
+appendPublicDebug("Debug activo. Usa ?debug=1 para ver este panel.");
 
 function getLocalizedHeroText(value, lang) {
     if (!value) return "";
