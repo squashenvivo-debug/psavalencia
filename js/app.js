@@ -109,6 +109,42 @@ function resolveDynamicImage(pathValue, folder) {
     return `${folder}/${raw}`;
 }
 
+function shouldEnablePublicDebug() {
+    const fromUrl = new URLSearchParams(window.location.search).get("debug");
+    const fromStorage = localStorage.getItem("psaPublicDebug");
+    return fromUrl === "1" || fromStorage === "1";
+}
+
+function appendPublicDebug(message) {
+    if (!shouldEnablePublicDebug()) return;
+
+    let host = document.getElementById("publicDebugPanel");
+    if (!host) {
+        host = document.createElement("div");
+        host.id = "publicDebugPanel";
+        host.style.position = "fixed";
+        host.style.right = "10px";
+        host.style.bottom = "10px";
+        host.style.zIndex = "9999";
+        host.style.maxWidth = "380px";
+        host.style.maxHeight = "220px";
+        host.style.overflow = "auto";
+        host.style.padding = "10px";
+        host.style.fontSize = "12px";
+        host.style.lineHeight = "1.3";
+        host.style.color = "#cfe7ff";
+        host.style.background = "rgba(7,24,38,.92)";
+        host.style.border = "1px solid rgba(255,255,255,.25)";
+        host.style.borderRadius = "8px";
+        host.style.whiteSpace = "pre-wrap";
+        document.body.appendChild(host);
+    }
+
+    const stamp = new Date().toLocaleTimeString("es-ES", { hour12: false });
+    host.textContent += `[${stamp}] ${String(message || "")}\n`;
+    host.scrollTop = host.scrollHeight;
+}
+
 function getLocalizedHeroText(value, lang) {
     if (!value) return "";
     if (typeof value === "string") return value;
@@ -190,9 +226,11 @@ function initCountdown() {
     }
 
     const configuredMs = configuredTargetRaw ? new Date(configuredTargetRaw).getTime() : Number.NaN;
-    const targetDate = Number.isFinite(configuredMs) && configuredMs > nowAtInit
+    let targetDate = Number.isFinite(configuredMs) && configuredMs > nowAtInit
         ? configuredMs
         : fallbackMs;
+
+    appendPublicDebug(`Countdown config: raw='${configuredTargetRaw || "(vacío)"}', configuredMs=${configuredMs}, fallbackMs=${fallbackMs}, target=${targetDate}`);
 
     const days = document.getElementById("days");
     const hours = document.getElementById("hours");
@@ -205,14 +243,16 @@ function initCountdown() {
 
         const now = new Date().getTime();
 
-        const distance = targetDate - now;
+        let distance = targetDate - now;
 
         if (distance <= 0) {
-            days.textContent = "00";
-            hours.textContent = "00";
-            minutes.textContent = "00";
-            seconds.textContent = "00";
-            return;
+            const rollover = new Date(targetDate);
+            while (rollover.getTime() <= now) {
+                rollover.setFullYear(rollover.getFullYear() + 1);
+            }
+            targetDate = rollover.getTime();
+            distance = targetDate - now;
+            appendPublicDebug(`Countdown rollover aplicado. Nuevo target=${targetDate}`);
         }
 
         const d = Math.floor(distance / (1000 * 60 * 60 * 24));
@@ -224,6 +264,10 @@ function initCountdown() {
         hours.textContent = String(h).padStart(2, "0");
         minutes.textContent = String(m).padStart(2, "0");
         seconds.textContent = String(s).padStart(2, "0");
+
+        if (d === 0 && h === 0 && m === 0 && s === 0) {
+            appendPublicDebug(`Countdown en cero detectado con target=${targetDate}, now=${now}`);
+        }
 
     }
 
@@ -424,22 +468,30 @@ function loadSponsors() {
 
     const sponsors = readSponsorsCollection();
     if (!sponsors) {
+        appendPublicDebug("Sponsors: sin colección dinámica, se mantiene HTML base.");
         return;
     }
 
     if (sponsors.length === 0) {
         // Si la colección dinámica está vacía, mantenemos los sponsors base del HTML.
+        appendPublicDebug("Sponsors: colección dinámica vacía, se mantiene HTML base.");
         return;
     }
 
-    grid.innerHTML = sponsors.map((sponsor) => {
+    const existingNodes = Array.from(grid.querySelectorAll("a"));
+    const existingMarkup = existingNodes.map((node) => node.outerHTML);
+    const dynamicMarkup = sponsors.map((sponsor) => {
         const imageSrc = resolveSponsorImageSrc(sponsor.imageSrc);
         const safeName = escapeHtml(sponsor.name || "Sponsor");
         const safeLink = escapeHtml(sponsor.link || "#");
         const classes = escapeHtml(sponsor.cardClass || "sponsor-card");
 
         return `<a class="${classes}" href="${safeLink}" target="_blank" rel="noopener noreferrer"><img src="${imageSrc}" alt="${safeName}"></a>`;
-    }).join("");
+    });
+
+    const combined = [...existingMarkup, ...dynamicMarkup];
+    grid.innerHTML = Array.from(new Set(combined)).join("");
+    appendPublicDebug(`Sponsors: base=${existingMarkup.length}, dinámicos=${dynamicMarkup.length}, total=${grid.querySelectorAll("a").length}`);
 }
 
 

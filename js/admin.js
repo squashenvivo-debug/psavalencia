@@ -42,7 +42,7 @@ let adminSectionViewBound = false;
 let adminDiagnosticsInstalled = false;
 const ADMIN_DEFAULT_SECTION = String(window.ADMIN_DEFAULT_SECTION || "dashboard").trim() || "dashboard";
 const ADMIN_MULTI_PAGE_MODE = window.ADMIN_MULTI_PAGE_MODE !== false;
-const ADMIN_PAGE_VERSION = "20260726-14";
+const ADMIN_PAGE_VERSION = "20260726-15";
 const ADMIN_SECTION_IDS = [
     "tournament-mode-panel",
     "hero-admin-panel",
@@ -360,16 +360,24 @@ function showAuthScreen() {
 }
 
 async function startAdminModulesOnce() {
-    if (adminModulesStarted) return;
-    if (adminStartPromise) return adminStartPromise;
+    if (window.__PSA_ADMIN_MODULES_STARTED__) {
+        adminModulesStarted = true;
+        return window.__PSA_ADMIN_START_PROMISE__ || adminStartPromise;
+    }
 
-    adminStartPromise = (async () => {
+    if (window.__PSA_ADMIN_START_PROMISE__) {
+        adminStartPromise = window.__PSA_ADMIN_START_PROMISE__;
+        return adminStartPromise;
+    }
+
+    const bootPromise = (async () => {
         installAdminDiagnostics();
         bindAdminSectionView();
         await hydrateAdminStateFromCloud();
         installCloudStorageAutosync();
 
         adminModulesStarted = true;
+        window.__PSA_ADMIN_MODULES_STARTED__ = true;
         await runAdminModule("loadTournamentSettings", loadTournamentSettings);
         await runAdminModule("bindTournamentSettings", bindTournamentSettings);
         await runAdminModule("initHeroAdmin", initHeroAdmin);
@@ -382,11 +390,22 @@ async function startAdminModulesOnce() {
         await runAdminModule("initGalleryAdmin", initGalleryAdmin);
         await runAdminModule("initDrawAdmin", initDrawAdmin);
         appendAdminDebug("Panel admin inicializado.");
-    })().catch((error) => {
-        console.error("Error inicializando módulos de admin:", error);
-        setAdminAuthStatus("Panel cargado en modo local (sin sincronización cloud).", true);
-        appendAdminDebug(`Fallo global de arranque: ${errorToText(error)}`, "error");
     })();
+
+    bootPromise.then(
+        () => {
+            window.__PSA_ADMIN_START_PROMISE__ = bootPromise;
+        },
+        (error) => {
+            console.error("Error inicializando módulos de admin:", error);
+            setAdminAuthStatus("Panel cargado en modo local (sin sincronización cloud).", true);
+            appendAdminDebug(`Fallo global de arranque: ${errorToText(error)}`, "error");
+            window.__PSA_ADMIN_MODULES_STARTED__ = false;
+        }
+    );
+
+    adminStartPromise = bootPromise;
+    window.__PSA_ADMIN_START_PROMISE__ = bootPromise;
 
     return adminStartPromise;
 }
@@ -459,22 +478,25 @@ async function initAdminAuth() {
         });
     }
 
-    supabaseClient.auth.onAuthStateChange(async (_event, session) => {
-        if (session) {
-            showAdminApp();
-            await startAdminModulesOnce();
-        } else {
-            // Evita falsos negativos por eventos transitorios: verificamos sesión real.
-            const fallback = await supabaseClient.auth.getSession();
-            if (fallback?.data?.session) {
+    if (!window.__PSA_ADMIN_AUTH_SUBSCRIBED__) {
+        window.__PSA_ADMIN_AUTH_SUBSCRIBED__ = true;
+        supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+            if (session) {
                 showAdminApp();
                 await startAdminModulesOnce();
-                return;
-            }
+            } else {
+                // Evita falsos negativos por eventos transitorios: verificamos sesión real.
+                const fallback = await supabaseClient.auth.getSession();
+                if (fallback?.data?.session) {
+                    showAdminApp();
+                    await startAdminModulesOnce();
+                    return;
+                }
 
-            showAuthScreen();
-        }
-    });
+                showAuthScreen();
+            }
+        });
+    }
 
     const { data, error } = await supabaseClient.auth.getSession();
     if (error) {
@@ -2828,9 +2850,10 @@ function copyDrawJson() {
     };
 
     if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(text)
-            .then(() => updateDrawStatus("JSON copiado al portapapeles."))
-            .catch(() => fallbackCopy());
+        Promise.resolve(navigator.clipboard.writeText(text)).then(
+            () => updateDrawStatus("JSON copiado al portapapeles."),
+            () => fallbackCopy()
+        );
         return;
     }
 
@@ -3069,11 +3092,13 @@ document.addEventListener("DOMContentLoaded", () => {
     window.__PSA_ADMIN_BOOT_IN_PROGRESS__ = true;
     appendAdminDebug("Bootstrap admin iniciado.");
 
-    Promise.resolve(initAdminAuth())
-        .catch((error) => {
+    (async () => {
+        try {
+            await initAdminAuth();
+        } catch (error) {
             appendAdminDebug(`Fallo en initAdminAuth: ${errorToText(error)}`, "error");
-        })
-        .finally(() => {
+        } finally {
             window.__PSA_ADMIN_BOOT_IN_PROGRESS__ = false;
-        });
+        }
+    })();
 });
