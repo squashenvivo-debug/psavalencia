@@ -2255,19 +2255,26 @@ async function resetSponsorsCollection() {
 }
 
 async function recoverCurrentSponsors() {
+    const fromStorage = readSponsorsFromStorage();
+    if (Array.isArray(fromStorage) && fromStorage.length > 0) {
+        updateSponsorsStatus(`Sponsors actuales cargados para edición: ${fromStorage.length}.`);
+        renderSponsorsAdminList();
+        return;
+    }
+
     const fromTemplate = await readSponsorsFromIndexTemplate();
     if (!Array.isArray(fromTemplate) || fromTemplate.length === 0) {
-        updateSponsorsStatus("No se pudieron recuperar sponsors actuales de la web.");
+        updateSponsorsStatus("No se pudieron cargar sponsors actuales de la web.");
         return;
     }
 
     const saved = saveSponsorsToStorage(fromTemplate);
     if (!saved) {
-        updateSponsorsStatus("No se pudo guardar la recuperación de sponsors.");
+        updateSponsorsStatus("No se pudieron cargar sponsors actuales para edición.");
         return;
     }
 
-    updateSponsorsStatus(`Sponsors actuales recuperados: ${fromTemplate.length}.`);
+    updateSponsorsStatus(`Sponsors actuales cargados para edición: ${fromTemplate.length}.`);
     renderSponsorsAdminList();
 }
 
