@@ -166,31 +166,6 @@ padding:60px;
 
 }
 
-.admin-debug-panel{
-display:block;
-max-width:980px;
-background:#0E2436;
-border:1px solid rgba(255,255,255,.2);
-border-radius:14px;
-padding:16px;
-margin-bottom:18px;
-}
-
-.admin-debug-log{
-margin-top:12px;
-max-height:220px;
-overflow:auto;
-padding:10px;
-border-radius:10px;
-background:#081826;
-border:1px solid #2D4861;
-color:#b8d4ee;
-font-size:.82rem;
-line-height:1.35;
-white-space:pre-wrap;
-word-break:break-word;
-}
-
 .admin-dashboard-intro.is-hidden{
 display:none;
 }
@@ -291,12 +266,6 @@ margin-bottom:14px;
 .admin-card textarea{
 resize:vertical;
 min-height:120px;
-}
-
-#drawJsonEditor{
-min-height:260px;
-font-family:"Courier New", Courier, monospace;
-line-height:1.35;
 }
 
 #tournamentApiUrl,
@@ -565,12 +534,6 @@ background:#10293E;
 border:1px solid #2D4861;
 border-radius:12px;
 padding:12px;
-}
-
-.sponsor-file-name{
-margin:8px 0 6px;
-font-size:.8rem;
-word-break:break-all;
 }
 
 .gallery-admin-head{

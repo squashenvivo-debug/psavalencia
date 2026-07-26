@@ -29,7 +29,6 @@ const CLOUD_SYNC_KEYS = [
 ];
 
 let drawState = null;
-let drawBaseState = null;
 let pendingGalleryPhotos = [];
 let galleryEditMode = false;
 let pendingNewsImageSrc = "";
@@ -39,10 +38,8 @@ let pendingHeroBackgroundSrc = "";
 let adminStartPromise = null;
 let storageCloudPatchInstalled = false;
 let adminSectionViewBound = false;
-let adminDiagnosticsInstalled = false;
 const ADMIN_DEFAULT_SECTION = String(window.ADMIN_DEFAULT_SECTION || "dashboard").trim() || "dashboard";
 const ADMIN_MULTI_PAGE_MODE = window.ADMIN_MULTI_PAGE_MODE !== false;
-const ADMIN_PAGE_VERSION = "20260726-16";
 const ADMIN_SECTION_IDS = [
     "tournament-mode-panel",
     "hero-admin-panel",
@@ -68,109 +65,6 @@ const ADMIN_SECTION_TO_PAGE = {
     "draw-schedule-panel": "admin-draw-schedule.html",
     "draw-results-panel": "admin-draw-results.html"
 };
-
-function getAdminDebugPanel() {
-    let panel = document.getElementById("adminDebugPanel");
-    if (panel) return panel;
-
-    panel = document.createElement("section");
-    panel.id = "adminDebugPanel";
-    panel.className = "admin-debug-panel";
-    panel.innerHTML = `
-        <h2>Diagnóstico Admin</h2>
-        <p class="admin-muted">Registro en vivo de botones y errores.</p>
-        <div class="results-actions">
-            <button id="adminDebugClear" type="button" class="btn-secondary-admin">Limpiar registro</button>
-        </div>
-        <pre id="adminDebugLog" class="admin-debug-log" aria-live="polite"></pre>
-    `;
-
-    const content = document.querySelector("main.content");
-    if (content) {
-        content.insertBefore(panel, content.firstChild);
-    } else {
-        document.body.appendChild(panel);
-    }
-
-    const clearBtn = panel.querySelector("#adminDebugClear");
-    const logEl = panel.querySelector("#adminDebugLog");
-    if (clearBtn && logEl) {
-        clearBtn.addEventListener("click", () => {
-            logEl.textContent = "";
-        });
-    }
-
-    return panel;
-}
-
-function appendAdminDebug(message, level = "info") {
-    const panel = getAdminDebugPanel();
-    const logEl = panel?.querySelector("#adminDebugLog");
-    const now = new Date();
-    const stamp = now.toLocaleTimeString("es-ES", { hour12: false });
-    const line = `[${stamp}] [${String(level || "info").toUpperCase()}] ${String(message || "")}`;
-
-    if (level === "error") {
-        console.error(line);
-    } else if (level === "warn") {
-        console.warn(line);
-    } else {
-        console.log(line);
-    }
-
-    if (!logEl) return;
-    logEl.textContent += `${line}\n`;
-    logEl.scrollTop = logEl.scrollHeight;
-}
-
-function errorToText(errorLike) {
-    if (!errorLike) return "Error desconocido";
-    if (typeof errorLike === "string") return errorLike;
-    if (errorLike instanceof Error) return `${errorLike.name}: ${errorLike.message}`;
-    try {
-        return JSON.stringify(errorLike);
-    } catch (_error) {
-        return String(errorLike);
-    }
-}
-
-function installAdminDiagnostics() {
-    if (adminDiagnosticsInstalled) return;
-    adminDiagnosticsInstalled = true;
-
-    getAdminDebugPanel();
-    appendAdminDebug("Diagnóstico activo.");
-
-    document.addEventListener("click", (event) => {
-        const button = event.target instanceof Element ? event.target.closest("button") : null;
-        if (!button) return;
-
-        const label = String(button.textContent || "").trim() || "(sin texto)";
-        const id = String(button.id || "").trim();
-        appendAdminDebug(`Click en botón: ${label}${id ? ` [id=${id}]` : ""}`);
-    });
-
-    window.addEventListener("error", (event) => {
-        const detail = event?.error ? errorToText(event.error) : String(event?.message || "Error JS");
-        appendAdminDebug(`Error JS: ${detail}`, "error");
-    });
-
-    window.addEventListener("unhandledrejection", (event) => {
-        appendAdminDebug(`Promise rechazada: ${errorToText(event?.reason)}`, "error");
-    });
-}
-
-async function runAdminModule(label, moduleFn) {
-    try {
-        const result = moduleFn();
-        if (result && typeof result.then === "function") {
-            await result;
-        }
-        appendAdminDebug(`Módulo OK: ${label}`);
-    } catch (error) {
-        appendAdminDebug(`Módulo ERROR (${label}): ${errorToText(error)}`, "error");
-    }
-}
 
 function getSectionFromHash() {
     const raw = (window.location.hash || "").replace(/^#/, "").trim();
@@ -198,7 +92,7 @@ function configureAdminMenuLinks() {
         const targetPage = ADMIN_SECTION_TO_PAGE[section] || "admin-dashboard.html";
 
         if (ADMIN_MULTI_PAGE_MODE) {
-            link.setAttribute("href", `${targetPage}?v=${ADMIN_PAGE_VERSION}`);
+            link.setAttribute("href", targetPage);
         } else {
             link.setAttribute("href", section === "dashboard" ? "#dashboard" : `#${section}`);
         }
@@ -282,16 +176,9 @@ function installCloudStorageAutosync() {
         originalSetItem(key, value);
 
         if (syncKeys.has(key)) {
-            try {
-                const maybePromise = cloud.saveLocalStorageKeyToCloud(key);
-                if (maybePromise && typeof maybePromise.then === "function") {
-                    Promise.resolve(maybePromise).catch(() => {
-                        // No interrumpimos UX de admin si la nube falla.
-                    });
-                }
-            } catch (_error) {
+            cloud.saveLocalStorageKeyToCloud(key).catch(() => {
                 // No interrumpimos UX de admin si la nube falla.
-            }
+            });
         }
     };
 
@@ -299,16 +186,9 @@ function installCloudStorageAutosync() {
         originalRemoveItem(key);
 
         if (syncKeys.has(key)) {
-            try {
-                const maybePromise = cloud.removeLocalStorageKeyFromCloud(key);
-                if (maybePromise && typeof maybePromise.then === "function") {
-                    Promise.resolve(maybePromise).catch(() => {
-                        // No interrumpimos UX de admin si la nube falla.
-                    });
-                }
-            } catch (_error) {
+            cloud.removeLocalStorageKeyFromCloud(key).catch(() => {
                 // No interrumpimos UX de admin si la nube falla.
-            }
+            });
         }
     };
 
@@ -319,11 +199,7 @@ async function hydrateAdminStateFromCloud() {
     const cloud = window.PSACloudStore;
     if (!cloud?.isReady?.()) return;
 
-    try {
-        await cloud.syncLocalStorageFromCloud(CLOUD_SYNC_KEYS);
-    } catch (error) {
-        console.warn("No se pudo hidratar estado desde la nube. Continuamos en modo local.", error);
-    }
+    await cloud.syncLocalStorageFromCloud(CLOUD_SYNC_KEYS);
 }
 
 function setAdminAuthStatus(message, isError = false) {
@@ -360,52 +236,27 @@ function showAuthScreen() {
 }
 
 async function startAdminModulesOnce() {
-    if (window.__PSA_ADMIN_MODULES_STARTED__) {
-        adminModulesStarted = true;
-        return window.__PSA_ADMIN_START_PROMISE__ || adminStartPromise;
-    }
+    if (adminModulesStarted) return;
+    if (adminStartPromise) return adminStartPromise;
 
-    if (window.__PSA_ADMIN_START_PROMISE__) {
-        adminStartPromise = window.__PSA_ADMIN_START_PROMISE__;
-        return adminStartPromise;
-    }
-
-    const bootPromise = (async () => {
-        installAdminDiagnostics();
+    adminStartPromise = (async () => {
         bindAdminSectionView();
         await hydrateAdminStateFromCloud();
         installCloudStorageAutosync();
 
         adminModulesStarted = true;
-        window.__PSA_ADMIN_MODULES_STARTED__ = true;
-        await runAdminModule("loadTournamentSettings", loadTournamentSettings);
-        await runAdminModule("bindTournamentSettings", bindTournamentSettings);
-        await runAdminModule("initHeroAdmin", initHeroAdmin);
-        await runAdminModule("initTournamentManualAdmin", initTournamentManualAdmin);
-        await runAdminModule("loadLiveSettings", loadLiveSettings);
-        await runAdminModule("bindLiveSettings", bindLiveSettings);
-        await runAdminModule("initPlayersAdmin", initPlayersAdmin);
-        await runAdminModule("initSponsorsAdmin", initSponsorsAdmin);
-        await runAdminModule("initNewsAdmin", initNewsAdmin);
-        await runAdminModule("initGalleryAdmin", initGalleryAdmin);
-        await runAdminModule("initDrawAdmin", initDrawAdmin);
-        appendAdminDebug("Panel admin inicializado.");
+        loadTournamentSettings();
+        bindTournamentSettings();
+        initHeroAdmin();
+        initTournamentManualAdmin();
+        loadLiveSettings();
+        bindLiveSettings();
+        initPlayersAdmin();
+        initSponsorsAdmin();
+        initNewsAdmin();
+        initGalleryAdmin();
+        await initDrawAdmin();
     })();
-
-    bootPromise.then(
-        () => {
-            window.__PSA_ADMIN_START_PROMISE__ = bootPromise;
-        },
-        (error) => {
-            console.error("Error inicializando módulos de admin:", error);
-            setAdminAuthStatus("Panel cargado en modo local (sin sincronización cloud).", true);
-            appendAdminDebug(`Fallo global de arranque: ${errorToText(error)}`, "error");
-            window.__PSA_ADMIN_MODULES_STARTED__ = false;
-        }
-    );
-
-    adminStartPromise = bootPromise;
-    window.__PSA_ADMIN_START_PROMISE__ = bootPromise;
 
     return adminStartPromise;
 }
@@ -478,25 +329,22 @@ async function initAdminAuth() {
         });
     }
 
-    if (!window.__PSA_ADMIN_AUTH_SUBSCRIBED__) {
-        window.__PSA_ADMIN_AUTH_SUBSCRIBED__ = true;
-        supabaseClient.auth.onAuthStateChange(async (_event, session) => {
-            if (session) {
+    supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+        if (session) {
+            showAdminApp();
+            await startAdminModulesOnce();
+        } else {
+            // Evita falsos negativos por eventos transitorios: verificamos sesión real.
+            const fallback = await supabaseClient.auth.getSession();
+            if (fallback?.data?.session) {
                 showAdminApp();
                 await startAdminModulesOnce();
-            } else {
-                // Evita falsos negativos por eventos transitorios: verificamos sesión real.
-                const fallback = await supabaseClient.auth.getSession();
-                if (fallback?.data?.session) {
-                    showAdminApp();
-                    await startAdminModulesOnce();
-                    return;
-                }
-
-                showAuthScreen();
+                return;
             }
-        });
-    }
+
+            showAuthScreen();
+        }
+    });
 
     const { data, error } = await supabaseClient.auth.getSession();
     if (error) {
@@ -1034,156 +882,156 @@ function initTournamentManualAdmin() {
     }
     if (resetButton) {
         resetButton.addEventListener("click", resetTournamentManualContent);
+
+    function updateHeroStatus(message) {
+        const el = document.getElementById("heroAdminStatus");
+        if (!el) return;
+        el.textContent = message;
+    }
+
+    function normalizeHeroSettings(payload) {
+        if (!payload || typeof payload !== "object") return null;
+
+        return {
+            eventLabel: normalizeLocalizedText(payload.eventLabel),
+            eventTitle: normalizeLocalizedText(payload.eventTitle),
+            eventLocation: normalizeLocalizedText(payload.eventLocation),
+            countdownDate: String(payload.countdownDate || "").trim(),
+            backgroundImage: String(payload.backgroundImage || "").trim(),
+            updatedAt: payload.updatedAt || new Date().toISOString()
+        };
+    }
+
+    function readHeroSettings() {
+        try {
+            const raw = localStorage.getItem(HERO_SETTINGS_KEY);
+            if (!raw) return null;
+            return normalizeHeroSettings(JSON.parse(raw));
+        } catch (error) {
+            return null;
+        }
+    }
+
+    function toDateTimeLocalInputValue(value) {
+        const dt = new Date(value || "");
+        if (Number.isNaN(dt.getTime())) return "";
+        const pad = (num) => String(num).padStart(2, "0");
+        const yyyy = dt.getFullYear();
+        const mm = pad(dt.getMonth() + 1);
+        const dd = pad(dt.getDate());
+        const hh = pad(dt.getHours());
+        const mi = pad(dt.getMinutes());
+        return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+    }
+
+    function fromDateTimeLocalInputValue(value) {
+        const raw = String(value || "").trim();
+        if (!raw) return "";
+        const dt = new Date(raw);
+        if (Number.isNaN(dt.getTime())) return "";
+        return dt.toISOString();
+    }
+
+    function fillHeroInputs() {
+        const saved = readHeroSettings();
+
+        const labelInput = document.getElementById("heroEventLabel_es");
+        const titleInput = document.getElementById("heroEventTitle_es");
+        const locationInput = document.getElementById("heroEventLocation_es");
+        const countdownInput = document.getElementById("heroCountdownDate");
+        const bgPathInput = document.getElementById("heroBackgroundPath");
+
+        if (labelInput) labelInput.value = saved?.eventLabel?.es || "";
+        if (titleInput) titleInput.value = saved?.eventTitle?.es || "";
+        if (locationInput) locationInput.value = saved?.eventLocation?.es || "";
+        if (countdownInput) countdownInput.value = toDateTimeLocalInputValue(saved?.countdownDate || "");
+        if (bgPathInput) bgPathInput.value = saved?.backgroundImage || "";
+    }
+
+    async function onHeroBackgroundChange(event) {
+        const file = event.target.files?.[0];
+        if (!file) {
+            pendingHeroBackgroundSrc = "";
+            return;
+        }
+
+        pendingHeroBackgroundSrc = await readFileAsDataUrl(file);
+    }
+
+    async function saveHeroSettings() {
+        const labelEs = (document.getElementById("heroEventLabel_es")?.value || "").trim();
+        const titleEs = (document.getElementById("heroEventTitle_es")?.value || "").trim();
+        const locationEs = (document.getElementById("heroEventLocation_es")?.value || "").trim();
+        const countdownRaw = (document.getElementById("heroCountdownDate")?.value || "").trim();
+        const bgPath = (document.getElementById("heroBackgroundPath")?.value || "").trim();
+
+        if (!labelEs || !titleEs || !locationEs) {
+            updateHeroStatus("Etiqueta, título y ubicación en español son obligatorios.");
+            return;
+        }
+
+        updateHeroStatus("Traduciendo textos del hero...");
+
+        const [eventLabel, eventTitle, eventLocation] = await Promise.all([
+            buildLocalizedFromSpanish(labelEs),
+            buildLocalizedFromSpanish(titleEs),
+            buildLocalizedFromSpanish(locationEs)
+        ]);
+
+        const countdownDate = fromDateTimeLocalInputValue(countdownRaw);
+        const backgroundImage = pendingHeroBackgroundSrc || bgPath;
+
+        const payload = {
+            eventLabel,
+            eventTitle,
+            eventLocation,
+            countdownDate,
+            backgroundImage,
+            updatedAt: new Date().toISOString()
+        };
+
+        localStorage.setItem(HERO_SETTINGS_KEY, JSON.stringify(payload));
+        pendingHeroBackgroundSrc = "";
+        const fileInput = document.getElementById("heroBackgroundFile");
+        if (fileInput) fileInput.value = "";
+
+        updateHeroStatus("Hero guardado y traducido para todos los idiomas.");
+    }
+
+    function resetHeroSettings() {
+        localStorage.removeItem(HERO_SETTINGS_KEY);
+        pendingHeroBackgroundSrc = "";
+        fillHeroInputs();
+
+        const fileInput = document.getElementById("heroBackgroundFile");
+        if (fileInput) fileInput.value = "";
+
+        updateHeroStatus("Hero restaurado a la configuración base.");
+    }
+
+    function initHeroAdmin() {
+        const panel = document.getElementById("hero-admin-panel");
+        if (!panel) return;
+
+        const saveButton = document.getElementById("saveHeroSettings");
+        const resetButton = document.getElementById("resetHeroSettings");
+        const bgFileInput = document.getElementById("heroBackgroundFile");
+
+        if (saveButton) {
+            saveButton.addEventListener("click", saveHeroSettings);
+        }
+        if (resetButton) {
+            resetButton.addEventListener("click", resetHeroSettings);
+        }
+        if (bgFileInput) {
+            bgFileInput.addEventListener("change", onHeroBackgroundChange);
+        }
+
+        fillHeroInputs();
+    }
     }
 
     fillTournamentManualInputs();
-}
-
-function updateHeroStatus(message) {
-    const el = document.getElementById("heroAdminStatus");
-    if (!el) return;
-    el.textContent = message;
-}
-
-function normalizeHeroSettings(payload) {
-    if (!payload || typeof payload !== "object") return null;
-
-    return {
-        eventLabel: normalizeLocalizedText(payload.eventLabel),
-        eventTitle: normalizeLocalizedText(payload.eventTitle),
-        eventLocation: normalizeLocalizedText(payload.eventLocation),
-        countdownDate: String(payload.countdownDate || "").trim(),
-        backgroundImage: String(payload.backgroundImage || "").trim(),
-        updatedAt: payload.updatedAt || new Date().toISOString()
-    };
-}
-
-function readHeroSettings() {
-    try {
-        const raw = localStorage.getItem(HERO_SETTINGS_KEY);
-        if (!raw) return null;
-        return normalizeHeroSettings(JSON.parse(raw));
-    } catch (error) {
-        return null;
-    }
-}
-
-function toDateTimeLocalInputValue(value) {
-    const dt = new Date(value || "");
-    if (Number.isNaN(dt.getTime())) return "";
-    const pad = (num) => String(num).padStart(2, "0");
-    const yyyy = dt.getFullYear();
-    const mm = pad(dt.getMonth() + 1);
-    const dd = pad(dt.getDate());
-    const hh = pad(dt.getHours());
-    const mi = pad(dt.getMinutes());
-    return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
-}
-
-function fromDateTimeLocalInputValue(value) {
-    const raw = String(value || "").trim();
-    if (!raw) return "";
-    const dt = new Date(raw);
-    if (Number.isNaN(dt.getTime())) return "";
-    return dt.toISOString();
-}
-
-function fillHeroInputs() {
-    const saved = readHeroSettings();
-
-    const labelInput = document.getElementById("heroEventLabel_es");
-    const titleInput = document.getElementById("heroEventTitle_es");
-    const locationInput = document.getElementById("heroEventLocation_es");
-    const countdownInput = document.getElementById("heroCountdownDate");
-    const bgPathInput = document.getElementById("heroBackgroundPath");
-
-    if (labelInput) labelInput.value = saved?.eventLabel?.es || "";
-    if (titleInput) titleInput.value = saved?.eventTitle?.es || "";
-    if (locationInput) locationInput.value = saved?.eventLocation?.es || "";
-    if (countdownInput) countdownInput.value = toDateTimeLocalInputValue(saved?.countdownDate || "");
-    if (bgPathInput) bgPathInput.value = saved?.backgroundImage || "";
-}
-
-async function onHeroBackgroundChange(event) {
-    const file = event.target.files?.[0];
-    if (!file) {
-        pendingHeroBackgroundSrc = "";
-        return;
-    }
-
-    pendingHeroBackgroundSrc = await readFileAsDataUrl(file);
-}
-
-async function saveHeroSettings() {
-    const labelEs = (document.getElementById("heroEventLabel_es")?.value || "").trim();
-    const titleEs = (document.getElementById("heroEventTitle_es")?.value || "").trim();
-    const locationEs = (document.getElementById("heroEventLocation_es")?.value || "").trim();
-    const countdownRaw = (document.getElementById("heroCountdownDate")?.value || "").trim();
-    const bgPath = (document.getElementById("heroBackgroundPath")?.value || "").trim();
-
-    if (!labelEs || !titleEs || !locationEs) {
-        updateHeroStatus("Etiqueta, título y ubicación en español son obligatorios.");
-        return;
-    }
-
-    updateHeroStatus("Traduciendo textos del hero...");
-
-    const [eventLabel, eventTitle, eventLocation] = await Promise.all([
-        buildLocalizedFromSpanish(labelEs),
-        buildLocalizedFromSpanish(titleEs),
-        buildLocalizedFromSpanish(locationEs)
-    ]);
-
-    const countdownDate = fromDateTimeLocalInputValue(countdownRaw);
-    const backgroundImage = pendingHeroBackgroundSrc || bgPath;
-
-    const payload = {
-        eventLabel,
-        eventTitle,
-        eventLocation,
-        countdownDate,
-        backgroundImage,
-        updatedAt: new Date().toISOString()
-    };
-
-    localStorage.setItem(HERO_SETTINGS_KEY, JSON.stringify(payload));
-    pendingHeroBackgroundSrc = "";
-    const fileInput = document.getElementById("heroBackgroundFile");
-    if (fileInput) fileInput.value = "";
-
-    updateHeroStatus("Hero guardado y traducido para todos los idiomas.");
-}
-
-function resetHeroSettings() {
-    localStorage.removeItem(HERO_SETTINGS_KEY);
-    pendingHeroBackgroundSrc = "";
-    fillHeroInputs();
-
-    const fileInput = document.getElementById("heroBackgroundFile");
-    if (fileInput) fileInput.value = "";
-
-    updateHeroStatus("Hero restaurado a la configuración base.");
-}
-
-function initHeroAdmin() {
-    const panel = document.getElementById("hero-admin-panel");
-    if (!panel) return;
-
-    const saveButton = document.getElementById("saveHeroSettings");
-    const resetButton = document.getElementById("resetHeroSettings");
-    const bgFileInput = document.getElementById("heroBackgroundFile");
-
-    if (saveButton) {
-        saveButton.addEventListener("click", saveHeroSettings);
-    }
-    if (resetButton) {
-        resetButton.addEventListener("click", resetHeroSettings);
-    }
-    if (bgFileInput) {
-        bgFileInput.addEventListener("change", onHeroBackgroundChange);
-    }
-
-    fillHeroInputs();
 }
 
 function normalizeGallery(gallery) {
@@ -1926,14 +1774,6 @@ function normalizeSponsorItem(item) {
     };
 }
 
-function getFileNameFromPath(pathValue) {
-    const raw = String(pathValue || "").trim();
-    if (!raw) return "(sin archivo)";
-    const cleaned = raw.split("?")[0].split("#")[0];
-    const filename = cleaned.split("/").pop() || cleaned;
-    return filename || "(sin archivo)";
-}
-
 function readPlayersFromStorage() {
     try {
         const raw = localStorage.getItem(PLAYERS_COLLECTION_KEY);
@@ -1987,60 +1827,6 @@ function readSponsorsFromStorage() {
     }
 }
 
-let sponsorsTemplateCache = null;
-
-function filenameToSponsorName(src, fallbackIndex) {
-    const raw = String(src || "").trim();
-    if (!raw) return `Sponsor ${String(fallbackIndex + 1).padStart(2, "0")}`;
-
-    const file = raw.split("/").pop() || "";
-    const base = file.replace(/\.[^.]+$/, "");
-    const cleaned = base.replace(/[-_]+/g, " ").trim();
-    if (!cleaned) return `Sponsor ${String(fallbackIndex + 1).padStart(2, "0")}`;
-
-    return cleaned
-        .split(" ")
-        .map((word) => word ? `${word.charAt(0).toUpperCase()}${word.slice(1)}` : "")
-        .join(" ");
-}
-
-async function readSponsorsFromIndexTemplate() {
-    if (Array.isArray(sponsorsTemplateCache)) {
-        return sponsorsTemplateCache;
-    }
-
-    try {
-        const response = await fetch("index.html", { cache: "no-store" });
-        if (!response.ok) return [];
-
-        const html = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, "text/html");
-        const anchors = Array.from(doc.querySelectorAll("#sponsors .sponsors-grid a"));
-
-        const parsed = anchors.map((anchor, index) => {
-            const img = anchor.querySelector("img");
-            const imageSrc = normalizeSponsorImagePath(img?.getAttribute("src") || "");
-            const alt = String(img?.getAttribute("alt") || "").trim();
-            const link = String(anchor.getAttribute("href") || "#").trim() || "#";
-            const cardClass = String(anchor.getAttribute("class") || "sponsor-card").trim() || "sponsor-card";
-
-            return normalizeSponsorItem({
-                id: `sponsor_template_${index}`,
-                name: alt || filenameToSponsorName(imageSrc, index),
-                link,
-                imageSrc,
-                cardClass
-            });
-        }).filter((item) => !!item.imageSrc);
-
-        sponsorsTemplateCache = parsed;
-        return parsed;
-    } catch (error) {
-        return [];
-    }
-}
-
 function saveSponsorsToStorage(collection) {
     try {
         localStorage.setItem(SPONSORS_COLLECTION_KEY, JSON.stringify(collection));
@@ -2050,38 +1836,11 @@ function saveSponsorsToStorage(collection) {
     }
 }
 
-async function syncSponsorsToCloud(collection) {
-    const cloud = window.PSACloudStore;
-    if (!cloud?.isReady?.()) {
-        appendAdminDebug("Sponsors cloud: no disponible, guardado solo local.", "warn");
-        return { ok: false, reason: "cloud-not-ready" };
-    }
-
-    try {
-        const result = await cloud.pushKey(SPONSORS_COLLECTION_KEY, collection);
-        if (!result?.ok) {
-            appendAdminDebug(`Sponsors cloud: error ${String(result?.reason || "desconocido")}`, "warn");
-        } else {
-            appendAdminDebug(`Sponsors cloud: sincronizado (${collection.length}).`);
-        }
-        return result || { ok: false, reason: "unknown" };
-    } catch (error) {
-        appendAdminDebug(`Sponsors cloud: excepción ${errorToText(error)}`, "error");
-        return { ok: false, reason: errorToText(error) };
-    }
-}
-
-async function getSponsorsCollectionForAdmin() {
+function getSponsorsCollectionForAdmin() {
     const stored = readSponsorsFromStorage();
     if (Array.isArray(stored) && stored.length > 0) {
         return stored;
     }
-
-    const fromTemplate = await readSponsorsFromIndexTemplate();
-    if (Array.isArray(fromTemplate) && fromTemplate.length > 0) {
-        return fromTemplate;
-    }
-
     return getDefaultSponsors();
 }
 
@@ -2142,24 +1901,14 @@ async function createSponsorFromInputs() {
     const imagePath = normalizeSponsorImagePath((document.getElementById("newSponsorImagePath")?.value || "").trim());
     const imageFile = document.getElementById("newSponsorImage")?.files?.[0] || null;
 
-    const fallbackName = imageFile
-        ? filenameToSponsorName(imageFile.name, 0)
-        : filenameToSponsorName(imagePath, 0);
-    const finalName = name || fallbackName;
-
-    if (!finalName) {
-        updateSponsorsStatus("Escribe un nombre o sube una imagen para generar uno automáticamente.");
+    if (!name) {
+        updateSponsorsStatus("El nombre del sponsor es obligatorio.");
         return null;
     }
 
     let imageSrc = imagePath;
     if (imageFile) {
-        try {
-            imageSrc = await readFileAsDataUrl(imageFile);
-        } catch (error) {
-            updateSponsorsStatus("No se pudo procesar la imagen seleccionada.");
-            return null;
-        }
+        imageSrc = await readFileAsDataUrl(imageFile);
     }
 
     if (!imageSrc) {
@@ -2169,7 +1918,7 @@ async function createSponsorFromInputs() {
 
     return normalizeSponsorItem({
         id: createId("sponsor"),
-        name: finalName,
+        name,
         link: link || "#",
         imageSrc,
         cardClass: "sponsor-card"
@@ -2295,7 +2044,7 @@ async function renderSponsorsAdminList() {
     const host = document.getElementById("sponsorsAdminList");
     if (!host) return;
 
-    const sponsors = await getSponsorsCollectionForAdmin();
+    const sponsors = getSponsorsCollectionForAdmin();
     if (sponsors.length === 0) {
         host.innerHTML = '<p class="admin-muted">No hay sponsors cargados.</p>';
         return;
@@ -2304,7 +2053,6 @@ async function renderSponsorsAdminList() {
     host.innerHTML = sponsors.map((sponsor) => `
         <article class="gallery-admin-card" data-sponsor-id="${sponsor.id}">
             <img class="gallery-thumb" src="${escapeHtml(sponsor.imageSrc)}" alt="${escapeHtml(sponsor.name)}">
-            <p class="admin-muted sponsor-file-name">Archivo: ${escapeHtml(getFileNameFromPath(sponsor.imageSrc))}</p>
             <label class="field-label" for="sponsorName_${sponsor.id}">Nombre</label>
             <input id="sponsorName_${sponsor.id}" type="text" value="${escapeHtml(sponsor.name)}">
             <label class="field-label" for="sponsorLink_${sponsor.id}">Enlace</label>
@@ -2323,7 +2071,7 @@ async function renderSponsorsAdminList() {
     host.querySelectorAll("[data-action='save-sponsor']").forEach((button) => {
         button.addEventListener("click", async () => {
             const sponsorId = button.getAttribute("data-sponsor-id");
-            const collection = await getSponsorsCollectionForAdmin();
+            const collection = getSponsorsCollectionForAdmin();
             const sponsor = collection.find((entry) => entry.id === sponsorId);
             if (!sponsor) return;
 
@@ -2362,17 +2110,15 @@ async function renderSponsorsAdminList() {
                 return;
             }
 
-            await syncSponsorsToCloud(collection);
-
             updateSponsorsStatus("Sponsor actualizado.");
             renderSponsorsAdminList();
         });
     });
 
     host.querySelectorAll("[data-action='delete-sponsor']").forEach((button) => {
-        button.addEventListener("click", async () => {
+        button.addEventListener("click", () => {
             const sponsorId = button.getAttribute("data-sponsor-id");
-            const collection = await getSponsorsCollectionForAdmin();
+            const collection = getSponsorsCollectionForAdmin();
             const next = collection.filter((entry) => entry.id !== sponsorId);
 
             const saved = saveSponsorsToStorage(next);
@@ -2380,8 +2126,6 @@ async function renderSponsorsAdminList() {
                 updateSponsorsStatus("No se pudo borrar el sponsor.");
                 return;
             }
-
-            await syncSponsorsToCloud(next);
 
             updateSponsorsStatus("Sponsor eliminado.");
             renderSponsorsAdminList();
@@ -2414,41 +2158,30 @@ async function saveNewPlayer() {
 }
 
 async function saveNewSponsor() {
-    try {
-        updateSponsorsStatus("Añadiendo sponsor...");
+    const newSponsor = await createSponsorFromInputs();
+    if (!newSponsor) return;
 
-        const newSponsor = await createSponsorFromInputs();
-        if (!newSponsor) return;
+    const collection = getSponsorsCollectionForAdmin();
+    collection.push(newSponsor);
 
-        const collection = await getSponsorsCollectionForAdmin();
-        collection.push(newSponsor);
-
-        const saved = saveSponsorsToStorage(collection);
-        if (!saved) {
-            updateSponsorsStatus("No se pudo guardar el nuevo sponsor (almacenamiento lleno). Prueba con una imagen más ligera.");
-            return;
-        }
-
-        const cloudResult = await syncSponsorsToCloud(collection);
-
-        ["newSponsorName", "newSponsorLink", "newSponsorImagePath"].forEach((id) => {
-            const input = document.getElementById(id);
-            if (input) input.value = "";
-        });
-        const imageInput = document.getElementById("newSponsorImage");
-        if (imageInput) imageInput.value = "";
-
-        updateSponsorsStatus(cloudResult?.ok
-            ? "Sponsor añadido correctamente. Visible en toda la web."
-            : "Sponsor añadido en local, pero falló sync cloud. Revisa diagnóstico.");
-        renderSponsorsAdminList();
-    } catch (error) {
-        console.error("Error añadiendo sponsor:", error);
-        updateSponsorsStatus("Error al añadir sponsor. Revisa nombre, imagen y conexión.");
+    const saved = saveSponsorsToStorage(collection);
+    if (!saved) {
+        updateSponsorsStatus("No se pudo guardar el nuevo sponsor.");
+        return;
     }
+
+    ["newSponsorName", "newSponsorLink", "newSponsorImagePath"].forEach((id) => {
+        const input = document.getElementById(id);
+        if (input) input.value = "";
+    });
+    const imageInput = document.getElementById("newSponsorImage");
+    if (imageInput) imageInput.value = "";
+
+    updateSponsorsStatus("Sponsor añadido correctamente.");
+    renderSponsorsAdminList();
 }
 
-async function resetSponsorsCollection() {
+function resetSponsorsCollection() {
     const defaults = getDefaultSponsors();
     const saved = saveSponsorsToStorage(defaults);
     if (!saved) {
@@ -2456,35 +2189,7 @@ async function resetSponsorsCollection() {
         return;
     }
 
-    await syncSponsorsToCloud(defaults);
-
     updateSponsorsStatus("Sponsors base restaurados.");
-    renderSponsorsAdminList();
-}
-
-async function recoverCurrentSponsors() {
-    const fromStorage = readSponsorsFromStorage();
-    if (Array.isArray(fromStorage) && fromStorage.length > 0) {
-        updateSponsorsStatus(`Sponsors actuales cargados para edición: ${fromStorage.length}.`);
-        renderSponsorsAdminList();
-        return;
-    }
-
-    const fromTemplate = await readSponsorsFromIndexTemplate();
-    if (!Array.isArray(fromTemplate) || fromTemplate.length === 0) {
-        updateSponsorsStatus("No se pudieron cargar sponsors actuales de la web.");
-        return;
-    }
-
-    const saved = saveSponsorsToStorage(fromTemplate);
-    if (!saved) {
-        updateSponsorsStatus("No se pudieron cargar sponsors actuales para edición.");
-        return;
-    }
-
-    await syncSponsorsToCloud(fromTemplate);
-
-    updateSponsorsStatus(`Sponsors actuales cargados para edición: ${fromTemplate.length}.`);
     renderSponsorsAdminList();
 }
 
@@ -2494,36 +2199,15 @@ function resetPlayersCollection() {
     renderPlayersAdminList();
 }
 
-async function importPlayersCurrent() {
-    const currentPlayers = await readBasePlayersFromFile();
-    if (!Array.isArray(currentPlayers) || currentPlayers.length === 0) {
-        updatePlayersStatus("No se pudieron importar los jugadores actuales.");
-        return;
-    }
-
-    const saved = savePlayersToStorage(currentPlayers);
-    if (!saved) {
-        updatePlayersStatus("No se pudo guardar la importación de jugadores.");
-        return;
-    }
-
-    updatePlayersStatus(`Jugadores actuales importados: ${currentPlayers.length}.`);
-    renderPlayersAdminList();
-}
-
 function initPlayersAdmin() {
     const panel = document.getElementById("players-admin-panel");
     if (!panel) return;
 
     const saveBtn = document.getElementById("saveNewPlayer");
-    const importBtn = document.getElementById("importPlayersCurrent");
     const resetBtn = document.getElementById("resetPlayersCollection");
 
     if (saveBtn) {
         saveBtn.addEventListener("click", saveNewPlayer);
-    }
-    if (importBtn) {
-        importBtn.addEventListener("click", importPlayersCurrent);
     }
     if (resetBtn) {
         resetBtn.addEventListener("click", resetPlayersCollection);
@@ -2537,52 +2221,13 @@ function initSponsorsAdmin() {
     if (!panel) return;
 
     const saveBtn = document.getElementById("saveNewSponsor");
-    const recoverBtn = document.getElementById("recoverCurrentSponsors");
     const resetBtn = document.getElementById("resetSponsorsCollection");
 
-    appendAdminDebug(`Init Sponsors panel: save=${!!saveBtn}, recover=${!!recoverBtn}, reset=${!!resetBtn}`);
-
     if (saveBtn) {
-        saveBtn.addEventListener("click", async () => {
-            updateSponsorsStatus("Procesando alta de sponsor...");
-            appendAdminDebug("Acción sponsors: alta iniciada.");
-            try {
-                await saveNewSponsor();
-                appendAdminDebug("Acción sponsors: alta completada.");
-            } catch (error) {
-                console.error("Error en botón Añadir sponsor:", error);
-                updateSponsorsStatus("Error al añadir sponsor.");
-                appendAdminDebug(`Acción sponsors: error en alta: ${errorToText(error)}`, "error");
-            }
-        });
-    }
-    if (recoverBtn) {
-        recoverBtn.addEventListener("click", async () => {
-            updateSponsorsStatus("Cargando sponsors actuales...");
-            appendAdminDebug("Acción sponsors: recuperar actuales iniciada.");
-            try {
-                await recoverCurrentSponsors();
-                appendAdminDebug("Acción sponsors: recuperar actuales completada.");
-            } catch (error) {
-                console.error("Error en botón Cargar sponsors actuales:", error);
-                updateSponsorsStatus("Error al cargar sponsors actuales.");
-                appendAdminDebug(`Acción sponsors: error recuperando actuales: ${errorToText(error)}`, "error");
-            }
-        });
+        saveBtn.addEventListener("click", saveNewSponsor);
     }
     if (resetBtn) {
-        resetBtn.addEventListener("click", async () => {
-            updateSponsorsStatus("Restaurando sponsors base...");
-            appendAdminDebug("Acción sponsors: restaurar base iniciada.");
-            try {
-                await resetSponsorsCollection();
-                appendAdminDebug("Acción sponsors: restaurar base completada.");
-            } catch (error) {
-                console.error("Error en botón Restaurar sponsors base:", error);
-                updateSponsorsStatus("Error al restaurar sponsors base.");
-                appendAdminDebug(`Acción sponsors: error restaurando base: ${errorToText(error)}`, "error");
-            }
-        });
+        resetBtn.addEventListener("click", resetSponsorsCollection);
     }
 
     renderSponsorsAdminList();
@@ -2815,105 +2460,6 @@ function saveDrawState() {
     localStorage.setItem(DRAW_BRACKET_KEY, JSON.stringify(drawState));
 }
 
-function cloneDeep(value) {
-    return JSON.parse(JSON.stringify(value));
-}
-
-function setDrawJsonEditorFromState() {
-    const editor = document.getElementById("drawJsonEditor");
-    if (!editor || !drawState) return;
-    editor.value = JSON.stringify(drawState, null, 2);
-}
-
-function hydrateDrawAfterStructuralChange(statusMessage) {
-    normalizeBracket(drawState);
-    autoAdvanceBracket(drawState);
-    saveDrawState();
-    populateRoundSelect();
-    populateScheduleRoundSelect();
-    setDrawJsonEditorFromState();
-    if (statusMessage) {
-        updateDrawStatus(statusMessage);
-    }
-}
-
-function applyDrawJson() {
-    const editor = document.getElementById("drawJsonEditor");
-    if (!editor) return;
-
-    const raw = String(editor.value || "").trim();
-    if (!raw) {
-        updateDrawStatus("Pega un JSON válido para aplicar el cuadro.");
-        return;
-    }
-
-    try {
-        const parsed = JSON.parse(raw);
-        if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.rounds)) {
-            updateDrawStatus("JSON inválido: debe incluir rounds[].");
-            return;
-        }
-
-        drawState = cloneDeep(parsed);
-        hydrateDrawAfterStructuralChange("Cuadro actualizado desde JSON.");
-    } catch (error) {
-        updateDrawStatus(`JSON inválido: ${error.message}`);
-    }
-}
-
-function copyDrawJson() {
-    const editor = document.getElementById("drawJsonEditor");
-    if (!editor) return;
-
-    const text = String(editor.value || "");
-    if (!text.trim()) {
-        updateDrawStatus("No hay JSON para copiar.");
-        return;
-    }
-
-    const fallbackCopy = () => {
-        editor.focus();
-        editor.select();
-        try {
-            const ok = document.execCommand("copy");
-            updateDrawStatus(ok ? "JSON copiado al portapapeles." : "No se pudo copiar automáticamente.");
-        } catch (error) {
-            updateDrawStatus("No se pudo copiar automáticamente.");
-        }
-    };
-
-    if (navigator.clipboard?.writeText) {
-        Promise.resolve(navigator.clipboard.writeText(text)).then(
-            () => updateDrawStatus("JSON copiado al portapapeles."),
-            () => fallbackCopy()
-        );
-        return;
-    }
-
-    fallbackCopy();
-}
-
-function importDrawFromWeb() {
-    const raw = localStorage.getItem(DRAW_BRACKET_KEY);
-    if (!raw) {
-        updateDrawStatus("No hay cuadro actual guardado en la web para importar.");
-        return;
-    }
-
-    try {
-        const parsed = JSON.parse(raw);
-        if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.rounds)) {
-            updateDrawStatus("El cuadro guardado no tiene formato válido.");
-            return;
-        }
-
-        drawState = cloneDeep(parsed);
-        hydrateDrawAfterStructuralChange("Cuadro actual de la web importado correctamente.");
-    } catch (error) {
-        updateDrawStatus(`No se pudo importar el cuadro: ${error.message}`);
-    }
-}
-
 function saveMatchResult() {
     const selected = getSelectedMatch();
     if (!selected) return;
@@ -2944,7 +2490,6 @@ function saveMatchResult() {
     saveDrawState();
     populateRoundSelect();
     populateScheduleRoundSelect();
-    setDrawJsonEditorFromState();
     updateDrawStatus("Resultado guardado y cuadro actualizado.");
 }
 
@@ -3044,17 +2589,10 @@ function saveMatchSchedule() {
     selected.match.date = newDate;
 
     saveDrawState();
-    setDrawJsonEditorFromState();
     updateScheduleStatus("Horario guardado correctamente.");
 }
 
 function resetDrawState() {
-    if (drawBaseState) {
-        drawState = cloneDeep(drawBaseState);
-        hydrateDrawAfterStructuralChange("Cuadro restaurado a la base actual.");
-        return;
-    }
-
     localStorage.removeItem(DRAW_BRACKET_KEY);
     updateDrawStatus("Cuadro reseteado. Recarga para tomar el JSON base.");
 }
@@ -3065,14 +2603,12 @@ async function initDrawAdmin() {
 
     const response = await fetch("data/draw-bracket.json", { cache: "no-store" });
     const baseBracket = await response.json();
-    drawBaseState = cloneDeep(baseBracket);
     const stored = localStorage.getItem(DRAW_BRACKET_KEY);
 
     drawState = stored ? JSON.parse(stored) : baseBracket;
     normalizeBracket(drawState);
     autoAdvanceBracket(drawState);
     saveDrawState();
-    setDrawJsonEditorFromState();
 
     populateRoundSelect();
     populateScheduleRoundSelect();
@@ -3081,10 +2617,6 @@ async function initDrawAdmin() {
     const matchSelect = document.getElementById("matchSelect");
     const saveBtn = document.getElementById("saveMatchResult");
     const resetBtn = document.getElementById("resetDrawState");
-    const importDrawBtn = document.getElementById("importDrawFromWeb");
-    const loadJsonBtn = document.getElementById("loadCurrentDrawJson");
-    const applyJsonBtn = document.getElementById("applyDrawJson");
-    const copyJsonBtn = document.getElementById("copyDrawJson");
     const scheduleRoundSelect = document.getElementById("scheduleRoundSelect");
     const scheduleMatchSelect = document.getElementById("scheduleMatchSelect");
     const saveScheduleBtn = document.getElementById("saveMatchSchedule");
@@ -3093,18 +2625,6 @@ async function initDrawAdmin() {
     matchSelect.addEventListener("change", fillMatchEditor);
     saveBtn.addEventListener("click", saveMatchResult);
     resetBtn.addEventListener("click", resetDrawState);
-    if (importDrawBtn) {
-        importDrawBtn.addEventListener("click", importDrawFromWeb);
-    }
-    if (loadJsonBtn) {
-        loadJsonBtn.addEventListener("click", setDrawJsonEditorFromState);
-    }
-    if (applyJsonBtn) {
-        applyJsonBtn.addEventListener("click", applyDrawJson);
-    }
-    if (copyJsonBtn) {
-        copyJsonBtn.addEventListener("click", copyDrawJson);
-    }
 
     if (scheduleRoundSelect) {
         scheduleRoundSelect.addEventListener("change", populateScheduleMatchSelect);
@@ -3118,20 +2638,5 @@ async function initDrawAdmin() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    if (window.__PSA_ADMIN_BOOT_IN_PROGRESS__) {
-        return;
-    }
-
-    window.__PSA_ADMIN_BOOT_IN_PROGRESS__ = true;
-    appendAdminDebug("Bootstrap admin iniciado.");
-
-    (async () => {
-        try {
-            await initAdminAuth();
-        } catch (error) {
-            appendAdminDebug(`Fallo en initAdminAuth: ${errorToText(error)}`, "error");
-        } finally {
-            window.__PSA_ADMIN_BOOT_IN_PROGRESS__ = false;
-        }
-    })();
+    initAdminAuth();
 });
