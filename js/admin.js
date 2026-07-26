@@ -200,7 +200,11 @@ async function hydrateAdminStateFromCloud() {
     const cloud = window.PSACloudStore;
     if (!cloud?.isReady?.()) return;
 
-    await cloud.syncLocalStorageFromCloud(CLOUD_SYNC_KEYS);
+    try {
+        await cloud.syncLocalStorageFromCloud(CLOUD_SYNC_KEYS);
+    } catch (error) {
+        console.warn("No se pudo hidratar estado desde la nube. Continuamos en modo local.", error);
+    }
 }
 
 function setAdminAuthStatus(message, isError = false) {
@@ -257,6 +261,9 @@ async function startAdminModulesOnce() {
         initNewsAdmin();
         initGalleryAdmin();
         await initDrawAdmin();
+    })().catch((error) => {
+        console.error("Error inicializando módulos de admin:", error);
+        setAdminAuthStatus("Panel cargado en modo local (sin sincronización cloud).", true);
     })();
 
     return adminStartPromise;
@@ -1775,6 +1782,14 @@ function normalizeSponsorItem(item) {
     };
 }
 
+function getFileNameFromPath(pathValue) {
+    const raw = String(pathValue || "").trim();
+    if (!raw) return "(sin archivo)";
+    const cleaned = raw.split("?")[0].split("#")[0];
+    const filename = cleaned.split("/").pop() || cleaned;
+    return filename || "(sin archivo)";
+}
+
 function readPlayersFromStorage() {
     try {
         const raw = localStorage.getItem(PLAYERS_COLLECTION_KEY);
@@ -2114,6 +2129,7 @@ async function renderSponsorsAdminList() {
     host.innerHTML = sponsors.map((sponsor) => `
         <article class="gallery-admin-card" data-sponsor-id="${sponsor.id}">
             <img class="gallery-thumb" src="${escapeHtml(sponsor.imageSrc)}" alt="${escapeHtml(sponsor.name)}">
+            <p class="admin-muted sponsor-file-name">Archivo: ${escapeHtml(getFileNameFromPath(sponsor.imageSrc))}</p>
             <label class="field-label" for="sponsorName_${sponsor.id}">Nombre</label>
             <input id="sponsorName_${sponsor.id}" type="text" value="${escapeHtml(sponsor.name)}">
             <label class="field-label" for="sponsorLink_${sponsor.id}">Enlace</label>
