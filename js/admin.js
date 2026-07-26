@@ -29,6 +29,7 @@ const CLOUD_SYNC_KEYS = [
 ];
 
 let drawState = null;
+let drawBaseState = null;
 let pendingGalleryPhotos = [];
 let galleryEditMode = false;
 let pendingNewsImageSrc = "";
@@ -2262,15 +2263,36 @@ function resetPlayersCollection() {
     renderPlayersAdminList();
 }
 
+async function importPlayersCurrent() {
+    const currentPlayers = await readBasePlayersFromFile();
+    if (!Array.isArray(currentPlayers) || currentPlayers.length === 0) {
+        updatePlayersStatus("No se pudieron importar los jugadores actuales.");
+        return;
+    }
+
+    const saved = savePlayersToStorage(currentPlayers);
+    if (!saved) {
+        updatePlayersStatus("No se pudo guardar la importación de jugadores.");
+        return;
+    }
+
+    updatePlayersStatus(`Jugadores actuales importados: ${currentPlayers.length}.`);
+    renderPlayersAdminList();
+}
+
 function initPlayersAdmin() {
     const panel = document.getElementById("players-admin-panel");
     if (!panel) return;
 
     const saveBtn = document.getElementById("saveNewPlayer");
+    const importBtn = document.getElementById("importPlayersCurrent");
     const resetBtn = document.getElementById("resetPlayersCollection");
 
     if (saveBtn) {
         saveBtn.addEventListener("click", saveNewPlayer);
+    }
+    if (importBtn) {
+        importBtn.addEventListener("click", importPlayersCurrent);
     }
     if (resetBtn) {
         resetBtn.addEventListener("click", resetPlayersCollection);
@@ -2523,6 +2545,83 @@ function saveDrawState() {
     localStorage.setItem(DRAW_BRACKET_KEY, JSON.stringify(drawState));
 }
 
+function cloneDeep(value) {
+    return JSON.parse(JSON.stringify(value));
+}
+
+function setDrawJsonEditorFromState() {
+    const editor = document.getElementById("drawJsonEditor");
+    if (!editor || !drawState) return;
+    editor.value = JSON.stringify(drawState, null, 2);
+}
+
+function hydrateDrawAfterStructuralChange(statusMessage) {
+    normalizeBracket(drawState);
+    autoAdvanceBracket(drawState);
+    saveDrawState();
+    populateRoundSelect();
+    populateScheduleRoundSelect();
+    setDrawJsonEditorFromState();
+    if (statusMessage) {
+        updateDrawStatus(statusMessage);
+    }
+}
+
+function applyDrawJson() {
+    const editor = document.getElementById("drawJsonEditor");
+    if (!editor) return;
+
+    const raw = String(editor.value || "").trim();
+    if (!raw) {
+        updateDrawStatus("Pega un JSON válido para aplicar el cuadro.");
+        return;
+    }
+
+    try {
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.rounds)) {
+            updateDrawStatus("JSON inválido: debe incluir rounds[].");
+            return;
+        }
+
+        drawState = cloneDeep(parsed);
+        hydrateDrawAfterStructuralChange("Cuadro actualizado desde JSON.");
+    } catch (error) {
+        updateDrawStatus(`JSON inválido: ${error.message}`);
+    }
+}
+
+function copyDrawJson() {
+    const editor = document.getElementById("drawJsonEditor");
+    if (!editor) return;
+
+    const text = String(editor.value || "");
+    if (!text.trim()) {
+        updateDrawStatus("No hay JSON para copiar.");
+        return;
+    }
+
+    const fallbackCopy = () => {
+        editor.focus();
+        editor.select();
+        try {
+            const ok = document.execCommand("copy");
+            updateDrawStatus(ok ? "JSON copiado al portapapeles." : "No se pudo copiar automáticamente.");
+        } catch (error) {
+            updateDrawStatus("No se pudo copiar automáticamente.");
+        }
+    };
+
+    if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(text)
+            .then(() => updateDrawStatus("JSON copiado al portapapeles."))
+            .catch(() => fallbackCopy());
+        return;
+    }
+
+    fallbackCopy();
+}
+
 function saveMatchResult() {
     const selected = getSelectedMatch();
     if (!selected) return;
@@ -2553,6 +2652,7 @@ function saveMatchResult() {
     saveDrawState();
     populateRoundSelect();
     populateScheduleRoundSelect();
+    setDrawJsonEditorFromState();
     updateDrawStatus("Resultado guardado y cuadro actualizado.");
 }
 
@@ -2652,10 +2752,17 @@ function saveMatchSchedule() {
     selected.match.date = newDate;
 
     saveDrawState();
+    setDrawJsonEditorFromState();
     updateScheduleStatus("Horario guardado correctamente.");
 }
 
 function resetDrawState() {
+    if (drawBaseState) {
+        drawState = cloneDeep(drawBaseState);
+        hydrateDrawAfterStructuralChange("Cuadro restaurado a la base actual.");
+        return;
+    }
+
     localStorage.removeItem(DRAW_BRACKET_KEY);
     updateDrawStatus("Cuadro reseteado. Recarga para tomar el JSON base.");
 }
@@ -2666,12 +2773,14 @@ async function initDrawAdmin() {
 
     const response = await fetch("data/draw-bracket.json", { cache: "no-store" });
     const baseBracket = await response.json();
+    drawBaseState = cloneDeep(baseBracket);
     const stored = localStorage.getItem(DRAW_BRACKET_KEY);
 
     drawState = stored ? JSON.parse(stored) : baseBracket;
     normalizeBracket(drawState);
     autoAdvanceBracket(drawState);
     saveDrawState();
+    setDrawJsonEditorFromState();
 
     populateRoundSelect();
     populateScheduleRoundSelect();
@@ -2680,6 +2789,9 @@ async function initDrawAdmin() {
     const matchSelect = document.getElementById("matchSelect");
     const saveBtn = document.getElementById("saveMatchResult");
     const resetBtn = document.getElementById("resetDrawState");
+    const loadJsonBtn = document.getElementById("loadCurrentDrawJson");
+    const applyJsonBtn = document.getElementById("applyDrawJson");
+    const copyJsonBtn = document.getElementById("copyDrawJson");
     const scheduleRoundSelect = document.getElementById("scheduleRoundSelect");
     const scheduleMatchSelect = document.getElementById("scheduleMatchSelect");
     const saveScheduleBtn = document.getElementById("saveMatchSchedule");
@@ -2688,6 +2800,15 @@ async function initDrawAdmin() {
     matchSelect.addEventListener("change", fillMatchEditor);
     saveBtn.addEventListener("click", saveMatchResult);
     resetBtn.addEventListener("click", resetDrawState);
+    if (loadJsonBtn) {
+        loadJsonBtn.addEventListener("click", setDrawJsonEditorFromState);
+    }
+    if (applyJsonBtn) {
+        applyJsonBtn.addEventListener("click", applyDrawJson);
+    }
+    if (copyJsonBtn) {
+        copyJsonBtn.addEventListener("click", copyDrawJson);
+    }
 
     if (scheduleRoundSelect) {
         scheduleRoundSelect.addEventListener("change", populateScheduleMatchSelect);

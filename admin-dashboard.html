@@ -197,6 +197,7 @@
 
             <div class="results-actions">
                 <button id="saveNewPlayer" type="button">Añadir jugador</button>
+                <button id="importPlayersCurrent" type="button" class="btn-secondary-admin">Importar jugadores actuales</button>
                 <button id="resetPlayersCollection" type="button" class="btn-secondary-admin">Restaurar jugadores base</button>
             </div>
 
@@ -410,6 +411,18 @@
                 <button id="resetDrawState" type="button" class="btn-secondary-admin">Reset Cuadro</button>
             </div>
 
+            <h3 class="gallery-admin-subtitle">Editor completo del cuadro (JSON)</h3>
+            <p class="admin-muted">Puedes editar todo el cuadro a tu antojo: jugadores, cruces, fechas, rondas y resultados.</p>
+
+            <label for="drawJsonEditor" class="field-label">JSON del cuadro</label>
+            <textarea id="drawJsonEditor" rows="12" placeholder='{"rounds":[...]}'></textarea>
+
+            <div class="results-actions">
+                <button id="loadCurrentDrawJson" type="button" class="btn-secondary-admin">Cargar JSON actual</button>
+                <button id="applyDrawJson" type="button">Aplicar JSON</button>
+                <button id="copyDrawJson" type="button" class="btn-secondary-admin">Copiar JSON</button>
+            </div>
+
             <p id="drawAdminStatus" class="admin-status" aria-live="polite"></p>
         </section>
 
@@ -424,7 +437,7 @@
 window.ADMIN_DEFAULT_SECTION = "dashboard";
 window.ADMIN_MULTI_PAGE_MODE = true;
 </script>
-<script src="js/admin.js?v=20260726-6"></script>
+<script src="js/admin.js?v=20260726-7"></script>
 
 </body>
 

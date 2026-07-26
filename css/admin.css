@@ -268,6 +268,12 @@ resize:vertical;
 min-height:120px;
 }
 
+#drawJsonEditor{
+min-height:260px;
+font-family:"Courier New", Courier, monospace;
+line-height:1.35;
+}
+
 #tournamentApiUrl,
 #liveStreamTitle,
 #liveYoutubeUrl,
