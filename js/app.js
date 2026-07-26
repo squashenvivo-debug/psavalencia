@@ -19,6 +19,7 @@ const TOURNAMENT_API_URL_KEY = "tournamentApiUrl";
 const TOURNAMENT_MANUAL_CONTENT_KEY = "tournamentManualContent";
 const DRAW_BRACKET_KEY = "drawBracketState";
 const DYNAMIC_LANGS = ["es", "va", "en", "fr"];
+const DEFAULT_TOURNAMENT_COUNTDOWN = "2026-08-11T10:00:00";
 let countdownTimerId = null;
 const CLOUD_PUBLIC_KEYS = [
     LIVE_STREAM_URL_KEY,
@@ -176,12 +177,22 @@ function initHeader() {
 function initCountdown() {
 
     const heroSettings = readHeroSettings();
-    const fallback = "2026-08-11T10:00:00";
-    const targetDateRaw = heroSettings?.countdownDate || fallback;
-    const parsedTargetDate = new Date(targetDateRaw).getTime();
-    const targetDate = Number.isFinite(parsedTargetDate)
-        ? parsedTargetDate
-        : new Date(fallback).getTime();
+    const configuredTargetRaw = String(heroSettings?.countdownDate || "").trim();
+    const nowAtInit = Date.now();
+
+    const baseFallbackMs = new Date(DEFAULT_TOURNAMENT_COUNTDOWN).getTime();
+    let fallbackMs = Number.isFinite(baseFallbackMs) ? baseFallbackMs : nowAtInit + (1000 * 60 * 60 * 24 * 14);
+
+    while (fallbackMs <= nowAtInit) {
+        const nextYear = new Date(fallbackMs);
+        nextYear.setFullYear(nextYear.getFullYear() + 1);
+        fallbackMs = nextYear.getTime();
+    }
+
+    const configuredMs = configuredTargetRaw ? new Date(configuredTargetRaw).getTime() : Number.NaN;
+    const targetDate = Number.isFinite(configuredMs) && configuredMs > nowAtInit
+        ? configuredMs
+        : fallbackMs;
 
     const days = document.getElementById("days");
     const hours = document.getElementById("hours");

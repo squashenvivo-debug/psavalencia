@@ -39,9 +39,10 @@ let pendingHeroBackgroundSrc = "";
 let adminStartPromise = null;
 let storageCloudPatchInstalled = false;
 let adminSectionViewBound = false;
+let adminDiagnosticsInstalled = false;
 const ADMIN_DEFAULT_SECTION = String(window.ADMIN_DEFAULT_SECTION || "dashboard").trim() || "dashboard";
 const ADMIN_MULTI_PAGE_MODE = window.ADMIN_MULTI_PAGE_MODE !== false;
-const ADMIN_PAGE_VERSION = "20260726-11";
+const ADMIN_PAGE_VERSION = "20260726-12";
 const ADMIN_SECTION_IDS = [
     "tournament-mode-panel",
     "hero-admin-panel",
@@ -67,6 +68,109 @@ const ADMIN_SECTION_TO_PAGE = {
     "draw-schedule-panel": "admin-draw-schedule.html",
     "draw-results-panel": "admin-draw-results.html"
 };
+
+function getAdminDebugPanel() {
+    let panel = document.getElementById("adminDebugPanel");
+    if (panel) return panel;
+
+    panel = document.createElement("section");
+    panel.id = "adminDebugPanel";
+    panel.className = "admin-debug-panel";
+    panel.innerHTML = `
+        <h2>Diagnóstico Admin</h2>
+        <p class="admin-muted">Registro en vivo de botones y errores.</p>
+        <div class="results-actions">
+            <button id="adminDebugClear" type="button" class="btn-secondary-admin">Limpiar registro</button>
+        </div>
+        <pre id="adminDebugLog" class="admin-debug-log" aria-live="polite"></pre>
+    `;
+
+    const content = document.querySelector("main.content");
+    if (content) {
+        content.insertBefore(panel, content.firstChild);
+    } else {
+        document.body.appendChild(panel);
+    }
+
+    const clearBtn = panel.querySelector("#adminDebugClear");
+    const logEl = panel.querySelector("#adminDebugLog");
+    if (clearBtn && logEl) {
+        clearBtn.addEventListener("click", () => {
+            logEl.textContent = "";
+        });
+    }
+
+    return panel;
+}
+
+function appendAdminDebug(message, level = "info") {
+    const panel = getAdminDebugPanel();
+    const logEl = panel?.querySelector("#adminDebugLog");
+    const now = new Date();
+    const stamp = now.toLocaleTimeString("es-ES", { hour12: false });
+    const line = `[${stamp}] [${String(level || "info").toUpperCase()}] ${String(message || "")}`;
+
+    if (level === "error") {
+        console.error(line);
+    } else if (level === "warn") {
+        console.warn(line);
+    } else {
+        console.log(line);
+    }
+
+    if (!logEl) return;
+    logEl.textContent += `${line}\n`;
+    logEl.scrollTop = logEl.scrollHeight;
+}
+
+function errorToText(errorLike) {
+    if (!errorLike) return "Error desconocido";
+    if (typeof errorLike === "string") return errorLike;
+    if (errorLike instanceof Error) return `${errorLike.name}: ${errorLike.message}`;
+    try {
+        return JSON.stringify(errorLike);
+    } catch (_error) {
+        return String(errorLike);
+    }
+}
+
+function installAdminDiagnostics() {
+    if (adminDiagnosticsInstalled) return;
+    adminDiagnosticsInstalled = true;
+
+    getAdminDebugPanel();
+    appendAdminDebug("Diagnóstico activo.");
+
+    document.addEventListener("click", (event) => {
+        const button = event.target instanceof Element ? event.target.closest("button") : null;
+        if (!button) return;
+
+        const label = String(button.textContent || "").trim() || "(sin texto)";
+        const id = String(button.id || "").trim();
+        appendAdminDebug(`Click en botón: ${label}${id ? ` [id=${id}]` : ""}`);
+    });
+
+    window.addEventListener("error", (event) => {
+        const detail = event?.error ? errorToText(event.error) : String(event?.message || "Error JS");
+        appendAdminDebug(`Error JS: ${detail}`, "error");
+    });
+
+    window.addEventListener("unhandledrejection", (event) => {
+        appendAdminDebug(`Promise rechazada: ${errorToText(event?.reason)}`, "error");
+    });
+}
+
+async function runAdminModule(label, moduleFn) {
+    try {
+        const result = moduleFn();
+        if (result && typeof result.then === "function") {
+            await result;
+        }
+        appendAdminDebug(`Módulo OK: ${label}`);
+    } catch (error) {
+        appendAdminDebug(`Módulo ERROR (${label}): ${errorToText(error)}`, "error");
+    }
+}
 
 function getSectionFromHash() {
     const raw = (window.location.hash || "").replace(/^#/, "").trim();
@@ -246,25 +350,28 @@ async function startAdminModulesOnce() {
     if (adminStartPromise) return adminStartPromise;
 
     adminStartPromise = (async () => {
+        installAdminDiagnostics();
         bindAdminSectionView();
         await hydrateAdminStateFromCloud();
         installCloudStorageAutosync();
 
         adminModulesStarted = true;
-        loadTournamentSettings();
-        bindTournamentSettings();
-        initHeroAdmin();
-        initTournamentManualAdmin();
-        loadLiveSettings();
-        bindLiveSettings();
-        initPlayersAdmin();
-        initSponsorsAdmin();
-        initNewsAdmin();
-        initGalleryAdmin();
-        await initDrawAdmin();
+        await runAdminModule("loadTournamentSettings", loadTournamentSettings);
+        await runAdminModule("bindTournamentSettings", bindTournamentSettings);
+        await runAdminModule("initHeroAdmin", initHeroAdmin);
+        await runAdminModule("initTournamentManualAdmin", initTournamentManualAdmin);
+        await runAdminModule("loadLiveSettings", loadLiveSettings);
+        await runAdminModule("bindLiveSettings", bindLiveSettings);
+        await runAdminModule("initPlayersAdmin", initPlayersAdmin);
+        await runAdminModule("initSponsorsAdmin", initSponsorsAdmin);
+        await runAdminModule("initNewsAdmin", initNewsAdmin);
+        await runAdminModule("initGalleryAdmin", initGalleryAdmin);
+        await runAdminModule("initDrawAdmin", initDrawAdmin);
+        appendAdminDebug("Panel admin inicializado.");
     })().catch((error) => {
         console.error("Error inicializando módulos de admin:", error);
         setAdminAuthStatus("Panel cargado en modo local (sin sincronización cloud).", true);
+        appendAdminDebug(`Fallo global de arranque: ${errorToText(error)}`, "error");
     })();
 
     return adminStartPromise;
@@ -2364,36 +2471,47 @@ function initSponsorsAdmin() {
     const recoverBtn = document.getElementById("recoverCurrentSponsors");
     const resetBtn = document.getElementById("resetSponsorsCollection");
 
+    appendAdminDebug(`Init Sponsors panel: save=${!!saveBtn}, recover=${!!recoverBtn}, reset=${!!resetBtn}`);
+
     if (saveBtn) {
         saveBtn.addEventListener("click", async () => {
             updateSponsorsStatus("Procesando alta de sponsor...");
+            appendAdminDebug("Acción sponsors: alta iniciada.");
             try {
                 await saveNewSponsor();
+                appendAdminDebug("Acción sponsors: alta completada.");
             } catch (error) {
                 console.error("Error en botón Añadir sponsor:", error);
                 updateSponsorsStatus("Error al añadir sponsor.");
+                appendAdminDebug(`Acción sponsors: error en alta: ${errorToText(error)}`, "error");
             }
         });
     }
     if (recoverBtn) {
         recoverBtn.addEventListener("click", async () => {
             updateSponsorsStatus("Cargando sponsors actuales...");
+            appendAdminDebug("Acción sponsors: recuperar actuales iniciada.");
             try {
                 await recoverCurrentSponsors();
+                appendAdminDebug("Acción sponsors: recuperar actuales completada.");
             } catch (error) {
                 console.error("Error en botón Cargar sponsors actuales:", error);
                 updateSponsorsStatus("Error al cargar sponsors actuales.");
+                appendAdminDebug(`Acción sponsors: error recuperando actuales: ${errorToText(error)}`, "error");
             }
         });
     }
     if (resetBtn) {
         resetBtn.addEventListener("click", async () => {
             updateSponsorsStatus("Restaurando sponsors base...");
+            appendAdminDebug("Acción sponsors: restaurar base iniciada.");
             try {
                 await resetSponsorsCollection();
+                appendAdminDebug("Acción sponsors: restaurar base completada.");
             } catch (error) {
                 console.error("Error en botón Restaurar sponsors base:", error);
                 updateSponsorsStatus("Error al restaurar sponsors base.");
+                appendAdminDebug(`Acción sponsors: error restaurando base: ${errorToText(error)}`, "error");
             }
         });
     }
