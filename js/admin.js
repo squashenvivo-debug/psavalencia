@@ -2364,13 +2364,37 @@ function initSponsorsAdmin() {
     const resetBtn = document.getElementById("resetSponsorsCollection");
 
     if (saveBtn) {
-        saveBtn.addEventListener("click", saveNewSponsor);
+        saveBtn.addEventListener("click", async () => {
+            updateSponsorsStatus("Procesando alta de sponsor...");
+            try {
+                await saveNewSponsor();
+            } catch (error) {
+                console.error("Error en botón Añadir sponsor:", error);
+                updateSponsorsStatus("Error al añadir sponsor.");
+            }
+        });
     }
     if (recoverBtn) {
-        recoverBtn.addEventListener("click", recoverCurrentSponsors);
+        recoverBtn.addEventListener("click", async () => {
+            updateSponsorsStatus("Cargando sponsors actuales...");
+            try {
+                await recoverCurrentSponsors();
+            } catch (error) {
+                console.error("Error en botón Cargar sponsors actuales:", error);
+                updateSponsorsStatus("Error al cargar sponsors actuales.");
+            }
+        });
     }
     if (resetBtn) {
-        resetBtn.addEventListener("click", resetSponsorsCollection);
+        resetBtn.addEventListener("click", async () => {
+            updateSponsorsStatus("Restaurando sponsors base...");
+            try {
+                await resetSponsorsCollection();
+            } catch (error) {
+                console.error("Error en botón Restaurar sponsors base:", error);
+                updateSponsorsStatus("Error al restaurar sponsors base.");
+            }
+        });
     }
 
     renderSponsorsAdminList();
