@@ -4,10 +4,14 @@
    - content_key text primary key
    - content_value jsonb not null
    - updated_at timestamptz default now()
+    Compatibilidad legacy:
+    - key text primary key
+    - value jsonb not null
 ========================================================== */
 
 window.PSACloudStore = (() => {
     const TABLE_NAME = "site_content";
+     let schemaCache = null;
 
     function getClient() {
         return window.AdminSupabase?.getClient?.() || null;
@@ -34,6 +38,37 @@ window.PSACloudStore = (() => {
         }
     }
 
+    async function resolveSchema(client) {
+        if (schemaCache) return schemaCache;
+
+        const primary = { keyCol: "content_key", valueCol: "content_value" };
+        const legacy = { keyCol: "key", valueCol: "value" };
+
+        const primaryProbe = await client
+            .from(TABLE_NAME)
+            .select(`${primary.keyCol}, ${primary.valueCol}`)
+            .limit(1);
+
+        if (!primaryProbe.error) {
+            schemaCache = primary;
+            return schemaCache;
+        }
+
+        const legacyProbe = await client
+            .from(TABLE_NAME)
+            .select(`${legacy.keyCol}, ${legacy.valueCol}`)
+            .limit(1);
+
+        if (!legacyProbe.error) {
+            schemaCache = legacy;
+            return schemaCache;
+        }
+
+        // Fallback para no romper flujo; devolvemos el esquema nuevo.
+        schemaCache = primary;
+        return schemaCache;
+    }
+
     async function pullKeys(keys = []) {
         const client = getClient();
         if (!client) {
@@ -44,11 +79,12 @@ window.PSACloudStore = (() => {
             return { ok: true, values: {} };
         }
 
+        const schema = await resolveSchema(client);
         const uniqueKeys = Array.from(new Set(keys.filter(Boolean)));
         const { data, error } = await client
             .from(TABLE_NAME)
-            .select("content_key, content_value")
-            .in("content_key", uniqueKeys);
+            .select(`${schema.keyCol}, ${schema.valueCol}`)
+            .in(schema.keyCol, uniqueKeys);
 
         if (error) {
             return { ok: false, reason: error.message, values: {} };
@@ -56,8 +92,8 @@ window.PSACloudStore = (() => {
 
         const values = {};
         (data || []).forEach((row) => {
-            if (!row || !row.content_key) return;
-            values[row.content_key] = row.content_value;
+            if (!row || !row[schema.keyCol]) return;
+            values[row[schema.keyCol]] = row[schema.valueCol];
         });
 
         return { ok: true, values };
@@ -73,15 +109,15 @@ window.PSACloudStore = (() => {
             return { ok: false, reason: "missing-key" };
         }
 
+        const schema = await resolveSchema(client);
         const row = {
-            content_key: key,
-            content_value: value,
-            updated_at: new Date().toISOString()
+            [schema.keyCol]: key,
+            [schema.valueCol]: value
         };
 
         const { error } = await client
             .from(TABLE_NAME)
-            .upsert(row, { onConflict: "content_key" });
+            .upsert(row, { onConflict: schema.keyCol });
 
         if (error) {
             return { ok: false, reason: error.message };
@@ -100,10 +136,12 @@ window.PSACloudStore = (() => {
             return { ok: false, reason: "missing-key" };
         }
 
+        const schema = await resolveSchema(client);
+
         const { error } = await client
             .from(TABLE_NAME)
             .delete()
-            .eq("content_key", key);
+            .eq(schema.keyCol, key);
 
         if (error) {
             return { ok: false, reason: error.message };
