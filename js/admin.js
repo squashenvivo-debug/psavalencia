@@ -42,7 +42,7 @@ let adminSectionViewBound = false;
 let adminDiagnosticsInstalled = false;
 const ADMIN_DEFAULT_SECTION = String(window.ADMIN_DEFAULT_SECTION || "dashboard").trim() || "dashboard";
 const ADMIN_MULTI_PAGE_MODE = window.ADMIN_MULTI_PAGE_MODE !== false;
-const ADMIN_PAGE_VERSION = "20260726-12";
+const ADMIN_PAGE_VERSION = "20260726-13";
 const ADMIN_SECTION_IDS = [
     "tournament-mode-panel",
     "hero-admin-panel",
@@ -282,9 +282,16 @@ function installCloudStorageAutosync() {
         originalSetItem(key, value);
 
         if (syncKeys.has(key)) {
-            cloud.saveLocalStorageKeyToCloud(key).catch(() => {
+            try {
+                const maybePromise = cloud.saveLocalStorageKeyToCloud(key);
+                if (maybePromise && typeof maybePromise.then === "function") {
+                    maybePromise.catch(() => {
+                        // No interrumpimos UX de admin si la nube falla.
+                    });
+                }
+            } catch (_error) {
                 // No interrumpimos UX de admin si la nube falla.
-            });
+            }
         }
     };
 
@@ -292,9 +299,16 @@ function installCloudStorageAutosync() {
         originalRemoveItem(key);
 
         if (syncKeys.has(key)) {
-            cloud.removeLocalStorageKeyFromCloud(key).catch(() => {
+            try {
+                const maybePromise = cloud.removeLocalStorageKeyFromCloud(key);
+                if (maybePromise && typeof maybePromise.then === "function") {
+                    maybePromise.catch(() => {
+                        // No interrumpimos UX de admin si la nube falla.
+                    });
+                }
+            } catch (_error) {
                 // No interrumpimos UX de admin si la nube falla.
-            });
+            }
         }
     };
 
@@ -998,156 +1012,156 @@ function initTournamentManualAdmin() {
     }
     if (resetButton) {
         resetButton.addEventListener("click", resetTournamentManualContent);
-
-    function updateHeroStatus(message) {
-        const el = document.getElementById("heroAdminStatus");
-        if (!el) return;
-        el.textContent = message;
-    }
-
-    function normalizeHeroSettings(payload) {
-        if (!payload || typeof payload !== "object") return null;
-
-        return {
-            eventLabel: normalizeLocalizedText(payload.eventLabel),
-            eventTitle: normalizeLocalizedText(payload.eventTitle),
-            eventLocation: normalizeLocalizedText(payload.eventLocation),
-            countdownDate: String(payload.countdownDate || "").trim(),
-            backgroundImage: String(payload.backgroundImage || "").trim(),
-            updatedAt: payload.updatedAt || new Date().toISOString()
-        };
-    }
-
-    function readHeroSettings() {
-        try {
-            const raw = localStorage.getItem(HERO_SETTINGS_KEY);
-            if (!raw) return null;
-            return normalizeHeroSettings(JSON.parse(raw));
-        } catch (error) {
-            return null;
-        }
-    }
-
-    function toDateTimeLocalInputValue(value) {
-        const dt = new Date(value || "");
-        if (Number.isNaN(dt.getTime())) return "";
-        const pad = (num) => String(num).padStart(2, "0");
-        const yyyy = dt.getFullYear();
-        const mm = pad(dt.getMonth() + 1);
-        const dd = pad(dt.getDate());
-        const hh = pad(dt.getHours());
-        const mi = pad(dt.getMinutes());
-        return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
-    }
-
-    function fromDateTimeLocalInputValue(value) {
-        const raw = String(value || "").trim();
-        if (!raw) return "";
-        const dt = new Date(raw);
-        if (Number.isNaN(dt.getTime())) return "";
-        return dt.toISOString();
-    }
-
-    function fillHeroInputs() {
-        const saved = readHeroSettings();
-
-        const labelInput = document.getElementById("heroEventLabel_es");
-        const titleInput = document.getElementById("heroEventTitle_es");
-        const locationInput = document.getElementById("heroEventLocation_es");
-        const countdownInput = document.getElementById("heroCountdownDate");
-        const bgPathInput = document.getElementById("heroBackgroundPath");
-
-        if (labelInput) labelInput.value = saved?.eventLabel?.es || "";
-        if (titleInput) titleInput.value = saved?.eventTitle?.es || "";
-        if (locationInput) locationInput.value = saved?.eventLocation?.es || "";
-        if (countdownInput) countdownInput.value = toDateTimeLocalInputValue(saved?.countdownDate || "");
-        if (bgPathInput) bgPathInput.value = saved?.backgroundImage || "";
-    }
-
-    async function onHeroBackgroundChange(event) {
-        const file = event.target.files?.[0];
-        if (!file) {
-            pendingHeroBackgroundSrc = "";
-            return;
-        }
-
-        pendingHeroBackgroundSrc = await readFileAsDataUrl(file);
-    }
-
-    async function saveHeroSettings() {
-        const labelEs = (document.getElementById("heroEventLabel_es")?.value || "").trim();
-        const titleEs = (document.getElementById("heroEventTitle_es")?.value || "").trim();
-        const locationEs = (document.getElementById("heroEventLocation_es")?.value || "").trim();
-        const countdownRaw = (document.getElementById("heroCountdownDate")?.value || "").trim();
-        const bgPath = (document.getElementById("heroBackgroundPath")?.value || "").trim();
-
-        if (!labelEs || !titleEs || !locationEs) {
-            updateHeroStatus("Etiqueta, título y ubicación en español son obligatorios.");
-            return;
-        }
-
-        updateHeroStatus("Traduciendo textos del hero...");
-
-        const [eventLabel, eventTitle, eventLocation] = await Promise.all([
-            buildLocalizedFromSpanish(labelEs),
-            buildLocalizedFromSpanish(titleEs),
-            buildLocalizedFromSpanish(locationEs)
-        ]);
-
-        const countdownDate = fromDateTimeLocalInputValue(countdownRaw);
-        const backgroundImage = pendingHeroBackgroundSrc || bgPath;
-
-        const payload = {
-            eventLabel,
-            eventTitle,
-            eventLocation,
-            countdownDate,
-            backgroundImage,
-            updatedAt: new Date().toISOString()
-        };
-
-        localStorage.setItem(HERO_SETTINGS_KEY, JSON.stringify(payload));
-        pendingHeroBackgroundSrc = "";
-        const fileInput = document.getElementById("heroBackgroundFile");
-        if (fileInput) fileInput.value = "";
-
-        updateHeroStatus("Hero guardado y traducido para todos los idiomas.");
-    }
-
-    function resetHeroSettings() {
-        localStorage.removeItem(HERO_SETTINGS_KEY);
-        pendingHeroBackgroundSrc = "";
-        fillHeroInputs();
-
-        const fileInput = document.getElementById("heroBackgroundFile");
-        if (fileInput) fileInput.value = "";
-
-        updateHeroStatus("Hero restaurado a la configuración base.");
-    }
-
-    function initHeroAdmin() {
-        const panel = document.getElementById("hero-admin-panel");
-        if (!panel) return;
-
-        const saveButton = document.getElementById("saveHeroSettings");
-        const resetButton = document.getElementById("resetHeroSettings");
-        const bgFileInput = document.getElementById("heroBackgroundFile");
-
-        if (saveButton) {
-            saveButton.addEventListener("click", saveHeroSettings);
-        }
-        if (resetButton) {
-            resetButton.addEventListener("click", resetHeroSettings);
-        }
-        if (bgFileInput) {
-            bgFileInput.addEventListener("change", onHeroBackgroundChange);
-        }
-
-        fillHeroInputs();
-    }
     }
 
     fillTournamentManualInputs();
+}
+
+function updateHeroStatus(message) {
+    const el = document.getElementById("heroAdminStatus");
+    if (!el) return;
+    el.textContent = message;
+}
+
+function normalizeHeroSettings(payload) {
+    if (!payload || typeof payload !== "object") return null;
+
+    return {
+        eventLabel: normalizeLocalizedText(payload.eventLabel),
+        eventTitle: normalizeLocalizedText(payload.eventTitle),
+        eventLocation: normalizeLocalizedText(payload.eventLocation),
+        countdownDate: String(payload.countdownDate || "").trim(),
+        backgroundImage: String(payload.backgroundImage || "").trim(),
+        updatedAt: payload.updatedAt || new Date().toISOString()
+    };
+}
+
+function readHeroSettings() {
+    try {
+        const raw = localStorage.getItem(HERO_SETTINGS_KEY);
+        if (!raw) return null;
+        return normalizeHeroSettings(JSON.parse(raw));
+    } catch (error) {
+        return null;
+    }
+}
+
+function toDateTimeLocalInputValue(value) {
+    const dt = new Date(value || "");
+    if (Number.isNaN(dt.getTime())) return "";
+    const pad = (num) => String(num).padStart(2, "0");
+    const yyyy = dt.getFullYear();
+    const mm = pad(dt.getMonth() + 1);
+    const dd = pad(dt.getDate());
+    const hh = pad(dt.getHours());
+    const mi = pad(dt.getMinutes());
+    return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+}
+
+function fromDateTimeLocalInputValue(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return "";
+    const dt = new Date(raw);
+    if (Number.isNaN(dt.getTime())) return "";
+    return dt.toISOString();
+}
+
+function fillHeroInputs() {
+    const saved = readHeroSettings();
+
+    const labelInput = document.getElementById("heroEventLabel_es");
+    const titleInput = document.getElementById("heroEventTitle_es");
+    const locationInput = document.getElementById("heroEventLocation_es");
+    const countdownInput = document.getElementById("heroCountdownDate");
+    const bgPathInput = document.getElementById("heroBackgroundPath");
+
+    if (labelInput) labelInput.value = saved?.eventLabel?.es || "";
+    if (titleInput) titleInput.value = saved?.eventTitle?.es || "";
+    if (locationInput) locationInput.value = saved?.eventLocation?.es || "";
+    if (countdownInput) countdownInput.value = toDateTimeLocalInputValue(saved?.countdownDate || "");
+    if (bgPathInput) bgPathInput.value = saved?.backgroundImage || "";
+}
+
+async function onHeroBackgroundChange(event) {
+    const file = event.target.files?.[0];
+    if (!file) {
+        pendingHeroBackgroundSrc = "";
+        return;
+    }
+
+    pendingHeroBackgroundSrc = await readFileAsDataUrl(file);
+}
+
+async function saveHeroSettings() {
+    const labelEs = (document.getElementById("heroEventLabel_es")?.value || "").trim();
+    const titleEs = (document.getElementById("heroEventTitle_es")?.value || "").trim();
+    const locationEs = (document.getElementById("heroEventLocation_es")?.value || "").trim();
+    const countdownRaw = (document.getElementById("heroCountdownDate")?.value || "").trim();
+    const bgPath = (document.getElementById("heroBackgroundPath")?.value || "").trim();
+
+    if (!labelEs || !titleEs || !locationEs) {
+        updateHeroStatus("Etiqueta, título y ubicación en español son obligatorios.");
+        return;
+    }
+
+    updateHeroStatus("Traduciendo textos del hero...");
+
+    const [eventLabel, eventTitle, eventLocation] = await Promise.all([
+        buildLocalizedFromSpanish(labelEs),
+        buildLocalizedFromSpanish(titleEs),
+        buildLocalizedFromSpanish(locationEs)
+    ]);
+
+    const countdownDate = fromDateTimeLocalInputValue(countdownRaw);
+    const backgroundImage = pendingHeroBackgroundSrc || bgPath;
+
+    const payload = {
+        eventLabel,
+        eventTitle,
+        eventLocation,
+        countdownDate,
+        backgroundImage,
+        updatedAt: new Date().toISOString()
+    };
+
+    localStorage.setItem(HERO_SETTINGS_KEY, JSON.stringify(payload));
+    pendingHeroBackgroundSrc = "";
+    const fileInput = document.getElementById("heroBackgroundFile");
+    if (fileInput) fileInput.value = "";
+
+    updateHeroStatus("Hero guardado y traducido para todos los idiomas.");
+}
+
+function resetHeroSettings() {
+    localStorage.removeItem(HERO_SETTINGS_KEY);
+    pendingHeroBackgroundSrc = "";
+    fillHeroInputs();
+
+    const fileInput = document.getElementById("heroBackgroundFile");
+    if (fileInput) fileInput.value = "";
+
+    updateHeroStatus("Hero restaurado a la configuración base.");
+}
+
+function initHeroAdmin() {
+    const panel = document.getElementById("hero-admin-panel");
+    if (!panel) return;
+
+    const saveButton = document.getElementById("saveHeroSettings");
+    const resetButton = document.getElementById("resetHeroSettings");
+    const bgFileInput = document.getElementById("heroBackgroundFile");
+
+    if (saveButton) {
+        saveButton.addEventListener("click", saveHeroSettings);
+    }
+    if (resetButton) {
+        resetButton.addEventListener("click", resetHeroSettings);
+    }
+    if (bgFileInput) {
+        bgFileInput.addEventListener("change", onHeroBackgroundChange);
+    }
+
+    fillHeroInputs();
 }
 
 function normalizeGallery(gallery) {
