@@ -6,6 +6,8 @@
 /* ==========================================================
    INICIO
 ========================================================== */
+(() => {
+
 let CONFIG = {};
 const LIVE_STREAM_URL_KEY = "liveStreamYoutubeUrl";
 const LIVE_STREAM_HISTORY_KEY = "liveStreamYoutubeHistory";
@@ -1104,3 +1106,5 @@ function loadHomeGallery() {
     }
 
 }
+
+})();

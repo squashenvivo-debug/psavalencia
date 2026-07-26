@@ -1,10 +1,11 @@
 async function loadTravelCards(){
+    const container = document.getElementById("travelGrid");
+    if (!container) return;
 
     const response = await fetch("data/travel.json");
+    if (!response.ok) return;
 
     const data = await response.json();
-
-    const container = document.getElementById("travelGrid");
 
     let html = "";
 
