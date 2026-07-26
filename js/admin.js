@@ -1977,14 +1977,24 @@ async function createSponsorFromInputs() {
     const imagePath = normalizeSponsorImagePath((document.getElementById("newSponsorImagePath")?.value || "").trim());
     const imageFile = document.getElementById("newSponsorImage")?.files?.[0] || null;
 
-    if (!name) {
-        updateSponsorsStatus("El nombre del sponsor es obligatorio.");
+    const fallbackName = imageFile
+        ? filenameToSponsorName(imageFile.name, 0)
+        : filenameToSponsorName(imagePath, 0);
+    const finalName = name || fallbackName;
+
+    if (!finalName) {
+        updateSponsorsStatus("Escribe un nombre o sube una imagen para generar uno automáticamente.");
         return null;
     }
 
     let imageSrc = imagePath;
     if (imageFile) {
-        imageSrc = await readFileAsDataUrl(imageFile);
+        try {
+            imageSrc = await readFileAsDataUrl(imageFile);
+        } catch (error) {
+            updateSponsorsStatus("No se pudo procesar la imagen seleccionada.");
+            return null;
+        }
     }
 
     if (!imageSrc) {
@@ -1994,7 +2004,7 @@ async function createSponsorFromInputs() {
 
     return normalizeSponsorItem({
         id: createId("sponsor"),
-        name,
+        name: finalName,
         link: link || "#",
         imageSrc,
         cardClass: "sponsor-card"
@@ -2235,27 +2245,34 @@ async function saveNewPlayer() {
 }
 
 async function saveNewSponsor() {
-    const newSponsor = await createSponsorFromInputs();
-    if (!newSponsor) return;
+    try {
+        updateSponsorsStatus("Añadiendo sponsor...");
 
-    const collection = await getSponsorsCollectionForAdmin();
-    collection.push(newSponsor);
+        const newSponsor = await createSponsorFromInputs();
+        if (!newSponsor) return;
 
-    const saved = saveSponsorsToStorage(collection);
-    if (!saved) {
-        updateSponsorsStatus("No se pudo guardar el nuevo sponsor.");
-        return;
+        const collection = await getSponsorsCollectionForAdmin();
+        collection.push(newSponsor);
+
+        const saved = saveSponsorsToStorage(collection);
+        if (!saved) {
+            updateSponsorsStatus("No se pudo guardar el nuevo sponsor (almacenamiento lleno). Prueba con una imagen más ligera.");
+            return;
+        }
+
+        ["newSponsorName", "newSponsorLink", "newSponsorImagePath"].forEach((id) => {
+            const input = document.getElementById(id);
+            if (input) input.value = "";
+        });
+        const imageInput = document.getElementById("newSponsorImage");
+        if (imageInput) imageInput.value = "";
+
+        updateSponsorsStatus("Sponsor añadido correctamente.");
+        renderSponsorsAdminList();
+    } catch (error) {
+        console.error("Error añadiendo sponsor:", error);
+        updateSponsorsStatus("Error al añadir sponsor. Revisa nombre, imagen y conexión.");
     }
-
-    ["newSponsorName", "newSponsorLink", "newSponsorImagePath"].forEach((id) => {
-        const input = document.getElementById(id);
-        if (input) input.value = "";
-    });
-    const imageInput = document.getElementById("newSponsorImage");
-    if (imageInput) imageInput.value = "";
-
-    updateSponsorsStatus("Sponsor añadido correctamente.");
-    renderSponsorsAdminList();
 }
 
 async function resetSponsorsCollection() {
