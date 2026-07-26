@@ -72,7 +72,11 @@ async function syncPublicStateFromCloud() {
     const cloud = window.PSACloudStore;
     if (!cloud?.isReady?.()) return;
 
-    await cloud.syncLocalStorageFromCloud(CLOUD_PUBLIC_KEYS);
+    try {
+        await cloud.syncLocalStorageFromCloud(CLOUD_PUBLIC_KEYS);
+    } catch (error) {
+        console.warn("Cloud sync pública falló. Continuamos con contenido local.", error);
+    }
 }
 
 function readHeroSettings() {

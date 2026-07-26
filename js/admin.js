@@ -41,6 +41,7 @@ let storageCloudPatchInstalled = false;
 let adminSectionViewBound = false;
 const ADMIN_DEFAULT_SECTION = String(window.ADMIN_DEFAULT_SECTION || "dashboard").trim() || "dashboard";
 const ADMIN_MULTI_PAGE_MODE = window.ADMIN_MULTI_PAGE_MODE !== false;
+const ADMIN_PAGE_VERSION = "20260726-11";
 const ADMIN_SECTION_IDS = [
     "tournament-mode-panel",
     "hero-admin-panel",
@@ -93,7 +94,7 @@ function configureAdminMenuLinks() {
         const targetPage = ADMIN_SECTION_TO_PAGE[section] || "admin-dashboard.html";
 
         if (ADMIN_MULTI_PAGE_MODE) {
-            link.setAttribute("href", targetPage);
+            link.setAttribute("href", `${targetPage}?v=${ADMIN_PAGE_VERSION}`);
         } else {
             link.setAttribute("href", section === "dashboard" ? "#dashboard" : `#${section}`);
         }
